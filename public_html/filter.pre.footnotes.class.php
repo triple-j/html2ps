@@ -17,7 +17,7 @@ class PreTreeFilterFootnotes extends PreTreeFilter {
          * No need to check this conition for text boxes, as they do not correspond to 
          * HTML elements 
          */
-        if (!is_a($tree->content[$i], 'TextBox')) {
+        if (!is_a($tree->content[$i], "TextBox")) {
           if ($tree->content[$i]->get_css_property(CSS_POSITION) == POSITION_FOOTNOTE) {
             $tree->content[$i]->setCSSProperty(CSS_POSITION, POSITION_STATIC);
             

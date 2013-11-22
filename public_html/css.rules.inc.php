@@ -10,6 +10,16 @@ class CSSRule {
   var $specificity;
   var $pseudoelement;
 
+  function CSSRule($selector, $body, $baseurl, $order) {
+    $this->selector = $selector;
+    $this->body =& $body;
+    $this->baseurl = $baseurl;
+    $this->order = $order;
+
+    $this->specificity = css_selector_specificity($this->selector);
+    $this->pseudoelement = css_find_pseudoelement($this->selector);
+  }
+
   function apply(&$root, &$state, &$pipeline) {
     $pipeline->push_base_url($this->baseurl);
     $this->body->apply($state);
@@ -18,16 +28,6 @@ class CSSRule {
 
   function add_property($property) {
     $this->body->add_property($property);
-  }
-
-  function CSSRule($rule, &$pipeline) {
-    $this->selector = $rule[0];
-    $this->body     = $rule[1]->copy();
-    $this->baseurl  = $rule[2];
-    $this->order    = $rule[3];
-
-    $this->specificity   = css_selector_specificity($this->selector);
-    $this->pseudoelement = css_find_pseudoelement($this->selector);
   }
 
   function set_property($key, $value, &$pipeline) {

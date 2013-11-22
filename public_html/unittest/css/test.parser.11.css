@@ -1,0 +1,7 @@
+*::note-call { 
+  content: counter(footnote, super-decimal);
+}
+
+*::marker { 
+  content: counter(footnote, super-decimal);
+}

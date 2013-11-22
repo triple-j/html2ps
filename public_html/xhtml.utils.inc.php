@@ -35,21 +35,16 @@ function process_html($html) {
 
   // PHP 5.2.0 compatilibty issue
   // preg_replace may accidentally return NULL on large files not matching this 
-  // protect from twice processed
-  $html = preg_replace("#.*({$open})#is","\\1", $html);
+  $html = preg_replace("#.*({$open})#is","\\1",$html);
 
   // PHP 5.2.0 compatilibty issue
   // preg_replace may accidentally return NULL on large files not matching this 
 
   // Cut off all data before and after 'html' tag; unless we'll do it,
   // the XML parser will die violently
-  $html = preg_replace("#^.*<html#is","<html", $html);
+  $html = preg_replace("#^.*<html#is","<html",$html);
 
   $html = preg_replace("#</html\s*>.*$#is","</html>",$html);
-
-  if (!$html) {
-    trigger_error('pcre.pcre.backtrack_limit('.ini_get('pcre.backtrack_limit').') and pcre.recursion_limit('.ini_get('pcre.recursion_limit').') too low', E_USER_ERROR);
-  }
 
   return $html;
 }
@@ -336,6 +331,7 @@ function process_pagebreak_commands(&$html) {
 
 function xhtml2xhtml($html) {
   process_pagebreak_commands($html);
+
   // Remove STYLE tags for the same reason and store them in the temporary variable
   // later they will be added back to HEAD section
   $styles = process_style($html);

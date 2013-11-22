@@ -90,13 +90,13 @@ class FrameBox extends GenericContainerBox {
      * the moment we placed it
      */
     $right = $this->get_css_property(CSS_RIGHT);
-    $left = $this->get_css_property(CSS_LEFT);
+    $left  = $this->get_css_property(CSS_LEFT);
     if ($left->isAuto() && !$right->isAuto()) {
       $this->offset(-$this->get_width(), 0);
     };
 
     $bottom = $this->get_css_property(CSS_BOTTOM);
-    $top = $this->get_css_property(CSS_TOP);
+    $top    = $this->get_css_property(CSS_TOP);
     if ($top->isAuto() && !$bottom->isAuto()) {
       $this->offset(0, $this->get_height());
     };
@@ -150,11 +150,10 @@ class FrameBox extends GenericContainerBox {
     // Save current stylesheet, as each frame may load its own stylesheets
     //
     $pipeline->push_css();
-    $css =& $pipeline->get_current_css();
-    $css->scan_styles($tree, $pipeline);
+    $pipeline->scan_styles($tree);
+
+    $box_child =& DOMBuilder::build($tree, $pipeline);
     
-    $frame_root = traverse_dom_tree_pdf($tree);   
-    $box_child  =& create_pdf_box($frame_root, $pipeline);
     $this->add_child($box_child);
     
     // Restore old stylesheet

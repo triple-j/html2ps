@@ -26,7 +26,7 @@ class InlineContentBuilderNormal extends InlineContentBuilder {
     }
 
     // Add leading whispace box, if content stars with a space
-    if (preg_match('/ /u', substr($content,0,1))) {
+    if (preg_match('/ /u',substr($content,0,1))) {
       $whitespace =& WhitespaceBox::create($pipeline);
       $box->add_child($whitespace);
     }
@@ -35,21 +35,13 @@ class InlineContentBuilderNormal extends InlineContentBuilder {
 
     $size = count($words);
     $pos = 0;
-
-    // Check if text content has trailing whitespace
-    $last_whitespace = substr($content, strlen($content) - 1, 1) == ' ';
-
+    $last_whitespace = substr(strlen($content)-1, 1);
     foreach ($words as $word) {
       $box->process_word($word, $pipeline);
       $pos++;
 
       $is_last_word = ($pos == $size);
-
-      // Whitespace boxes should be added
-      // 1) between words 
-      // 2) after the last word IF there was a space at the content end
-      if (!$is_last_word || 
-          $last_whitespace) {
+      if (!$is_last_word || $last_whitespace) {
         $whitespace =& WhitespaceBox::create($pipeline);
         $box->add_child($whitespace);
       };

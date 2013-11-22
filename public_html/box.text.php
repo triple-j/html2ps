@@ -62,7 +62,7 @@ class TextBox extends SimpleInlineBox {
 
   function get_content_callback($word, $encoding) {
     $manager_encoding =& ManagerEncoding::get();
-    return $manager_encoding->to_utf8($word, $encoding);
+    return $manager_encoding->toUTF8($word, $encoding);
   }
 
   function get_height() {
@@ -109,7 +109,7 @@ class TextBox extends SimpleInlineBox {
 
     $font = $this->get_css_property(CSS_FONT);
 
-    $typeface = $font_resolver->get_typeface_name($font->family, 
+    $typeface = $font_resolver->getTypefaceName($font->family, 
                                                 $font->weight, 
                                                 $font->style, 
                                                 $this->encodings[$subword_index]);

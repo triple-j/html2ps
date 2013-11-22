@@ -2,8 +2,7 @@
 
 require_once(HTML2PS_DIR.'fetcher._interface.class.php');
 
-define('HTTP_OK', 200);
-define('HTTP_NOT_FOUND', 404);
+define('HTTP_OK',200);
 
 /**
  * @TODO send authorization headers only if they have been required by the server;
@@ -42,8 +41,6 @@ class FetcherUrl extends Fetcher {
   function get_data($data_id) {
     $this->redirects = 0;
 
-    $data_id = $this->_simplify_path($data_id);
-
     if ($this->fetch($data_id)) {
       if ($this->code != HTTP_OK) {
 
@@ -56,11 +53,7 @@ class FetcherUrl extends Fetcher {
         $this->error_message .= ob_get_contents();
         ob_end_clean();
 
-        if ($this->code == HTTP_NOT_FOUND) {
-          trigger_error("Not found $data_id", E_USER_NOTICE);
-        } else {
-          trigger_error("Cannot open $data_id, HTTP result code is: ".$this->code, E_USER_WARNING);
-        }
+        error_log("Cannot open $data_id, HTTP result code is: ".$this->code);
 
         return null;
       };
@@ -77,8 +70,8 @@ class FetcherUrl extends Fetcher {
       $this->error_message .= ob_get_contents();
       ob_end_clean();
 
-      trigger_error(sprintf("Cannot open %s, too many redirects",
-                        $data_id) , E_USER_WARNING);
+      error_log(sprintf("Cannot open %s, too many redirects",
+                        $data_id));
 
       return null;
     } else {
@@ -90,8 +83,8 @@ class FetcherUrl extends Fetcher {
       $this->error_message .= ob_get_contents();
       ob_end_clean();
 
-      trigger_error(sprintf("Cannot open %s",
-                        $data_id), E_USER_WARNING);
+      error_log(sprintf("Cannot open %s",
+                        $data_id));
 
       return null;
     }
@@ -211,44 +204,6 @@ class FetcherUrl extends Fetcher {
     return $this->protocol."://".$this->host.$this->path.$location;
   }
 
-  /**
-  * we need to simplify url, removing two dots form path part and related directory. Not all 
-  * web server allow this structure, so it will be correctly to parse this at our side
-  * 
-  * @param $path - url path expected, during big code base, from some part urls is passed.
-  */
-  function _simplify_path($path) {
-    $simplified_path = $path;
-    $parsed_path = parse_url($path);
-    $prepared_path = $parsed_path['path'];
-
-    // verify if we need to simplify
-    if (strpos($prepared_path, '..') !== false) {
-      $path_parts = explode('/', $prepared_path);
-
-      // array will contain part without two dots and related directories
-      $simplified_parts = array();
-      while(($current_part = array_shift($path_parts)) !== NULL) {
-        if ($current_part == '..') {
-          array_pop($simplified_parts);
-        } else {
-          array_push($simplified_parts, $current_part);
-        }
-      }
-
-      // try to construct url
-      $simplified_path = (isset($parsed_path['scheme']) ? $parsed_path['scheme'].'://' : '');
-      $simplified_path .= (isset($parsed_path['user']) ? $parsed_path['user'].':' : '');
-      $simplified_path .= (isset($parsed_path['password']) ? $parsed_path['password'].'@' : '');
-      $simplified_path .= (isset($parsed_path['host']) ? $parsed_path['host'].'/' : '');
-      $simplified_path .= trim(implode('/', $simplified_parts), '/');
-      $simplified_path .= (isset($parsed_path['query']) ? '?'.$parsed_path['query'] : '');
-      $simplified_path .= (isset($parsed_path['fragment']) ? '#'.$parsed_path['fragment'] : '');
-    }
-
-    return $simplified_path;
-  }
-
   function fetch($url) {
     /**
      * Handle empty $url value; unfortunaltely, parse_url will treat empty value as valid
@@ -295,9 +250,7 @@ class FetcherUrl extends Fetcher {
     if (isset($parts['port']))     { $this->port      = $parts['port'];      };
     if (isset($parts['path']))     { $this->path      = $parts['path'];      } else { $this->path = "/"; };
     if (isset($parts['query']))    { $this->path     .= '?'.$parts['query']; };
-
-    $this->path = $this->_simplify_path($this->path);
-
+  
     switch (strtolower($this->protocol)) {
     case 'http':
       return $this->fetch_http();

@@ -4,7 +4,6 @@
 define('SELECTOR_ID'   ,1);
 define('SELECTOR_CLASS',2);
 define('SELECTOR_TAG'  ,3);
-define('SELECTOR_TAG_CLASS',4);
 define('SELECTOR_SEQUENCE', 5);
 define('SELECTOR_PARENT', 6);         // TAG1 TAG2
 define('SELECTOR_ATTR_VALUE', 7);
@@ -43,7 +42,9 @@ define('SELECTOR_PSEUDOELEMENT_AFTER', 15);
 // should be never matched
 define('SELECTOR_ANY', 16);
 
-define('SELECTOR_ATTR_VALUE_WORD',17);
+define('SELECTOR_ATTR_VALUE_WORD',17); // [attr~=word]
+define('SELECTOR_SIBLING', 18); // TAG1 + TAG2
+define('SELECTOR_ATTR_VALUE_WORD_HYPHEN',19); // [attr|=word]
 
 // CSS 2.1: 
 // In CSS2, identifiers  (including element names, classes, and IDs in selectors) can contain only the characters [A-Za-z0-9] and 
@@ -73,16 +74,12 @@ function match_selector($selector, $root) {
     if ($selector[1] == strtolower($root->tagname())) { return true; };
     break;
   case SELECTOR_ID:
-    if ($selector[1] == strtolower($root->get_attribute('id'))) { return true; };
+    if ($selector[1] == $root->get_attribute('id')) { return true; };
     break;
   case SELECTOR_CLASS:
     if (node_have_class($root, $selector[1])) { return true; }
     if ($selector[1] == strtolower($root->get_attribute('class'))) { return true; };
     break;
-  case SELECTOR_TAG_CLASS:
-    if ((node_have_class($root, $selector[2])) && 
-        ($selector[1] == strtolower($root->tagname()))) { return true; };
-    break;      
   case SELECTOR_SEQUENCE:
     foreach ($selector[1] as $subselector) {
       if (!match_selector($subselector, $root)) { return false; };
@@ -99,6 +96,12 @@ function match_selector($selector, $root) {
     return false;
   case SELECTOR_DIRECT_PARENT:
     $node = $root->parent();
+    if ($node && $node->node_type() == XML_ELEMENT_NODE) {
+      if (match_selector($selector[1], $node)) { return true; };
+    };
+    return false;
+  case SELECTOR_SIBLING:
+    $node = $root->previous_sibling();
     if ($node && $node->node_type() == XML_ELEMENT_NODE) {
       if (match_selector($selector[1], $node)) { return true; };
     };
@@ -145,6 +148,32 @@ function match_selector($selector, $root) {
       if (strtolower($word) == strtolower($attr_value)) { return true; };
     };
     return false;
+  case SELECTOR_ATTR_VALUE_WORD_HYPHEN:
+    // Note that CSS 2.1 standard does not says strictly if attribute case 
+    // is significiant: 
+    // """
+    // Attribute values must be identifiers or strings. The case-sensitivity of attribute names and 
+    // values in selectors depends on the document language.
+    // """
+    // As we've met several problems with pages having INPUT type attributes in upper (or ewen worse - mixed!)
+    // case, the following decision have been accepted: attribute values should not be case-sensitive
+
+    $attr_name  = $selector[1];
+    $attr_value = $selector[2];
+
+    if (!$root->has_attribute($attr_name)) {
+      return false;
+    };
+
+    return preg_match(sprintf('/^%s(-|$)/',
+                              preg_quote($attr_value)),
+                      strtolower($root->get_attribute($attr_name)));
+
+    $words = preg_split("/\s+/",$root->get_attribute($attr_name));
+    foreach ($words as $word) {
+      if (strtolower($word) == strtolower($attr_value)) { return true; };
+    };
+    return false;
   case SELECTOR_PSEUDOCLASS_LINK:
     return $root->tagname() == "a" && $root->has_attribute('href');
   case SELECTOR_PSEUDOCLASS_LINK_LOW_PRIORITY:
@@ -174,8 +203,6 @@ function css_selector_specificity($selector) {
     return array(0,1,0);
   case SELECTOR_TAG:
     return array(0,0,1);
-  case SELECTOR_TAG_CLASS:
-    return array(0,1,1);
   case SELECTOR_SEQUENCE:
     $specificity = array(0,0,0);
     foreach ($selector[1] as $subselector) {
@@ -191,11 +218,15 @@ function css_selector_specificity($selector) {
     return array(-1,-1,-1);
   case SELECTOR_DIRECT_PARENT:
     return css_selector_specificity($selector[1]);
+  case SELECTOR_PARENT:
+    return css_selector_specificity($selector[1]);
   case SELECTOR_ATTR:
     return array(0,1,0);
   case SELECTOR_ATTR_VALUE:
     return array(0,1,0);
   case SELECTOR_ATTR_VALUE_WORD:
+    return array(0,1,0);
+  case SELECTOR_ATTR_VALUE_WORD_HYPHEN:
     return array(0,1,0);
   case SELECTOR_PSEUDOCLASS_LINK:
     return array(0,1,0);

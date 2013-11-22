@@ -165,6 +165,32 @@ if ($watermark_text != '') {
   $pipeline->add_feature('watermark', array('text' => $watermark_text));
 };
 
+// Check whether PDF encryption should be enabled
+if (isset($_REQUEST['encryption_copy']) ||
+    isset($_REQUEST['encryption_print']) ||
+    isset($_REQUEST['encryption_modify']) ||
+    isset($_REQUEST['encryption_modify_annotations'])) {
+  $mode = 0;
+
+  if (isset($_REQUEST['encryption_copy'])) {
+    $mode = $mode | 1;
+  };
+
+  if (isset($_REQUEST['encryption_print'])) {
+    $mode = $mode | 2;
+  };
+  
+  if (isset($_REQUEST['encryption_modify'])) {
+    $mode = $mode | 4;
+  };
+
+  if (isset($_REQUEST['encryption_modify_annotations'])) {
+    $mode = $mode | 8;
+  };
+
+  $pipeline->add_feature('encryption', array('mode' => $mode));
+};
+
 if ($GLOBALS['g_config']['debugbox']) {
   $pipeline->output_driver->set_debug_boxes(true);
 }

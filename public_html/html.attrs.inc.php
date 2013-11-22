@@ -254,11 +254,12 @@ function attr_body_link_before(&$root, &$pipeline) {
 
   $collection = new CSSPropertyCollection();
   $collection->add_property(CSSPropertyDeclaration::create(CSS_COLOR, $color, $pipeline));
-  $rule = array(array(SELECTOR_SEQUENCE, array(array(SELECTOR_TAG, 'a'),
-                                               array(SELECTOR_PSEUDOCLASS_LINK_LOW_PRIORITY))),
-                $collection,
-                '',
-                -1000);
+
+  $rule = new CSSRule(array(SELECTOR_SEQUENCE, array(array(SELECTOR_TAG, 'a'),
+                                                     array(SELECTOR_PSEUDOCLASS_LINK_LOW_PRIORITY))),
+                      $collection,
+                      '',
+                      -1000);
 
   $css =& $pipeline->get_current_css();
   $css->add_rule($rule, $pipeline);

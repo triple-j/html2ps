@@ -58,10 +58,10 @@ class ImageFactory {
   // cached object or downloads the requested image
   //
   function get($url, &$pipeline) {
-    global $g_config, $g_image_cache;
-    if (!$g_config['renderimages']) { 
-      return null; 
-    };
+    global $g_config;
+    if (!$g_config['renderimages']) { return null; };
+
+    global $g_image_cache;
 
     // Check if this URL have been cached
     //
@@ -84,12 +84,10 @@ class ImageFactory {
     // @TODO: change to fetcher class call
     //
 
-    // simplify our url by fetcher simlify functionality
-    $url = FetcherUrl::_simplify_path($url);
     $data = $pipeline->fetch($url);
 
     if (is_null($data)) {
-      trigger_error("Cannot fetch image: ".$url, E_USER_WARNING);
+      error_log("Cannot fetch image: ".$url);
       return null; 
     };
 
@@ -168,7 +166,7 @@ class ImageFactory {
   //
   function clear_cache() {
     foreach ($GLOBALS['g_image_cache'] as $key => $value) {
-      if (!is_null($value) && is_file($value->get_filename())) {
+      if (!is_null($value)) {
         unlink($value->get_filename());
       };
     };

@@ -20,46 +20,22 @@ function parse_encoding_override_node_config_file($root, &$resolver) {
     if ($child->node_type() == XML_ELEMENT_NODE) {
       switch ($child->tagname()) {
       case "normal":
-        if ($root->has_attribute('name')) {
-          $names = explode(',', $root->get_attribute('name'));
-          foreach ($names as $name) {
-            $resolver->add_normal_encoding_override($name,
-                                                    $child->get_attribute('normal'), 
-                                                    $child->get_attribute('italic'),
-                                                    $child->get_attribute('oblique'));
-          };
+        $names = explode(',',$root->get_attribute('name'));
+        foreach ($names as $name) {
+          $resolver->add_normal_encoding_override($name,
+                                                  $child->get_attribute('normal'), 
+                                                  $child->get_attribute('italic'),
+                                                  $child->get_attribute('oblique'));
         };
-
-        if ($root->has_attribute('mask')) {
-          foreach ($names as $name) {
-            $resolver->add_normal_encoding_override_mask($root->get_attribute('mask'),
-                                                         $child->get_attribute('normal'), 
-                                                         $child->get_attribute('italic'),
-                                                         $child->get_attribute('oblique'));
-          };
-        };
-
         break;
       case "bold":
-        if ($root->has_attribute('name')) {
-          $names = explode(',', $root->get_attribute('name'));
-          foreach ($names as $name) {
-            $resolver->add_bold_encoding_override($name,
-                                                    $child->get_attribute('normal'), 
-                                                    $child->get_attribute('italic'),
-                                                    $child->get_attribute('oblique'));
-          };
+        $names = explode(',',$root->get_attribute('name'));
+        foreach ($names as $name) {
+          $resolver->add_bold_encoding_override($name,
+                                                $child->get_attribute('normal'), 
+                                                $child->get_attribute('italic'),
+                                                $child->get_attribute('oblique'));
         };
-
-        if ($root->has_attribute('mask')) {
-          foreach ($names as $name) {
-            $resolver->add_bold_encoding_override_mask($root->get_attribute('mask'),
-                                                       $child->get_attribute('normal'), 
-                                                       $child->get_attribute('italic'),
-                                                       $child->get_attribute('oblique'));
-          };
-        };
-
         break;
       };      
     };

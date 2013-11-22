@@ -1,76 +1,23 @@
-2008-04-13 Konstantin Bournayev <bkon@bkon.ru>
-
- 	* Release: html2ps-2.0.43
-
-	* Fixed:  space could be  added after some  non-whitespace symbols
-	immediately followed by inline boxes.
-
-	*  Fixed:  under  certain  circumstances  custom  characters  were
-	ignored in CSS3 margin box content
-
-	* Fixed:  some temporary  files were not  removed when  using fpdf
-	output method
-
 2008-03-27 Konstantin Bournayev <bkon@bkon.ru>
 
- 	* Release: html2ps-2.0.42
-
-	* Fixed: number  of  custom  characters no  more  limited to  256
-	symbols per file
-
-	* Fixed: Characters  with AI, SA, SG and  XX line breaking classes
-	no more result in notice messages.
+	* Change: PDFLIB 1.6 output now supports PDF encryption
 
 2008-03-15 Konstantin Bournayev <bkon@bkon.ru>
 
- 	* Release: html2ps-2.0.41
+	* Change: library version number is displayed on the web interface now
+
+2008-03-15 Konstantin Bournayev <bkon@bkon.ru>
 
 	* Change: library version number is displayed on the web interface now
 
 	* Change: minor FAQ update
 
-2008-03-01 Konstantin Bournayev <bkon@bkon.ru>
+2007-12-08 Konstanin Bournayev <bkon@bkon.ru>
 
- 	* Release: html2ps-2.0.40
+	* Release: html2ps-2.1.6
+	
+	* Change: major updates in CSS processing
 
-	* Change: unicode-aware line breaking algorithm
-	
-	* Fixed: image-related errors in PostScript output
-	
-	* Fixed: some paths to files generated using HTML2PS_DIR contained
-	duplicate directory separator
-	
-	* Fixed:  CSS cache returns  references to CSS objects  instead of
-	object values (PHP 4)
-	
-	* Fixed: page  breaks were  incorrectly positioned  inside tables
-	with col/rowspans
-	
-	* Fixed:  CSS  maring   /  padding  properties  could  be  parsed
-	incorrectly when values were separated with more than one space
-	
-	* Fixed: Capital  omega symbol  was not  displayed  in Postscript
-	output
-	
-	* Fixed: notice  message caused  by  not-perfectly-valid external
-	file URLs
-	
-	* Fixed: notices/errors caused by missing images
-	
-	* Fixed: width issue for floating / absolute positioned items
-	
-	* Fixed:  list number  not is formatted  using the same  styles as
-	list body
-	
-	* Fixed: background image positioning was incorrect for non-square
-	background images
-	
-	* Fixed: external image-related PNG output errors
-	
-	* Change: documentation updates
-	
-	* Change: minor function naming style cleanup
-	
 2007-11-03 Konstanin Bournayev <bkon@bkon.ru>
 
 	* Fixed:  broken PostScript image  encoders (thanks to  snover for

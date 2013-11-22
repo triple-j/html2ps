@@ -3,7 +3,6 @@
 
 require_once(HTML2PS_DIR.'pdf.fpdf.php');
 require_once(HTML2PS_DIR.'pdf.fpdf.makefont.php');
-// require_once(HTML2PS_DIR.'fpdf/font/makefont/makefont.php');
 
 class OutputDriverFPDF extends OutputDriverGenericPDF {
   var $pdf;
@@ -167,7 +166,6 @@ class OutputDriverFPDF extends OutputDriverGenericPDF {
                       $y - $image->sy() * $scale, 
                       $image->sx() * $scale, 
                       $image->sy() * $scale);
-
     unlink($tmpname);
   }
 
@@ -328,7 +326,10 @@ class OutputDriverFPDF extends OutputDriverGenericPDF {
   function reset(&$media) {
     parent::reset($media);   
 
-    $this->pdf =& new FPDF('P','pt',array(mm2pt($media->width()), mm2pt($media->height())));
+    $this->pdf =& new FPDF('P', 
+                           'pt', 
+                           array(mm2pt($media->width()), 
+                                 mm2pt($media->height())));
 
     if (defined('DEBUG_MODE')) {
       $this->pdf->SetCompression(false);
@@ -408,23 +409,17 @@ class OutputDriverFPDF extends OutputDriverGenericPDF {
   }
 
   function _mktempimage($image) {   
-    $tempnam = tempnam(WRITER_TEMPDIR, WRITER_FILE_PREFIX);
-
     switch ($image->get_type()) {
     case 'image/png':
-      $filename = $tempnam . '.png';
+      $filename = tempnam(WRITER_TEMPDIR,WRITER_FILE_PREFIX).'.png';
       imagepng($image->get_handle(), $filename);
-      break;
-
+      return $filename;
     case 'image/jpeg':
     default:
-      $filename = $tempnam . '.jpg';
+      $filename = tempnam(WRITER_TEMPDIR,WRITER_FILE_PREFIX).'.jpg';
       imagejpeg($image->get_handle(), $filename);
-      break;
+      return $filename;
     }
-
-    unlink($tempnam);
-    return $filename;
   }
 }
 ?>

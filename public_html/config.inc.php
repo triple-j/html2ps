@@ -83,23 +83,17 @@ define('EX_KOEFF',0.50);
 
 define('DEFAULT_CHAR_WIDTH', 600);
 define('WHITESPACE_FONT_SIZE_FRACTION', 0.25);
-define('SIZE_SPACE_KOEFF', 1.2);
-define('INPUT_SIZE_EM_KOEFF', 0.48);
-define('INPUT_SIZE_BASE_EM', 2.2);
+define('SIZE_SPACE_KOEFF',1.2);
+define('INPUT_SIZE_EM_KOEFF',0.48);
+define('INPUT_SIZE_BASE_EM',2.2);
 define('SELECT_SPACE_PADDING', 5);
-define('LEGEND_HORIZONTAL_OFFSET', '5pt');
-define('BULLET_SIZE_KOEFF', 0.15);
-define('HEIGHT_KOEFF', 0.7);
-define('MAX_FRAME_NESTING_LEVEL', 4);
-
-// Maximal value of the free  space in justified line; if there's more
-// free  space, line  will be  left-aligned to  avoid making  too much
-// space  between words (set  to 1  if all  lines should  be justified
-// regardless of free space)
-define('MAX_JUSTIFY_FRACTION', 0.33);
-
-define('HILIGHT_COLOR_ALPHA', 0.6);
-define('MAX_REDIRECTS', 5);
+define('LEGEND_HORIZONTAL_OFFSET','5pt');
+define('BULLET_SIZE_KOEFF',0.15);
+define('HEIGHT_KOEFF',0.7);
+define('MAX_FRAME_NESTING_LEVEL',4);
+define('MAX_JUSTIFY_FRACTION',0.33);
+define('HILIGHT_COLOR_ALPHA',0.6);
+define('MAX_REDIRECTS',5);
 
 // Maximal length of line inside the stream data 
 // (we need to limit this, as most postscript interpreters will complain 
@@ -143,8 +137,8 @@ if (!defined('DEBUG_MODE')) {
 };
 
 define('HTML2PS_VERSION_MAJOR', 2);
-define('HTML2PS_VERSION_MINOR', 0);
-define('HTML2PS_SUBVERSION', 43);
+define('HTML2PS_VERSION_MINOR', 1);
+define('HTML2PS_SUBVERSION', 13);
 
 define('MAX_UNPENALIZED_FREE_FRACTION', 0.25);
 define('MAX_FREE_FRACTION',             0.5);

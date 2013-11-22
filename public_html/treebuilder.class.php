@@ -7,9 +7,6 @@ if (!defined('XML_DOCUMENT_NODE')) { define('XML_DOCUMENT_NODE',3); };
 
 class TreeBuilder { 
   function build($xmlstring) {
-    if (empty($xmlstring)) {
-      trigger_error("Can not buid tree with empty xml", E_USER_ERROR);
-    }
     // Detect if we're using PHP 4 (DOM XML extension) 
     // or PHP 5 (DOM extension)
     // First uses a set of domxml_* functions, 

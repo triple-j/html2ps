@@ -1,6 +1,6 @@
 <?php
 // $Header: /cvsroot/html2ps/demo/index.php,v 1.5 2007/05/06 18:49:30 Konstantin Exp $
-  require_once('../config.inc.php');
+require_once('../config.inc.php');
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -145,6 +145,10 @@ div.spacer {
 }
 div.comment {
   line-height: 1.1em;
+}
+
+div.info {
+ padding: 5px;
 }
 </style>
 </head>
@@ -406,6 +410,36 @@ using FPDF and PDFLIB output only.
 <option value="placeholder">placeholder</option>
 </select>
 </span>
+</div>
+
+<div class="spacer"></div><br />
+</fieldset>
+
+<fieldset>
+<legend>&nbsp;PDF Protection / encryption&nbsp;</legend>
+<div class="info">
+Note that encryption feature is not implemented by some output drivers;
+currently you may protect your PDF file using FPDF output only.
+</div>
+
+<div class="form-row">
+<label class="hand" for="copy"><span class="labl">Text copying</span></label>
+<span class="formw"><input type="checkbox" name="encryption_copy" value="1"/></span>
+</div>
+
+<div class="form-row">
+<label class="hand" for="copy"><span class="labl">Print</span></label>
+<span class="formw"><input type="checkbox" name="encryption_print" value="1"/></span>
+</div>
+
+<div class="form-row">
+<label class="hand" for="copy"><span class="labl">Modification</span></label>
+<span class="formw"><input type="checkbox" name="encryption_modify" value="1"/></span>
+</div>
+
+<div class="form-row">
+<label class="hand" for="copy"><span class="labl">Annotations / forms</span></label>
+<span class="formw"><input type="checkbox" name="encryption_modify_annotations" value="1"/></span>
 </div>
 
 <div class="spacer"></div><br />

@@ -302,7 +302,7 @@ function MakeFontEncoding($map) {
 function MakeFontCMap($encoding) {
   //Build differences from reference encoding
   $manager = ManagerEncoding::get();
-  $ref = $manager->get_encoding_vector($encoding);
+  $ref = $manager->getEncodingVector($encoding);
 
   $s  = "array(\n";
   foreach ($ref as $char => $ucs) {
@@ -398,7 +398,7 @@ function MakeFont($fontfile, $afmfile, $destdir, $destfile, $enc) {
                       $afmfile,
                       $fontfile));
     
-    $fm = ReadTTF($fontfile, $manager->get_encoding_vector($enc));
+    $fm = ReadTTF($fontfile, $manager->getEncodingVector($enc));
 
     if (is_null($fm)) {
       die(sprintf("Cannot get font metrics for '%s'", $fontfile));

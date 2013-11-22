@@ -1,12 +1,17 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set("display_errors","1");
+@set_time_limit(600);
+
 $urls = array(
               'http://247realmedia.com',
               'http://888.com',
               'http://abetterinternet.com',
               'http://adsense.google.com',
+              'http://alphadg.com',
               'http://allwomencentral.com/?r=sub',
-#              'http://aol.com', // take to long to process
+              'http://aol.com',
               'http://www.articlehub.com/add.html',
               'http://aur.archlinux.org',
               'http://bbc.co.uk',
@@ -101,11 +106,9 @@ $urls = array(
               'http://zango.com'
               );
 
+require_once('../pipeline.class.php');
 
-require_once(dirname(__FILE__).'/../config.inc.php');
-require_once(dirname(__FILE__).'/../pipeline.class.php');
-
-parse_config_file(dirname(__FILE__).'/../html2ps.config');
+parse_config_file('../html2ps.config');
 
 $g_config = array(
                   'cssmedia'     => 'screen',
@@ -116,51 +119,41 @@ $g_config = array(
                   'debugbox'     => false,
                   'draw_page_border' => false
                   );
-require_once(dirname(__FILE__).'/../config.inc.php');
-require_once(HTML2PS_DIR.'pipeline.class.php');
-require_once(HTML2PS_DIR.'fetcher.url.class.php');
-parse_config_file(HTML2PS_DIR.'html2ps.config');
-
-$g_config = array(
-                  'cssmedia'     => 'screen',
-                  'renderimages' => true,
-                  'renderforms'  => false,
-                  'renderlinks'  => true,
-                  'mode'         => 'html',
-                  'debugbox'     => false,
-                  'draw_page_border' => false
-                  );
 
 $media = Media::predefined('A4');
 $media->set_landscape(false);
-$media->set_margins(array('left'   => 0,
-                          'right'  => 0,
-                          'top'    => 0,
-                          'bottom' => 0));
+$media->set_margins(array('left'   => 10,
+                          'right'  => 10,
+                          'top'    => 10,
+                          'bottom' => 10));
 $media->set_pixels(1024);
 
 $g_px_scale = mm2pt($media->width() - $media->margins['left'] - $media->margins['right']) / $media->pixels;
 $g_pt_scale = $g_px_scale * 1.43; 
 
+$pipeline = new Pipeline;
+$pipeline->fetchers[]     = new FetcherURL;
+$pipeline->data_filters[] = new DataFilterDoctype();
+$pipeline->data_filters[] = new DataFilterUTF8("");
+$pipeline->data_filters[] = new DataFilterHTML2XHTML;
+$pipeline->parser         = new ParserXHTML;
+$pipeline->pre_tree_filters = array();
+$pipeline->layout_engine  = new LayoutEngineDefault;
+$pipeline->post_tree_filters = array();
+$pipeline->output_driver  = new OutputDriverFPDF();
 
-foreach($urls as $url) {
-  $url_file = str_replace('http://' ,'', $url);
-  $url_file = str_replace(':', '_', $url_file);
-  $url_file = str_replace('/', '_', $url_file);
-  $url_file = str_replace('.', '_', $url_file);
+$time = time();
+foreach ($urls as $url) {
+  $pipeline->destination    = new DestinationFile($url);
+  $pipeline->process($url, $media); 
 
-  $pipeline = new Pipeline;
-  $pipeline->configure($g_config);
-  $pipeline->fetchers[]     = new FetcherURL;
-  $pipeline->data_filters[] = new DataFilterHTML2XHTML;
-  $pipeline->parser         = new ParserXHTML;
-  $pipeline->layout_engine  = new LayoutEngineDefault;
-  $pipeline->output_driver  = new OutputDriverFPDF($media);
-  $pipeline->destination    = new DestinationFile($url_file);
+  $message = sprintf("<br/>Processing of '%s' completed in %u seconds", $url, time() - $time);
+  error_log($message);
+  print($message."<br/>");
+  flush();
+
+  $time = time();
+};
 
 
-  if (!file_exists(dirname(__FILE__).'/../out/'.$url_file.'.pdf')) {
-    print $url."\n";
-    $pipeline->process($url, $media); 
-  }
-}
+?>

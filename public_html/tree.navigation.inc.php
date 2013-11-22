@@ -63,11 +63,7 @@ function &traverse_dom_tree_pdf(&$root) {
 
 function dump_tree(&$box, $level) {
   print(str_repeat(" ", $level));
-  if (is_a($box, 'TextBox')) {
-    print(get_class($box).":".$box->uid.":".join('/', $box->words)."\n");
-  } else {
-    print(get_class($box).":".$box->uid."\n");
-  };
+  print(get_class($box).":".$box->uid."\n");
 
   if (isset($box->content)) {
     for ($i=0; $i<count($box->content); $i++) {

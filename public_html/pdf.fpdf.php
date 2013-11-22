@@ -1509,8 +1509,7 @@ EOF
         $file = substr($file, 0, strlen($file) - 4);
           
         // Generate (if required) PHP font description files
-        if (!file_exists($this->_getfontpath().$fontkey.'.php') || 
-            ManagerEncoding::is_custom_encoding($encoding)) {
+        if (!file_exists($this->_getfontpath().$fontkey.'.php') || $encoding == 'custom') {
           // As MakeFont squeaks a lot, we'll need to capture and discard its output
           MakeFont(TTF_FONTS_REPOSITORY.$file.'.ttf',
                    TTF_FONTS_REPOSITORY.$file.'.afm',

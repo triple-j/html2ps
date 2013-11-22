@@ -94,10 +94,10 @@ class InlineBox extends GenericInlineBox {
     // Create contents of this inline box
     if ($root->node_type() == XML_TEXT_NODE) {
       $css_state =& $pipeline->get_current_css_state();
-      $box = InlineBox::create_from_text($root->content, 
+      return InlineBox::create_from_text($root->content, 
                                          $css_state->get_property(CSS_WHITE_SPACE), 
                                          $pipeline);
-      return $box;
+
     } else {
       $box =& new InlineBox();
 
@@ -177,7 +177,7 @@ class InlineBox extends GenericInlineBox {
 
     $len = strlen($raw_content);
     while ($ptr < $len) {
-      $char = $manager_encoding->get_next_utf8_char($raw_content, $ptr);
+      $char = $manager_encoding->getNextUTF8Char($raw_content, $ptr);
 
       // Check if current  char is a soft hyphen  character. It it is,
       // remove it from the word  (as it should not be drawn normally)
@@ -185,7 +185,7 @@ class InlineBox extends GenericInlineBox {
       if ($char == SYMBOL_SHY) {
         $hyphens[] = strlen($word);
       } else {
-        $mapping = $manager_encoding->get_mapping($char);
+        $mapping = $manager_encoding->getMapping($char);
 
         /**
          * If this character is not found in predefined encoding vectors,
@@ -208,8 +208,8 @@ class InlineBox extends GenericInlineBox {
           /**
            * Add current symbol
            */
-          $custom_char = $manager_encoding->add_custom_char(utf8_to_code($char));
-          $text_box->add_subword($custom_char, $manager_encoding->get_current_custom_encoding_name(), $hyphens);
+          $custom_char = $manager_encoding->addCustomChar(utf8_to_code($char));
+          $text_box->add_subword($custom_char, $manager_encoding->getCustomEncodingName(), $hyphens);
           
           $word = '';
         } else {

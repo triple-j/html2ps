@@ -96,8 +96,9 @@ class BoxPageMargin extends GenericContainerBox {
 
       $html_content = html2xhtml("<div>".$html_content."</div>");
       $tree = TreeBuilder::build($html_content);
-      $tree_root = traverse_dom_tree_pdf($tree);
-      $body_box =& create_pdf_box($tree_root, $pipeline);
+
+      $body_box =& DOMBuilder::build($tree, $pipeline);
+
       $box =& $body_box->content[0];
     } else {
       $raw_content =& $at_rule->get_css_property(CSS_CONTENT);

@@ -96,7 +96,7 @@ class GenericImgBox extends GenericInlineBox {
     $font_resolver =& $driver->get_font_resolver();
 
     $font = $this->get_css_property(CSS_FONT);
-    $typeface = $font_resolver->get_typeface_name($font->family, 
+    $typeface = $font_resolver->getTypefaceName($font->family, 
                                                 $font->weight, 
                                                 $font->style, 
                                                 'iso-8859-1');

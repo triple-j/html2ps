@@ -16,6 +16,22 @@ class PDFLIBForm {
 }
 
 class OutputDriverPdflib16 extends OutputDriverPdflib {
+  /**
+   * @var string  permissions for the  encrypted PDF file  (values are
+   * space-separated).
+   */
+  var $_permissions = '';
+
+  function create_pdf() {
+    $optlist = '';
+
+    if ($this->_permissions != '') {
+      $optlist .= ' '.$this->_permissions;
+    };
+
+    pdf_begin_document($this->pdf, $this->get_filename(), $optlist);
+  }
+
   function field_multiline_text($x, $y, $w, $h, $value, $name) { 
     $font = $this->_control_font();
     pdf_create_field($this->pdf,
@@ -220,6 +236,10 @@ class OutputDriverPdflib16 extends OutputDriverPdflib {
     };
 
     return $fqn;
+  }
+
+  function set_permissions($permissions) {
+    $this->_permissions = $permissions;
   }
 }
 ?>
