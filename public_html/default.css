@@ -556,3 +556,44 @@ dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
   height: 1.2em;
   width: 4em;
 }
+
+/**
+ *  New HTML5 Tags
+ */
+article,
+aside,
+audio,
+canvas,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+output,
+section,
+video { 
+	display: block; 
+}
+
+bdi,
+command,
+details,
+dialog,
+summary,
+mark,
+meter,
+nav,
+progress,
+ruby,
+rt,
+rp,
+time,
+wbr { 
+	display: inline; 
+}
+
+datalist,
+keygen,
+track { 
+	display: none; 
+}
