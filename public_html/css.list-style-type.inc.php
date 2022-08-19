@@ -18,12 +18,12 @@ class CSSListStyleType extends CSSSubFieldProperty {
   function default_value() { return LST_DISC; }
 
   function parse($value) {
-    if (preg_match('/\bnone\b/',$value))    { return LST_NONE; };
-    if (preg_match('/\bdisc\b/',$value))    { return LST_DISC; };
-    if (preg_match('/\bcircle\b/',$value))  { return LST_CIRCLE; };
-    if (preg_match('/\bsquare\b/',$value))  { return LST_SQUARE; };
+    if (preg_match('/\bnone\b/',$value))    { return LST_NONE; }
+    if (preg_match('/\bdisc\b/',$value))    { return LST_DISC; }
+    if (preg_match('/\bcircle\b/',$value))  { return LST_CIRCLE; }
+    if (preg_match('/\bsquare\b/',$value))  { return LST_SQUARE; }
     if (preg_match('/\bdecimal-leading-zero\b/',$value)) { return LST_DECIMAL_LEADING_ZERO; }
-    if (preg_match('/\bdecimal\b/',$value)) { return LST_DECIMAL; };
+    if (preg_match('/\bdecimal\b/',$value)) { return LST_DECIMAL; }
     if (preg_match('/\blower-roman\b/',$value)) { return LST_LOWER_ROMAN; }
     if (preg_match('/\bupper-roman\b/',$value)) { return LST_UPPER_ROMAN; }
     if (preg_match('/\blower-latin\b/',$value)) { return LST_LOWER_LATIN; }
@@ -33,15 +33,15 @@ class CSSListStyleType extends CSSSubFieldProperty {
 
     // Unsupported CSS values:
     // According to CSS 2.1 specs 12.6.2, a user agent that does not recognize a numbering system should use 'decimal'.
-    if (preg_match('/\bhebrew\b/',$value)) { return LST_DECIMAL; };
-    if (preg_match('/\bgeorgian\b/',$value)) { return LST_DECIMAL; };
-    if (preg_match('/\barmenian\b/',$value)) { return LST_DECIMAL; };
-    if (preg_match('/\bcjk-ideographic\b/',$value)) { return LST_DECIMAL; };
-    if (preg_match('/\bhiragana\b/',$value)) { return LST_DECIMAL; };
-    if (preg_match('/\bkarakana\b/',$value)) { return LST_DECIMAL; };
-    if (preg_match('/\bhiragana-iroha\b/',$value)) { return LST_DECIMAL; };
-    if (preg_match('/\bkatakana-iroha\b/',$value)) { return LST_DECIMAL; };
-    if (preg_match('/\blower-greek\b/',$value)) { return LST_DECIMAL; };
+    if (preg_match('/\bhebrew\b/',$value)) { return LST_DECIMAL; }
+    if (preg_match('/\bgeorgian\b/',$value)) { return LST_DECIMAL; }
+    if (preg_match('/\barmenian\b/',$value)) { return LST_DECIMAL; }
+    if (preg_match('/\bcjk-ideographic\b/',$value)) { return LST_DECIMAL; }
+    if (preg_match('/\bhiragana\b/',$value)) { return LST_DECIMAL; }
+    if (preg_match('/\bkarakana\b/',$value)) { return LST_DECIMAL; }
+    if (preg_match('/\bhiragana-iroha\b/',$value)) { return LST_DECIMAL; }
+    if (preg_match('/\bkatakana-iroha\b/',$value)) { return LST_DECIMAL; }
+    if (preg_match('/\blower-greek\b/',$value)) { return LST_DECIMAL; }
 
     return null;
   }
@@ -75,11 +75,11 @@ class CSSListStyleType extends CSSSubFieldProperty {
     }
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_LIST_STYLE_TYPE;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'list-style-type';
   }
 }

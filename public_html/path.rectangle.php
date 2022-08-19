@@ -4,7 +4,7 @@ class Rectangle {
   var $ur;
   var $ll;
   
-  function Rectangle($ll, $ur) {
+  function __construct($ll, $ur) {
     $this->ll = $ll;
     $this->ur = $ur;
   }
@@ -22,13 +22,13 @@ class Rectangle {
       $x = $this->ur->x;
       $this->ur->x = $this->ll->x;
       $this->ll->x = $x;
-    };
+    }
 
     if ($this->ur->y < $this->ll->y) {
       $y = $this->ur->y;
       $this->ur->y = $this->ll->y;
       $this->ll->y = $y;
-    };
+    }
   }
 }
 

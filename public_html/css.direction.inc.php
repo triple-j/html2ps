@@ -5,8 +5,8 @@ define('DIRECTION_LTR', 1);
 define('DIRECTION_RTF', 1);
 
 class CSSDirection extends CSSPropertyStringSet {
-  function CSSDirection() { 
-    $this->CSSPropertyStringSet(true, 
+  function __construct() {
+    CSSPropertyStringSet::__construct(true,
                                 true,
                                 array('lrt' => DIRECTION_LTR,
                                       'rtl' => DIRECTION_RTF)); 
@@ -16,15 +16,15 @@ class CSSDirection extends CSSPropertyStringSet {
     return DIRECTION_LTR; 
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_DIRECTION;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'direction';
   }
 }
 
-CSS::register_css_property(new CSSDirection);
+(new CSS())->register_css_property(new CSSDirection);
 
 ?>

@@ -5,8 +5,8 @@ class TextAreaInputBox extends InlineBlockBox {
   var $_field_name;
   var $_value;
 
-  function TextAreaInputBox($value, $name) {
-    $this->InlineBlockBox();
+  function __construct($value, $name) {
+    InlineBlockBox::__construct();
 
     $this->set_value($value);
     $this->_field_name  = $name;
@@ -17,7 +17,7 @@ class TextAreaInputBox extends InlineBlockBox {
     $name  = $root->get_attribute('name');
 
     $box = new TextAreaInputBox($value, $name);
-    $box->readCSS($pipeline->get_current_css_state());
+    $box->readCSS($pipeline->getCurrentCSSState());
     $box->create_content($root, $pipeline);
 
     return $box;
@@ -32,7 +32,7 @@ class TextAreaInputBox extends InlineBlockBox {
     return $this->get_max_width($context);
   } 
 
-  function get_max_width(&$context) {
+  function get_max_width(&$context, $limit = 10000000) {
     return $this->get_width();
   }
 

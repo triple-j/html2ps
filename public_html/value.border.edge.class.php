@@ -12,16 +12,16 @@ class EdgePDF {
    * never modified partially, so we could use one shared object 
    * as a default value
    */
-  function EdgePDF() {
+  function __construct() {
     static $default_width = null;
     if (is_null($default_width)) {
-      $default_width =& Value::fromData(0, UNIT_PT);
-    };
+      $default_width =& (new Value())->fromData(0, UNIT_PT);
+    }
 
     static $default_color = null;
     if (is_null($default_color)) {
-      $default_color =& new Color(array(0,0,0), true);
-    };
+      $default_color= new Color(array(0,0,0), true);
+    }
 
     $this->width =& $default_width;
     $this->color =& $default_color;
@@ -39,7 +39,7 @@ class EdgePDF {
       $this->color = $color->copy();
     } else {
       $this->color = CSS_PROPERTY_INHERIT;
-    };
+    }
 
     $this->_isDefaultColor = false;
   }
@@ -48,42 +48,42 @@ class EdgePDF {
     if ($this->width === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty($code_width);
       $this->width = $value->copy();
-    };
+    }
 
     if ($this->color === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty($code_color);
       $this->width = $value->copy();
-    };
+    }
 
     if ($this->style === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty($code_style);
       $this->width = $value;
-    };
+    }
   }
 
   function &create($data) {
-    $edge =& new EdgePDF();
+    $edge= new EdgePDF();
     $edge->width = $data['width'];
-    $edge->color =& new Color($data['color'], is_transparent($data['color']));
+    $edge->color= new Color($data['color'], is_transparent($data['color']));
     $edge->style = $data['style'];
     $edge->_isDefaultColor = true;
     return $edge;
   }
 
   function &copy() {
-    $edge =& new EdgePDF();
+    $edge= new EdgePDF();
 
     if ($this->width != CSS_PROPERTY_INHERIT) {
       $edge->width = $this->width->copy();
     } else {
       $edge->width = CSS_PROPERTY_INHERIT;
-    };
+    }
     
     if ($this->color != CSS_PROPERTY_INHERIT) {
       $edge->color = $this->color->copy();
     } else {
       $edge->color = CSS_PROPERTY_INHERIT;
-    };
+    }
 
     $edge->style = $this->style;
     $edge->_isDefaultColor = $this->_isDefaultColor;
@@ -102,7 +102,7 @@ class EdgePDF {
   function get_width() {
     if ($this->style === BS_NONE) { 
       return 0; 
-    };
+    }
 
     return $this->width->getPoints();
   }
@@ -126,7 +126,7 @@ class EdgePDF {
 
     // If this border have 'transparent' color value, we just will not draw it
     //
-    if ($this->color->transparent) { return; };
+    if ($this->color->transparent) { return; }
 
     switch ($this->style) {
     case BS_SOLID:
@@ -148,7 +148,7 @@ class EdgePDF {
         $color = $this->color->copy();
         $color->blend(new Color(array(255,255,255), false), HILIGHT_COLOR_ALPHA);
         $color->apply($viewport);
-      };
+      }
 
       $viewport->moveto($x1, $y1);
       $viewport->lineto($x2, $y2);
@@ -169,7 +169,7 @@ class EdgePDF {
         $color = $this->color->copy();
         $color->blend(new Color(array(255,255,255), false), HILIGHT_COLOR_ALPHA);
         $color->apply($viewport);
-      };
+      }
 
       $viewport->moveto($x1, $y1);
       $viewport->lineto($x2, $y2);
@@ -187,7 +187,7 @@ class EdgePDF {
         $color->apply($viewport);
       } else {
         $this->color->apply($viewport);
-      };
+      }
 
       $x1a = ($x1 + $x4) / 2;
       $y1a = ($y1 + $y4) / 2;
@@ -214,7 +214,7 @@ class EdgePDF {
         $color->apply($viewport);
       } else {
         $this->color->apply($viewport);
-      };
+      }
 
       $viewport->moveto($x1, $y1);
       $viewport->lineto($x2, $y2);
@@ -232,7 +232,7 @@ class EdgePDF {
         $color = $this->color->copy();
         $color->blend(new Color(array(255,255,255), false), HILIGHT_COLOR_ALPHA);
         $color->apply($viewport);
-      };
+      }
 
       $x1a = ($x1 + $x4) / 2;
       $y1a = ($y1 + $y4) / 2;
@@ -255,7 +255,7 @@ class EdgePDF {
         $color = $this->color->copy();
         $color->blend(new Color(array(255,255,255), false), HILIGHT_COLOR_ALPHA);
         $color->apply($viewport);
-      };
+      }
 
       $viewport->moveto($x1, $y1);
       $viewport->lineto($x2, $y2);

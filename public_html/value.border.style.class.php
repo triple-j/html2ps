@@ -9,11 +9,11 @@ class BorderStyle extends CSSValue {
   var $bottom;
 
   function &copy() {
-    $value =& new BorderStyle($this->top, $this->right, $this->bottom, $this->left);
+    $value= new BorderStyle($this->top, $this->right, $this->bottom, $this->left);
     return $value;
   }
 
-  function BorderStyle($top, $right, $bottom, $left) {
+  function __construct($top, $right, $bottom, $left) {
     $this->left   = $left;
     $this->right  = $right;
     $this->top    = $top;

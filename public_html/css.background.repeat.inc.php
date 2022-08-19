@@ -7,11 +7,11 @@ define('BR_REPEAT_Y',2);
 define('BR_NO_REPEAT',3);
 
 class CSSBackgroundRepeat extends CSSSubFieldProperty {
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_BACKGROUND_REPEAT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'background-repeat';
   }
 
@@ -32,11 +32,11 @@ class CSSBackgroundRepeat extends CSSSubFieldProperty {
     // to avoid these problems, we'll add spaced to the beginning and to the end of value,
     // and will search for space-padded values, instead of raw substrings
     $value = " ".$value." ";
-    if (strpos($value, ' repeat-x ')  !== false) { return BR_REPEAT_X; };
-    if (strpos($value, ' repeat-y ')  !== false) { return BR_REPEAT_Y; };
-    if (strpos($value, ' no-repeat ') !== false) { return BR_NO_REPEAT; };
-    if (strpos($value, ' repeat ')    !== false) { return BR_REPEAT; };
-    return CSSBackgroundRepeat::default_value();
+    if (strpos($value, ' repeat-x ')  !== false) { return BR_REPEAT_X; }
+    if (strpos($value, ' repeat-y ')  !== false) { return BR_REPEAT_Y; }
+    if (strpos($value, ' no-repeat ') !== false) { return BR_NO_REPEAT; }
+    if (strpos($value, ' repeat ')    !== false) { return BR_REPEAT; }
+    return (new CSSBackgroundRepeat())->default_value();
   }
 }
 

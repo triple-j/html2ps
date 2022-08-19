@@ -6,9 +6,9 @@ require_once(HTML2PS_DIR.'value.max-height.php');
 class CSSMaxHeight extends CSSPropertyHandler {
   var $_defaultValue;
 
-  function CSSMaxHeight() { 
-    $this->CSSPropertyHandler(true, false); 
-    $this->_defaultValue = ValueMaxHeight::fromString("auto");
+  function __construct() {
+    CSSPropertyHandler::__construct(true, false);
+    $this->_defaultValue = (new ValueMaxHeight())->fromString("auto");
   }
 
   /**
@@ -38,20 +38,20 @@ class CSSMaxHeight extends CSSPropertyHandler {
 
   function parse($value) { 
     if ($value == 'none') { 
-      return ValueMaxHeight::fromString('auto');
-    };
-    return ValueMaxHeight::fromString($value);
+      return (new ValueMaxHeight())->fromString('auto');
+    }
+    return (new ValueMaxHeight())->fromString($value);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_MAX_HEIGHT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'max-height';
   }
 }
  
-CSS::register_css_property(new CSSMaxHeight);
+(new CSS())->register_css_property(new CSSMaxHeight);
 
 ?>

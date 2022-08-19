@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/css.inc.php,v 1.28 2007/04/07 11:16:34 Konstantin Exp $
+// $Header: /cvsroot/html2ps/css.inc.php,v 1.26 2007/02/18 09:55:10 Konstantin Exp $
 
 class CSS {
   var $_handlers;
@@ -14,8 +14,8 @@ class CSS {
       $handlers = $this->getHandlers();
       foreach ($handlers as $property => $handler) {
         $this->_defaultState[$property] = $handler->default_value();
-      };
-    };
+      }
+    }
 
     return $this->_defaultState;
   }
@@ -27,8 +27,8 @@ class CSS {
       $handlers = $this->getHandlers();
       foreach ($handlers as $property => $handler) {
         $this->_defaultStateFlags[$property] = true;
-      };
-    };
+      }
+    }
 
     return $this->_defaultStateFlags;
   }
@@ -43,7 +43,7 @@ class CSS {
       foreach ($this->_handlers as $property => $handler) {
         if ($handler->isInheritableText()) {
           $this->_handlersInheritableText[$property] =& $this->_handlers[$property];
-        };
+        }
       }
     }
 
@@ -56,7 +56,7 @@ class CSS {
       foreach ($this->_handlers as $property => $handler) {
         if ($handler->isInheritable()) {
           $this->_handlersInheritable[$property] =& $this->_handlers[$property];
-        };
+        }
       }
     }
 
@@ -68,18 +68,18 @@ class CSS {
 
     if (!isset($__g_css_handler_set)) {
       $__g_css_handler_set = new CSS();
-    };
+    }
 
     return $__g_css_handler_set;
   }
 
-  function CSS() {
+  function __construct() {
     $this->_handlers = array();
     $this->_mapping  = array();
   }
 
   function getDefaultValue($property) {
-    $css =& CSS::get();
+    $css =& (new CSS())->get();
     $handler =& $css->_get_handler($property);
     $value = $handler->default_value();
 
@@ -87,11 +87,11 @@ class CSS {
       return $value->copy();
     } else {
       return $value;
-    };
+    }
   }
 
   function &get_handler($property) {
-    $css =& CSS::get();
+    $css =& (new CSS())->get();
     $handler =& $css->_get_handler($property);
     return $handler;
   }
@@ -102,27 +102,27 @@ class CSS {
     } else {
       $dumb = null;
       return $dumb;
-    };
+    }
   }
 
-  function _name2code($key) {
+  function _word2code($key) {
     if (!isset($this->_mapping[$key])) { 
       return null; 
-    };
+    }
 
     return $this->_mapping[$key];
   }
 
-  function name2code($key) {
-    $css =& CSS::get();
-    return $css->_name2code($key);
+  function word2code($key) {
+    $css =& (new CSS())->get();
+    return $css->_word2code($key);
   }
 
   function register_css_property(&$handler) {
-    $property = $handler->get_property_code();
-    $name     = $handler->get_property_name();
+    $property = $handler->getPropertyCode();
+    $name     = $handler->getPropertyName();
 
-    $css =& CSS::get();
+    $css =& (new CSS())->get();
     $css->_handlers[$property] =& $handler;
     $css->_mapping[$name] = $property;
   }
@@ -137,40 +137,8 @@ class CSS {
    * nmchar		[_a-z0-9-]|{nonascii}|{escape}
    * ident		-?{nmstart}{nmchar}*
    */
-  function get_identifier_regexp() {
-    return '-?(?:[_a-z]|[\200-\377]|\\[0-9a-f]{1,6}(?:\r\n|[ \t\r\n\f])?|\\[^\r\n\f0-9a-f])(?:[_a-z0-9-]|[\200-\377]|\\[0-9a-f]{1,6}(?:\r\n|[ \t\r\n\f])?|\\[^\r\n\f0-9a-f])*';
-  }
-
   function is_identifier($string) {
-    return preg_match(sprintf('/%s/', 
-                              CSS::get_identifier_regexp()), 
-                      $string);
-  }
-
-  function parse_string($string) {
-    if (preg_match(sprintf('/^(%s)\s*(.*)$/s', CSS_STRING1_REGEXP), $string, $matches)) {
-      $value = $matches[1];
-      $rest = $matches[2];
-     
-      $value = CSS::remove_backslash_at_newline($value);
-
-      return array($value, $rest);
-    };
-
-    if (preg_match(sprintf('/^(%s)\s*(.*)$/s', CSS_STRING2_REGEXP), $string, $matches)) {
-      $value = $matches[1];
-      $rest = $matches[2];
-
-      $value = CSS::remove_backslash_at_newline($value);
-
-      return array($value, $rest);
-    };
-
-    return array(null, $string);
-  }
-
-  function remove_backslash_at_newline($value) {
-    return preg_replace("/\\\\\n/", '', $value);
+    return preg_match('/-?([_a-z]|[\200-\377]|\\[0-9a-f]{1,6}(\r\n|[ \t\r\n\f])?|\\[^\r\n\f0-9a-f])([_a-z0-9-]|[\200-\377]|\\[0-9a-f]{1,6}(\r\n|[ \t\r\n\f])?|\\[^\r\n\f0-9a-f])*/', $string);
   }
 }
 

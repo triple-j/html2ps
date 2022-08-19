@@ -13,7 +13,7 @@ class FetcherUrlCurl extends Fetcher {
   var $url;
   var $_proxy;
 
-  function FetcherUrlCurl() {
+  function __construct() {
     $this->url = "";
     $this->set_proxy(null);
   }
@@ -23,7 +23,7 @@ class FetcherUrlCurl extends Fetcher {
     // (e.g. replace http://www.google.com with http://www.google.com/
     if (preg_match('#^.*://[^/]+$#', $url)) {
       $url .= '/';
-    };
+    }
 
     return $url;
   }
@@ -42,18 +42,14 @@ class FetcherUrlCurl extends Fetcher {
 
     curl_setopt($curl, CURLOPT_URL, $fixed_url);
     curl_setopt($curl, CURLOPT_USERAGENT, DEFAULT_USER_AGENT);
-
-    if (!@curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1)) {
-      error_log('CURLOPT_FOLLOWLOCATION will not work in safe_mode; pages with redirects may be rendered incorrectly');
-    };
-
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
     curl_setopt($curl, CURLOPT_HEADER, 1);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
     $proxy = $this->get_proxy();
     if (!is_null($proxy)) {
       curl_setopt($curl, CURLOPT_PROXY, $proxy);
-    };
+    }
     
     /**
      * Fetch headers and page content to the $response variable

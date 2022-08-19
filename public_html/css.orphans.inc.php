@@ -1,8 +1,8 @@
 <?php
 
 class CSSOrphans extends CSSPropertyHandler {
-  function CSSOrphans() { 
-    $this->CSSPropertyHandler(true, false); 
+  function __construct() {
+    CSSPropertyHandler::__construct(true, false);
   }
 
   function default_value() { 
@@ -13,15 +13,15 @@ class CSSOrphans extends CSSPropertyHandler {
     return (int)$value;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_ORPHANS;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'orphans';
   }
 }
 
-CSS::register_css_property(new CSSOrphans);
+(new CSS())->register_css_property(new CSSOrphans);
 
 ?>

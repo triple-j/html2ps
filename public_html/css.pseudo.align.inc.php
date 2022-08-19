@@ -8,7 +8,7 @@ define('PA_RIGHT',2);
 // This is a pseudo CSS property for 
 
 class CSSPseudoAlign extends CSSPropertyHandler {
-  function CSSPseudoAlign() { $this->CSSPropertyHandler(true, true); }
+  function __construct() { CSSPropertyHandler::__construct(true, true); }
 
   function default_value() { 
     return PA_LEFT; 
@@ -56,15 +56,15 @@ class CSSPseudoAlign extends CSSPropertyHandler {
     }
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_HTML2PS_ALIGN;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return '-html2ps-align';
   }
 }
 
-CSS::register_css_property(new CSSPseudoAlign);
+(new CSS())->register_css_property(new CSSPseudoAlign);
 
 ?>

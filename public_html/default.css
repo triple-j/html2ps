@@ -259,7 +259,6 @@ input[type=submit] {
 
 input[type=text] { 
   display: -text;
-  width: 21ex;
 }
 
 ins { 
@@ -311,7 +310,6 @@ ol {
   padding-left: 40px;
   margin-top: 1em;
   margin-bottom: 1em;
-  -html2ps-list-counter: 0;
 }
 
 option { 
@@ -423,7 +421,6 @@ td {
 th { 
   display: table-cell;
   font-weight: bold;
-  text-align: center;
 }
 
 thead { 
@@ -509,11 +506,9 @@ dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
 /**
  * CSS 3 - specific defaults
  */
-/*
 @page { 
   reset-counter: footnote;
 }
-*/
 
 @footnote { 
   border-top:  thin solid black;
@@ -528,72 +523,4 @@ dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
 
 *::marker { 
   content: counter(footnote, super-decimal);
-}
-
-.html2ps-toc-wrapper { 
-  position: relative;
-  height: 1.2em;
-  background: white;
-}
-
-.html2ps-toc-2-wrapper { 
-  padding-left: 1em;
-}
-
-.html2ps-toc-3-wrapper { 
-  padding-left: 2em;
-}
-
-.html2ps-toc-name { 
-  float: left;
-  height: 1.2em;
-  width: 100%;
-  margin-right: -5em;
-}
-
-.html2ps-toc-page { 
-  float: left;
-  height: 1.2em;
-  width: 4em;
-}
-
-/**
- *  New HTML5 Tags
- */
-article,
-aside,
-audio,
-canvas,
-figure,
-figcaption,
-footer,
-header,
-hgroup,
-output,
-section,
-video { 
-	display: block; 
-}
-
-bdi,
-command,
-details,
-dialog,
-summary,
-mark,
-meter,
-nav,
-progress,
-ruby,
-rt,
-rp,
-time,
-wbr { 
-	display: inline; 
-}
-
-datalist,
-keygen,
-track { 
-	display: none; 
 }

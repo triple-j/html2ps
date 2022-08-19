@@ -5,8 +5,8 @@ define('BORDER_COLLAPSE', 1);
 define('BORDER_SEPARATE', 2);
 
 class CSSBorderCollapse extends CSSPropertyStringSet {
-  function CSSBorderCollapse() { 
-    $this->CSSPropertyStringSet(true, 
+  function __construct() {
+    CSSPropertyStringSet::__construct(true,
                                 true,
                                 array('inherit'  => CSS_PROPERTY_INHERIT,
                                       'collapse' => BORDER_COLLAPSE,
@@ -17,15 +17,15 @@ class CSSBorderCollapse extends CSSPropertyStringSet {
     return BORDER_SEPARATE; 
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_BORDER_COLLAPSE;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'border-collapse';
   }
 }
 
-CSS::register_css_property(new CSSBorderCollapse);
+(new CSS())->register_css_property(new CSSBorderCollapse);
 
 ?>

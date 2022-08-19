@@ -6,8 +6,8 @@ require_once(HTML2PS_DIR.'value.border.style.class.php');
 class CSSBorderStyle extends CSSSubProperty {
   var $_defaultValue;
 
-  function CSSBorderStyle(&$owner) {
-    $this->CSSSubProperty($owner);
+  function __construct(&$owner) {
+    CSSSubProperty::__construct($owner);
 
     $this->_defaultValue = new BorderStyle(BS_NONE,
                                            BS_NONE,
@@ -15,7 +15,7 @@ class CSSBorderStyle extends CSSSubProperty {
                                            BS_NONE);
   }
 
-  function set_value(&$owner_value, &$value) {
+  function setValue(&$owner_value, &$value) {
     if ($value != CSS_PROPERTY_INHERIT) {
       $owner_value->top->style    = $value->top;
       $owner_value->right->style  = $value->right;
@@ -26,21 +26,21 @@ class CSSBorderStyle extends CSSSubProperty {
       $owner_value->right->style  = CSS_PROPERTY_INHERIT;
       $owner_value->bottom->style = CSS_PROPERTY_INHERIT;
       $owner_value->left->style   = CSS_PROPERTY_INHERIT;
-    };
+    }
   }
 
-  function get_value(&$owner_value) {
+  function &getValue(&$owner_value) {
     return new BorderStyle($owner_value->top->style, 
                            $owner_value->right->style, 
                            $owner_value->bottom->style, 
                            $owner_value->left->style);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_BORDER_STYLE;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'border-style';
   }
 
@@ -48,7 +48,7 @@ class CSSBorderStyle extends CSSSubProperty {
     return $this->_defaultValue;
   }
 
-  function parse_style($value) {
+  static function parse_style($value) {
     switch ($value) {
     case "solid":  
       return BS_SOLID; 
@@ -68,7 +68,7 @@ class CSSBorderStyle extends CSSSubProperty {
       return BS_RIDGE; 
     default:       
       return BS_NONE; 
-    };
+    }
   }
 
   function parse_in($value) {
@@ -95,7 +95,7 @@ class CSSBorderStyle extends CSSSubProperty {
       return array($v1, $v2, $v3, $v4);
     default:
       return $this->default_value();
-    };   
+    }
   }
 
   function parse($value) {

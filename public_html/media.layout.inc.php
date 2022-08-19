@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/media.layout.inc.php,v 1.16 2007/05/07 12:15:53 Konstantin Exp $
+// $Header: /cvsroot/html2ps/media.layout.inc.php,v 1.13 2007/01/24 18:56:09 Konstantin Exp $
 
 $GLOBALS['g_predefined_media'] = array();
 $GLOBALS['g_media'] = null;
@@ -16,51 +16,15 @@ class Media {
   var $pixels;
   var $is_landscape;
 
-  /**
-   * @param Array $size associative array with 'height' and 'width' keys (mm)
-   * @param Array $margins associative array with 'top', 'bottom', 'left' and 'right' keys (mm)
-   */
-  function Media($size, $margins) {
-    $this->size    = $size;
-    $this->margins = $margins;
-    $this->pixels  = 800;
-  }
-
-  function &copy() {
-    $new_item =& new Media($this->size, $this->margins);
-    $new_item->pixels = $this->pixels;
-    return $new_item;
-  }
-
-  function doInherit() {
-  }
-
-  function get_width() {
-    return $this->is_landscape ? $this->size['height'] : $this->size['width'] ;
-  }
-
-  function width()  { 
-    return $this->get_width();
-  }
-
-  function get_height() {
-    return $this->height();
-  }
-
-  function height() { 
-    return $this->is_landscape ? $this->size['width']  : $this->size['height']; 
-  }
+  function width()  { return $this->is_landscape ? (float) $this->size['height'] : (float) $this->size['width'] ; }
+  function height() { return $this->is_landscape ? (float) $this->size['width']  : (float) $this->size['height']; }
 
   function real_width() {
-    return $this->width() - $this->margins['left'] - $this->margins['right'];
+    return $this->width() - (float) $this->margins['left'] - (float) $this->margins['right'];
   }
   
-  function real_height() { 
-    return $this->height() - $this->margins['bottom'] - $this->margins['top'];
-  }
-
-  function set_height($height) {
-    $this->size['height'] = $height;
+  function real_height() {
+    return $this->height() - (float) $this->margins['bottom'] - (float) $this->margins['top'];
   }
 
   function set_landscape($state) {
@@ -75,23 +39,30 @@ class Media {
   function set_pixels($pixels) {
     $this->pixels = $pixels;
   }
-
-  function set_width($width) {
-    $this->size['width'] = $width;
-  }
  
   // TODO: validity checking
-  function &predefined($name) {
+  function predefined($name) {
     global $g_predefined_media;
-
+      $g_predefined_media[$name] = [
+          "height" => '297,0',
+          "width" => '210,0'
+      ];
     // Let's check if the chosen media defined
     if (isset($g_predefined_media[$name])) {
-      $media =& new Media($g_predefined_media[$name], array('top'=>0, 'bottom'=>0, 'left'=>0, 'right'=>0));
+      return new Media($g_predefined_media[$name], array('top'=>0, 'bottom'=>0, 'left'=>0, 'right'=>0));
     } else {
-      $media = null;
-    };
+      return null;
+    }
+  }
 
-    return $media;
+  /**
+   * @param Array $size associative array with 'height' and 'width' keys (mm)
+   * @param Array $margins associative array with 'top', 'bottom', 'left' and 'right' keys (mm)
+   */
+  function __construct($size = null, $margins = null) {
+    $this->size    = $size;
+    $this->margins = $margins;
+    $this->pixels  = 800;
   }
 
   /**
@@ -106,7 +77,7 @@ class Media {
   }
 
   function to_ps_landscape() {
-    if (!$this->is_landscape) { return "/initpage {} def"; };
+    if (!$this->is_landscape) { return "/initpage {} def"; }
     return "/initpage {90 rotate 0 pageheight neg translate} def";
   }
 

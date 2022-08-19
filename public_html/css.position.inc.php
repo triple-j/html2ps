@@ -11,8 +11,8 @@ define('POSITION_FIXED',3);
 define('POSITION_FOOTNOTE',4);
 
 class CSSPosition extends CSSPropertyStringSet {
-  function CSSPosition() { 
-    $this->CSSPropertyStringSet(false, 
+  function __construct() {
+    CSSPropertyStringSet::__construct(false,
                                 false,
                                 array('inherit'  => CSS_PROPERTY_INHERIT,
                                       'absolute' => POSITION_ABSOLUTE,
@@ -26,15 +26,15 @@ class CSSPosition extends CSSPropertyStringSet {
     return POSITION_STATIC; 
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_POSITION;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'position';
   }
 }
 
-CSS::register_css_property(new CSSPosition);
+(new CSS())->register_css_property(new CSSPosition);
 
 ?>

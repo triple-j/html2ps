@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/box.container.php,v 1.68 2007/05/06 18:49:29 Konstantin Exp $
+// $Header: /cvsroot/html2ps/box.container.php,v 1.67 2007/01/10 03:40:28 Konstantin Exp $
 
 require_once(HTML2PS_DIR.'strategy.width.min.php');
 require_once(HTML2PS_DIR.'strategy.width.min.nowrap.php');
@@ -64,9 +64,10 @@ class GenericContainerBox extends GenericFormattedBox {
   var $_current_y;
 
   function destroy() {
-    for ($i=0, $size = count($this->content); $i < $size; $i++) {
+    $size = is_countable($this->content) ? count($this->content) : 0;
+    for ($i=0, $i < $size; $i++;) {
       $this->content[$i]->destroy();
-    };
+    }
     unset($this->content);
 
     parent::destroy();
@@ -83,7 +84,7 @@ class GenericContainerBox extends GenericFormattedBox {
   function show(&$driver) {
     GenericFormattedBox::show($driver);
 
-    $overflow = $this->get_css_property(CSS_OVERFLOW);
+    $overflow = $this->getCSSProperty(CSS_OVERFLOW);
 
     /**
      * Sometimes the content may overflow container boxes. This situation arise, for example,
@@ -95,7 +96,7 @@ class GenericContainerBox extends GenericFormattedBox {
     if ($overflow !== OVERFLOW_VISIBLE) {
       $driver->save();
       $this->_setupClip($driver);
-    };    
+    }    
 
     /**
      * Render child elements
@@ -127,9 +128,9 @@ class GenericContainerBox extends GenericFormattedBox {
         if ($driver->contains($child)) {
           if (is_null($child->show($driver))) {
             return null;
-          };
-        };
-      };
+          }
+        }
+      }
     }
 
     /** 
@@ -138,7 +139,7 @@ class GenericContainerBox extends GenericFormattedBox {
      */
     if ($overflow !== OVERFLOW_VISIBLE) {
       $driver->restore();
-    };
+    }
 
     return true;
   }
@@ -163,7 +164,7 @@ class GenericContainerBox extends GenericFormattedBox {
   function show_fixed(&$driver) {
     GenericFormattedBox::show($driver);
 
-    $overflow = $this->get_css_property(CSS_OVERFLOW);
+    $overflow = $this->getCSSProperty(CSS_OVERFLOW);
 
     /**
      * Sometimes the content may overflow container boxes. This situation arise, for example,
@@ -176,12 +177,12 @@ class GenericContainerBox extends GenericFormattedBox {
       // Save graphics state (of course, BEFORE the clipping area will be set)
       $driver->save();
       $this->_setupClip($driver);
-    };    
+    }    
 
     /**
      * Render child elements
      */
-    $size = count($this->content);
+   $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i < $size; $i++) {    
       /**
        * We'll check the visibility property here
@@ -193,15 +194,15 @@ class GenericContainerBox extends GenericFormattedBox {
        * their show method is called explicitly; the similar check should be performed there
        */
       $child =& $this->content[$i];
-      if ($child->get_css_property(CSS_VISIBILITY) === VISIBILITY_VISIBLE) {
+      if ($child->getCSSProperty(CSS_VISIBILITY) === VISIBILITY_VISIBLE) {
         // Fixed-positioned blocks are displayed separately;
         // If we call them now, they will be drawn twice
-        if ($child->get_css_property(CSS_POSITION) != POSITION_FIXED) {
+        if ($child->getCSSProperty(CSS_POSITION) != POSITION_FIXED) {
           if (is_null($child->show_fixed($driver))) {
             return null;
-          };
-        };
-      };
+          }
+        }
+      }
     }
 
     /** 
@@ -210,17 +211,17 @@ class GenericContainerBox extends GenericFormattedBox {
      */
     if ($overflow !== OVERFLOW_VISIBLE) {
       $driver->restore();
-    };
+    }
 
     return true;
   }
 
   function _find(&$box) {
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
       if ($this->content[$i]->uid == $box->uid) { 
         return $i; 
-      };
+      }
     }
     return null;
   }
@@ -236,33 +237,29 @@ class GenericContainerBox extends GenericFormattedBox {
     // Offset the content array
     for ($i = count($this->content)-1; $i>= $index; $i--) {
       $this->content[$i+1] =& $this->content[$i];
-    };
+    }
 
     $this->content[$index] =& $box;
   }
 
-  function insert_before(&$what, &$where) {
+  function insertBefore(&$what, &$where) {
     if ($where) {
       $index = $this->_find($where);
 
       if (is_null($index)) { 
         return null; 
-      };
+      }
 
       $this->insert_child($index, $what);
     } else {
       // If 'where' is not specified, 'what' should become the last child
       $this->add_child($what);
-    };
+    }
     
     return $what;
   }
 
   function add_child(&$box) {
-    $this->append_child($box);
-  }
-
-  function append_child(&$box) {
     // In general, this function is called like following:
     // $box->add_child(create_pdf_box(...))
     // As create_pdf_box _may_ return null value (for example, for an empty text node),
@@ -270,7 +267,7 @@ class GenericContainerBox extends GenericFormattedBox {
     if ($box) {
       $box->parent =& $this;
       $this->content[] =& $box;
-    };
+    }
   }
 
   // Get first child of current box which actually will be drawn 
@@ -281,13 +278,13 @@ class GenericContainerBox extends GenericFormattedBox {
   //
   // @return reference to the first visible child of current box 
   function &get_first() {
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
       if (!is_whitespace($this->content[$i]) && 
           !$this->content[$i]->is_null()) {
         return $this->content[$i];
-      };
-    };
+      }
+    }
 
     // We use this construct to avoid notice messages in PHP 4.4 and PHP 5
     $dummy = null;
@@ -302,17 +299,17 @@ class GenericContainerBox extends GenericFormattedBox {
   //
   // @return reference to the first visible child of current box 
   function &get_first_data() {
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
       if (!is_whitespace($this->content[$i]) && !$this->content[$i]->is_null()) {
         if (is_container($this->content[$i])) {
           $data =& $this->content[$i]->get_first_data();
-          if (!is_null($data)) { return $data; };
+          if (!is_null($data)) { return $data; }
         } else {
           return $this->content[$i];
-        };
-      };
-    };
+        }
+      }
+    }
 
     // We use this construct to avoid notice messages in PHP 4.4 and PHP 5
     $dummy = null;
@@ -330,8 +327,8 @@ class GenericContainerBox extends GenericFormattedBox {
     for ($i=count($this->content)-1; $i>=0; $i--) {
       if (!is_whitespace($this->content[$i]) && !$this->content[$i]->is_null()) {
         return $this->content[$i];
-      };
-    };
+      }
+    }
 
     // We use this construct to avoid notice messages in PHP 4.4 and PHP 5
     $dummy = null;
@@ -345,9 +342,9 @@ class GenericContainerBox extends GenericFormattedBox {
         if (!$this->parent->offset_if_first($box, $dx, $dy)) {
           $this->offset($dx, $dy);
           return true;
-        };
-      };
-    };
+        }
+      }
+    }
     return false;
   }
     
@@ -358,14 +355,14 @@ class GenericContainerBox extends GenericFormattedBox {
     $this->_current_y += $dy;
 
     // Offset contents
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i < $size; $i++) {
       $this->content[$i]->offset($dx, $dy);
     }
   }
 
-  function GenericContainerBox() {
-    $this->GenericFormattedBox();
+  function __construct() {
+    GenericFormattedBox::__construct();
 
     // By default, box does not have any content
     $this->content = array();
@@ -402,7 +399,7 @@ class GenericContainerBox extends GenericFormattedBox {
       $box_child =& create_pdf_box($child, $pipeline);
       $this->add_child($box_child);
       $child = $child->next_sibling();
-    };
+    }
   }
 
   // Content-handling functions
@@ -411,33 +408,25 @@ class GenericContainerBox extends GenericFormattedBox {
     return true;
   }
 
-  function get_content() {
-    return join('', array_map(array($this, 'get_content_callback'), $this->content));
-  }
-
-  function get_content_callback(&$node) {
-    return $node->get_content();
-  }
-
   // Get total height of this box content (including floats, if any)
   // Note that floats can be contained inside children, so we'll need to use
   // this function recusively 
   function get_real_full_height() {
-    $content_size = count($this->content);
+    $content_size = is_countable($this->content) ? count($this->content) : 0;
 
-    $overflow = $this->get_css_property(CSS_OVERFLOW);
+    $overflow = $this->getCSSProperty(CSS_OVERFLOW);
 
     // Treat items with overflow: hidden specifically, 
     // as floats flown out of this boxes will not be visible
     if ($overflow == OVERFLOW_HIDDEN) {
       return $this->get_full_height();
-    };
+    }
 
     // Check if this object is totally empty
     $first = $this->get_first();
     if (is_null($first)) { 
       return 0; 
-    };
+    }
 
     // Initialize the vertical extent taken by content using the 
     // very first child
@@ -460,7 +449,7 @@ class GenericContainerBox extends GenericFormattedBox {
           $min_bottom = min($min_bottom,
                             $this->content[$i]->get_bottom_margin());
         } else {
-          $content_overflow = $this->content[$i]->get_css_property(CSS_OVERFLOW);
+          $content_overflow = $this->content[$i]->getCSSProperty(CSS_OVERFLOW);
 
           if ($content_overflow == OVERFLOW_HIDDEN) {
             $min_bottom = min($min_bottom,
@@ -470,9 +459,9 @@ class GenericContainerBox extends GenericFormattedBox {
                               $this->content[$i]->get_bottom_margin(),
                               $this->content[$i]->get_top_margin() - 
                               $this->content[$i]->get_real_full_height());
-          };
-        };
-      };
+          }
+        }
+      }
     }
 
     return max(0, $max_top - $min_bottom) + $this->_get_vert_extra();
@@ -497,10 +486,10 @@ class GenericContainerBox extends GenericFormattedBox {
           $sum += $element->get_full_width() - $element->getWrappedWidth();
         } else {
           $sum += $element->getWrappedWidthAndHyphen();
-        };
+        }
       } else {
         $sum += $element->get_full_width();
-      };
+      }
 
       if ($element->parent) {
         $first = $element->parent->get_first();
@@ -513,14 +502,14 @@ class GenericContainerBox extends GenericFormattedBox {
         if (!is_null($last) && $last->uid === $element->uid) { 
           $sum += $element->parent->get_extra_line_right(); 
         }
-      };
+      }
     }
 
     if ($this->_first_line) {
-      $ti = $this->get_css_property(CSS_TEXT_INDENT);
+      $ti = $this->getCSSProperty(CSS_TEXT_INDENT);
       $sum += $ti->calculate($this);
       $sum += $this->_additional_text_indent;
-    };
+    }
 
     return $sum;
   }
@@ -537,7 +526,7 @@ class GenericContainerBox extends GenericFormattedBox {
     if ($size < 1) {
       $dummy = null;
       return $dummy;
-    };
+    }
 
     return $this->_line[$size-1];
   }
@@ -545,7 +534,7 @@ class GenericContainerBox extends GenericFormattedBox {
   // WIDTH
 
   function get_min_width_natural(&$context) {
-    $content_size = count($this->content);
+    $content_size = is_countable($this->content) ? count($this->content) : 0;
 
     /**
      * If box does not have any context, its minimal width is determined by extra horizontal space:
@@ -554,13 +543,13 @@ class GenericContainerBox extends GenericFormattedBox {
     if ($content_size == 0) { 
       $min_width = $this->_get_hor_extra();
       return $min_width;
-    };
+    }
 
     /**
      * If we're in 'nowrap' mode, minimal and maximal width will be equal
      */
-    $white_space = $this->get_css_property(CSS_WHITE_SPACE);
-    $pseudo_nowrap = $this->get_css_property(CSS_HTML2PS_NOWRAP);
+    $white_space = $this->getCSSProperty(CSS_WHITE_SPACE);
+    $pseudo_nowrap = $this->getCSSProperty(CSS_HTML2PS_NOWRAP);
     if ($white_space   == WHITESPACE_NOWRAP || 
         $pseudo_nowrap == NOWRAP_NOWRAP) { 
       $min_width = $this->get_min_nowrap_width($context);
@@ -574,28 +563,28 @@ class GenericContainerBox extends GenericFormattedBox {
     while ($start_index < $content_size && 
            $this->content[$start_index]->out_of_flow()) { 
       $start_index++; 
-    };
+    }
 
     if ($start_index < $content_size) {
-      $ti = $this->get_css_property(CSS_TEXT_INDENT);
+      $ti = $this->getCSSProperty(CSS_TEXT_INDENT);
       $minw = 
         $ti->calculate($this) + 
         $this->content[$start_index]->get_min_width_natural($context);
     } else {
       $minw = 0;
-    };
+    }
 
     for ($i=$start_index; $i<$content_size; $i++) {
       $item =& $this->content[$i];
       if (!$item->out_of_flow()) {
         $minw = max($minw, $item->get_min_width($context));
-      };
+      }
     }
 
     /**
      * Apply width constraint to min width. Return maximal value
      */
-    $wc = $this->get_css_property(CSS_WIDTH);
+    $wc = $this->getCSSProperty(CSS_WIDTH);
     $containing_block =& $this->_get_containing_block();
 
     $min_width = $minw;
@@ -627,15 +616,15 @@ class GenericContainerBox extends GenericFormattedBox {
 
   function close_line(&$context, $lastline = false) {
     // Align line-box using 'text-align' property
-    $size = count($this->_line);
+    $size = is_countable($this->_line) ? count($this->_line) : 0;
 
     if ($size > 0) {
       $last_item =& $this->_line[$size-1];
       if (is_whitespace($last_item)) {
         $last_item->width = 0;
         $last_item->height = 0;
-      };
-    };
+      }
+    }
 
     // Note that text-align should not be applied to the block boxes!
     // As block boxes will be alone in the line-box, we can check
@@ -643,15 +632,15 @@ class GenericContainerBox extends GenericFormattedBox {
     //
     if ($size > 0) {
       if (is_inline($this->_line[0])) {
-        $cb = CSSTextAlign::value2pdf($this->get_css_property(CSS_TEXT_ALIGN));
+        $cb = (new CSSTextAlign())->value2pdf($this->getCSSProperty(CSS_TEXT_ALIGN));
         $cb($this, $context, $lastline);
       } else {
         // Nevertheless, CENTER tag and P/DIV with ALIGN attribute set should affect the 
         // position of non-inline children.
-        $cb = CSSPseudoAlign::value2pdf($this->get_css_property(CSS_HTML2PS_ALIGN));
+        $cb = (new CSSPseudoAlign())->value2pdf($this->getCSSProperty(CSS_HTML2PS_ALIGN));
         $cb($this, $context, $lastline);
-      };
-    };
+      }
+    }
 
     // Apply vertical align to all of the line content
     // first, we need to aling all baseline-aligned boxes to determine the basic line-box height, top and bottom edges
@@ -662,7 +651,7 @@ class GenericContainerBox extends GenericFormattedBox {
     $baseline = 0;
     $height = 0;
     for ($i=0; $i < $size; $i++) {
-      $vertical_align = $this->_line[$i]->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $this->_line[$i]->getCSSProperty(CSS_VERTICAL_ALIGN);
 
       if ($vertical_align == VA_BASELINE) {
         // Add current baseline-aligned item to the baseline
@@ -671,10 +660,10 @@ class GenericContainerBox extends GenericFormattedBox {
 
         $baseline = max($baseline, 
                         $this->_line[$i]->default_baseline);
-      };
-    };
+      }
+    }
 
-    $size_baselined = count($baselined);
+    $size_baselined = is_countable($baselined) ? count($baselined) : 0;
     for ($i=0; $i < $size_baselined; $i++) {
       $baselined[$i]->baseline = $baseline;
 
@@ -682,98 +671,98 @@ class GenericContainerBox extends GenericFormattedBox {
                     $baselined[$i]->get_full_height() + $baselined[$i]->getBaselineOffset(),
                     $baselined[$i]->get_ascender() + $baselined[$i]->get_descender());
 
-    };
+    }
 
     // SUB vertical align
     //
     for ($i=0; $i < $size; $i++) {
-      $vertical_align = $this->_line[$i]->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $this->_line[$i]->getCSSProperty(CSS_VERTICAL_ALIGN);
       if ($vertical_align == VA_SUB) {
         $this->_line[$i]->baseline = 
           $baseline + $this->_line[$i]->get_full_height()/2;
-      };
+      }
     }
 
     // SUPER vertical align
     //
     for ($i=0; $i < $size; $i++) {
-      $vertical_align = $this->_line[$i]->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $this->_line[$i]->getCSSProperty(CSS_VERTICAL_ALIGN);
       if ($vertical_align == VA_SUPER) {
         $this->_line[$i]->baseline = $this->_line[$i]->get_full_height()/2;
-      };
+      }
     }
 
     // MIDDLE vertical align
     //
     $middle = 0;
     for ($i=0; $i < $size; $i++) {
-      $vertical_align = $this->_line[$i]->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $this->_line[$i]->getCSSProperty(CSS_VERTICAL_ALIGN);
       if ($vertical_align == VA_MIDDLE) {
         $middle = max($middle, $this->_line[$i]->get_full_height() / 2);
-      };
-    };
+      }
+    }
 
     if ($middle * 2 > $height) {
       // Offset already aligned items
       //
       for ($i=0; $i < $size; $i++) {
         $this->_line[$i]->baseline += ($middle - $height/2);
-      };      
+      }      
       $height = $middle * 2;
-    };
+    }
  
     for ($i=0; $i < $size; $i++) {
-      $vertical_align = $this->_line[$i]->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $this->_line[$i]->getCSSProperty(CSS_VERTICAL_ALIGN);
       if ($vertical_align == VA_MIDDLE) {
         $this->_line[$i]->baseline = $this->_line[$i]->default_baseline + ($height/2 - $this->_line[$i]->get_full_height()/2);
-      };
+      }
     }
 
     // BOTTOM vertical align
     //
     $bottom = 0;
     for ($i=0; $i < $size; $i++) {
-      $vertical_align = $this->_line[$i]->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $this->_line[$i]->getCSSProperty(CSS_VERTICAL_ALIGN);
       if ($vertical_align == VA_BOTTOM) {
         $bottom = max($bottom, $this->_line[$i]->get_full_height());
-      };
-    };
+      }
+    }
 
     if ($bottom > $height) {
       // Offset already aligned items
       //
       for ($i=0; $i < $size; $i++) {
         $this->_line[$i]->baseline += ($bottom - $height);
-      };      
+      }      
       $height = $bottom;
-    };
+    }
 
     for ($i=0; $i < $size; $i++) {
-      $vertical_align = $this->_line[$i]->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $this->_line[$i]->getCSSProperty(CSS_VERTICAL_ALIGN);
       if ($vertical_align == VA_BOTTOM) {
         $this->_line[$i]->baseline = $this->_line[$i]->default_baseline + $height - $this->_line[$i]->get_full_height();
-      };
+      }
     }
 
     // TOP vertical align
     //
     $bottom = 0;
     for ($i=0; $i < $size; $i++) {
-      $vertical_align = $this->_line[$i]->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $this->_line[$i]->getCSSProperty(CSS_VERTICAL_ALIGN);
       if ($vertical_align == VA_TOP) {
         $bottom = max($bottom, $this->_line[$i]->get_full_height());
-      };
-    };
+      }
+    }
 
     if ($bottom > $height) {
       $height = $bottom;
-    };
+    }
 
     for ($i=0; $i < $size; $i++) {
-      $vertical_align = $this->_line[$i]->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $this->_line[$i]->getCSSProperty(CSS_VERTICAL_ALIGN);
       if ($vertical_align == VA_TOP) {
         $this->_line[$i]->baseline = $this->_line[$i]->default_baseline;
-      };
+      }
     }
 
     // Calculate the bottom Y coordinate of last line box
@@ -790,8 +779,7 @@ class GenericContainerBox extends GenericFormattedBox {
 
       $effective_bottom = 
         $line_element->get_top() - 
-        $line_element->get_height() - 
-        $line_element->get_extra_bottom();
+        $line_element->get_height();
 
       $this->extend_height($effective_bottom);
       $line_bottom = min($effective_bottom, $line_bottom);
@@ -809,9 +797,10 @@ class GenericContainerBox extends GenericFormattedBox {
     $this->_current_y = $line_bottom;
 
     // Render the deferred floats
-    for ($i = 0, $size = count($this->_deferred_floats); $i < $size; $i++) {
+    $countDeferredFloats = is_countable($this->_deferred_floats) ? count($this->_deferred_floats) : 0;
+    for ($i = 0, $size = $countDeferredFloats; $i < $size; $i++) {
       $this->_deferred_floats[$i]->reflow_static_float($this, $context);
-    };
+    }
     // Clear deferred float list
     $this->_deferred_floats = array();
 
@@ -835,19 +824,19 @@ class GenericContainerBox extends GenericFormattedBox {
     // Scan line box
     for ($i=0; $i<$size; $i++) {
       if (!is_whitespace($this->_line[$i]) && 
-          !$this->_line[$i]->is_null()) { return false; };
+          !$this->_line[$i]->is_null()) { return false; }
     }
 
     // No non-whitespace boxes were found
     return true;
   }
 
-  function reflow_anchors(&$viewport, &$anchors, $page_heights) {
-    GenericFormattedBox::reflow_anchors($viewport, $anchors, $page_heights);
+  function reflow_anchors(&$viewport, &$anchors) {
+    GenericFormattedBox::reflow_anchors($viewport, $anchors);
 
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
-      $this->content[$i]->reflow_anchors($viewport, $anchors, $page_heights);
+      $this->content[$i]->reflow_anchors($viewport, $anchors);
     }
   }
 
@@ -855,16 +844,16 @@ class GenericContainerBox extends GenericFormattedBox {
     $float_bottom = $context->float_bottom();     
     if (!is_null($float_bottom)) { 
       $this->extend_height($float_bottom); 
-    };
+    }
     
     $float_right = $context->float_right();
     if (!is_null($float_right)) { 
       $this->extend_width($float_right); 
-    };
+    }
   }
 
   function reflow_content(&$context) {
-    $text_indent = $this->get_css_property(CSS_TEXT_INDENT);
+    $text_indent = $this->getCSSProperty(CSS_TEXT_INDENT);
 
     $this->close_line($context);
 
@@ -876,35 +865,35 @@ class GenericContainerBox extends GenericFormattedBox {
       if (is_inline($first)) {
         $this->_current_x += $text_indent->calculate($this);
         $this->_current_x += $this->_additional_text_indent;
-      };
-    };
+      }
+    }
 
     $this->height = 0;
     // Reset current Y value
     $this->_current_y = $this->get_top();
 
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i < $size; $i++) {
       $child =& $this->content[$i];
       $child->reflow($this, $context);
-    };
+    }
 
     $this->close_line($context, true);
   }
 
   function reflow_inline() {
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
       $this->content[$i]->reflow_inline();
-    };
+    }
   }
 
   function reflow_text(&$viewport) {
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
       if (is_null($this->content[$i]->reflow_text($viewport))) {
         return null;
-      };
+      }
     }
     return true;
   }
@@ -917,7 +906,7 @@ class GenericContainerBox extends GenericFormattedBox {
     if (!$parent->line_box_empty()) {
       $parent->add_deferred_float($this);
       return;
-    };
+    }
 
     // Calculate margin values if they have been set as a percentage
     $this->_calc_percentage_margins($parent);
@@ -938,12 +927,12 @@ class GenericContainerBox extends GenericFormattedBox {
     $y = $this->apply_clear($parent->_current_y, $context);
 
     // determine the position of top-left floating box corner
-    if ($this->get_css_property(CSS_FLOAT) === FLOAT_RIGHT) {
+    if ($this->getCSSProperty(CSS_FLOAT) === FLOAT_RIGHT) {
       $context->float_right_xy($parent, $this->get_full_width(), $x, $y);
       $x -= $this->get_full_width();
     } else {
       $context->float_left_xy($parent, $this->get_full_width(), $x, $y);
-    };
+    }
 
     // Note that $x and $y contain just a free space corner coordinate;
     // If our float has a margin/padding space, we'll need to offset ot a little;
@@ -985,12 +974,12 @@ class GenericContainerBox extends GenericFormattedBox {
     $previous_whitespace = false;
     $linebox_started = false;
 
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
       $child =& $this->content[$i];
 
       $child->reflow_whitespace($linebox_started, $previous_whitespace);      
-    };
+    }
 
     // remove the last whitespace in block box
     $this->remove_last_whitespace();
@@ -999,7 +988,7 @@ class GenericContainerBox extends GenericFormattedBox {
     // at this moment and new line box after this will be generated
     if (!is_inline($this)) { 
       $linebox_started = false; 
-    };
+    }
 
     return;
   }
@@ -1007,7 +996,7 @@ class GenericContainerBox extends GenericFormattedBox {
   function remove_last_whitespace() {
     if (count($this->content) == 0) { 
       return; 
-    };
+    }
 
     $i = count($this->content)-1;
     $last = $this->content[$i];
@@ -1017,23 +1006,23 @@ class GenericContainerBox extends GenericFormattedBox {
       $i --;
       if ($i >= 0) {
         $last = $this->content[$i];
-      };
-    };
+      }
+    }
 
     if ($i >= 0) {
       if (is_container($this->content[$i])) {
         $this->content[$i]->remove_last_whitespace();
-      };
-    };
+      }
+    }
   }
 
   function remove(&$box) {
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
       if ($this->content[$i]->uid === $box->uid) {
-        $this->content[$i] = NullBox::create();
-      };
-    };
+        $this->content[$i] = (new NullBox())->create();
+      }
+    }
 
     return;
   }
@@ -1043,16 +1032,16 @@ class GenericContainerBox extends GenericFormattedBox {
 
     // Check if there's no first box at all
     //
-    if (is_null($first)) { return false; };
+    if (is_null($first)) { return false; }
 
     return $first->uid == $box->uid;
   }
 
   function is_null() {
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
-      if (!$this->content[$i]->is_null()) { return false; };
-    };
+      if (!$this->content[$i]->is_null()) { return false; }
+    }
     return true;
   }
 
@@ -1067,26 +1056,26 @@ class GenericContainerBox extends GenericFormattedBox {
   }
 
   function pre_reflow_images() {
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count($this->content) : 0;
     for ($i=0; $i<$size; $i++) {
       $this->content[$i]->pre_reflow_images();
-    };
+    }
   }
 
   function _setupClip(&$driver) {
     if (!is_null($this->parent)) {
       $this->parent->_setupClip($driver);
-    };
+    }
 
-    $overflow = $this->get_css_property(CSS_OVERFLOW);
-    if ($overflow !== OVERFLOW_VISIBLE && !$GLOBALS['g_config']['debugnoclip']) {
+    $overflow = $this->getCSSProperty(CSS_OVERFLOW);
+    if ($overflow !== OVERFLOW_VISIBLE) {
       $driver->moveto( $this->get_left_border() , $this->get_top_border());
       $driver->lineto( $this->get_right_border(), $this->get_top_border());
       $driver->lineto( $this->get_right_border(), $this->get_bottom_border());
       $driver->lineto( $this->get_left_border() , $this->get_bottom_border());
       $driver->closepath();
       $driver->clip();
-    };
+    }
   }
 
   /**
@@ -1098,7 +1087,7 @@ class GenericContainerBox extends GenericFormattedBox {
     } else {
       $dummy = null;
       return $dummy;
-    };
+    }
   }
   
   /* 

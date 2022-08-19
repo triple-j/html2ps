@@ -1,16 +1,16 @@
 <?php
-// $Header: /cvsroot/html2ps/box.img.php,v 1.50 2007/05/06 18:49:29 Konstantin Exp $
+// $Header: /cvsroot/html2ps/box.img.php,v 1.48 2007/01/09 20:13:48 Konstantin Exp $
 
 define('SCALE_NONE',0);
 define('SCALE_WIDTH',1);
 define('SCALE_HEIGHT',2);
 
 class GenericImgBox extends GenericInlineBox {
-  function GenericImgBox() {
-    $this->GenericInlineBox();
+  function __construct() {
+    GenericInlineBox::__construct();
   }
 
-  function get_max_width_natural(&$context) {
+  function get_max_width_natural(&$context, $limit = 10000000) {
     return $this->get_full_width($context);
   }
 
@@ -18,7 +18,7 @@ class GenericImgBox extends GenericInlineBox {
     return $this->get_full_width(); 
   }
 
-  function get_max_width(&$context) { 
+  function get_max_width(&$context, $limit = 10000000) {
     return $this->get_full_width(); 
   }
 
@@ -50,18 +50,7 @@ class GenericImgBox extends GenericInlineBox {
 
       $this->default_baseline = $this->get_full_height();
       break;
-    };
-  }
-
-  function readCSS(&$state) {
-    parent::readCSS($state);
-
-    // '-html2ps-link-target'
-    global $g_config;
-    if ($g_config["renderlinks"]) {
-      $this->_readCSS($state, 
-                      array(CSS_HTML2PS_LINK_TARGET));
-    };
+    }
   }
 
   function reflow_static(&$parent, &$context) {  
@@ -91,12 +80,12 @@ class GenericImgBox extends GenericInlineBox {
   function _get_font_name(&$driver, $subword_index) {
     if (isset($this->_cache[CACHE_TYPEFACE][$subword_index])) {
       return $this->_cache[CACHE_TYPEFACE][$subword_index];
-    };
+    }
 
     $font_resolver =& $driver->get_font_resolver();
 
-    $font = $this->get_css_property(CSS_FONT);
-    $typeface = $font_resolver->get_typeface_name($font->family, 
+    $font = $this->getCSSProperty(CSS_FONT);
+    $typeface = $font_resolver->getTypefaceName($font->family, 
                                                 $font->weight, 
                                                 $font->style, 
                                                 'iso-8859-1');
@@ -124,18 +113,18 @@ class GenericImgBox extends GenericInlineBox {
       if (is_null($ascender)) {
         error_log("ImgBox::reflow_text: cannot get font ascender");
         return null;
-      };
+      }
 
       $descender = $driver->font_descender($font_name, 'iso-8859-1'); 
       if (is_null($descender)) {
         error_log("ImgBox::reflow_text: cannot get font descender");
         return null;
-      };
+      }
 
       /**
        * Setup box size
        */
-      $font = $this->get_css_property(CSS_FONT_SIZE);
+      $font = $this->getCSSProperty(CSS_FONT_SIZE);
       $font_size       = $font->getPoints();
 
       $this->ascender         = $ascender  * $font_size;
@@ -143,7 +132,7 @@ class GenericImgBox extends GenericInlineBox {
     } else {
       $this->ascender = $this->get_height();
       $this->descender = 0;
-    };
+    }
 
     return true;
   }
@@ -164,12 +153,12 @@ class GenericImgBox extends GenericInlineBox {
 class BrokenImgBox extends GenericImgBox {
   var $alt;
 
-  function BrokenImgBox($width, $height, $alt) {
+  function __construct($width, $height, $alt) {
     $this->scale = SCALE_NONE;
     $this->encoding = DEFAULT_ENCODING;
 
     // Call parent constructor
-    $this->GenericImgBox();
+    GenericImgBox::__construct();
 
     $this->alt = $alt;
   }  
@@ -188,14 +177,12 @@ class BrokenImgBox extends GenericImgBox {
     $driver->closepath();
     $driver->stroke();
 
-    if (!$GLOBALS['g_config']['debugnoclip']) {
-      $driver->moveto($this->get_left(),  $this->get_top());
-      $driver->lineto($this->get_right(), $this->get_top());
-      $driver->lineto($this->get_right(), $this->get_bottom());
-      $driver->lineto($this->get_left(),  $this->get_bottom());
-      $driver->closepath();
-      $driver->clip();
-    };
+    $driver->moveto($this->get_left(),  $this->get_top());
+    $driver->lineto($this->get_right(), $this->get_top());
+    $driver->lineto($this->get_right(), $this->get_bottom());
+    $driver->lineto($this->get_left(),  $this->get_bottom());
+    $driver->closepath();
+    $driver->clip();
 
     // Output text with the selected font
     $size = pt2pt(BROKEN_IMAGE_ALT_SIZE_PT);
@@ -203,7 +190,7 @@ class BrokenImgBox extends GenericImgBox {
     $status = $driver->setfont("Times-Roman", "iso-8859-1", $size);
     if (is_null($status)) {
       return null;
-    };
+    }
 
     $driver->show_xy($this->alt, 
                      $this->get_left() + $this->width/2 - $driver->stringwidth($this->alt, 
@@ -214,28 +201,11 @@ class BrokenImgBox extends GenericImgBox {
 
     $driver->restore();
 
-    $strategy =& new StrategyLinkRenderingNormal();
-    $strategy->apply($this, $driver);
-
     return true;
   }
 }
 
 class ImgBox extends GenericImgBox {
-  var $image;
-  var $type; // unused; should store the preferred image format (JPG / PNG)
-
-  function ImgBox($img) {
-    $this->encoding = DEFAULT_ENCODING;
-    $this->scale = SCALE_NONE;
-
-    // Call parent constructor
-    $this->GenericImgBox();
-
-    // Store image for further processing
-    $this->image = $img;
-  }
-
   function &create(&$root, &$pipeline) {
     // Open image referenced by HTML tag
     // Some crazy HTML writers add leading and trailing spaces to SRC attribute value - we need to remove them
@@ -244,7 +214,7 @@ class ImgBox extends GenericImgBox {
     $src = $url_autofix->apply(trim($root->get_attribute("src")));
 
     $image_url = $pipeline->guess_url($src);
-    $src_img = ImageFactory::get($image_url, $pipeline);
+    $src_img = (new Image())->get($image_url, $pipeline);
 
     if (is_null($src_img)) {
       // image could not be opened, use ALT attribute
@@ -253,19 +223,19 @@ class ImgBox extends GenericImgBox {
         $width = px2pt($root->get_attribute('width'));
       } else {
         $width = px2pt(BROKEN_IMAGE_DEFAULT_SIZE_PX);
-      };
+      }
 
       if ($root->has_attribute('height')) {
         $height = px2pt($root->get_attribute('height'));
       } else {
         $height = px2pt(BROKEN_IMAGE_DEFAULT_SIZE_PX);
-      };
+      }
 
       $alt = $root->get_attribute('alt');
 
-      $box =& new BrokenImgBox($width, $height, $alt);
+      $box= new BrokenImgBox($width, $height, $alt);
 
-      $box->readCSS($pipeline->get_current_css_state());
+      $box->readCSS($pipeline->getCurrentCSSState());
 
       $box->put_width($width);
       $box->put_height($height);
@@ -277,8 +247,10 @@ class ImgBox extends GenericImgBox {
       
       return $box;
     } else {
-      $box =& new ImgBox($src_img);
-      $box->readCSS($pipeline->get_current_css_state());
+      $box= new ImgBox($src_img);
+
+      $box->readCSS($pipeline->getCurrentCSSState());
+
       $box->_setupSize();
      
       return $box;
@@ -286,14 +258,14 @@ class ImgBox extends GenericImgBox {
   }
 
   function _setupSize() {
-    $this->put_width(px2pt($this->image->sx()));
-    $this->put_height(px2pt($this->image->sy()));
+    $this->put_width(px2pt(imagesx($this->image)));
+    $this->put_height(px2pt(imagesy($this->image)));
     $this->default_baseline = $this->get_full_height();
      
-    $this->src_height = $this->image->sx();
-    $this->src_width  = $this->image->sy();
+    $this->src_height = imagesx($this->image);
+    $this->src_width  = imagesy($this->image);
 
-    $wc = $this->get_css_property(CSS_WIDTH);
+    $wc = $this->getCSSProperty(CSS_WIDTH);
     $hc = $this->get_height_constraint();
 
     // Proportional scaling 
@@ -322,7 +294,18 @@ class ImgBox extends GenericImgBox {
       $this->setCSSProperty(CSS_WIDTH, new WCConstant($size));
         
       $this->default_baseline = $this->get_full_height();
-    };
+    }
+  }
+
+  function __construct($img = null) {
+    $this->encoding = DEFAULT_ENCODING;
+    $this->scale = SCALE_NONE;
+
+    // Call parent constructor
+    GenericImgBox::__construct();
+
+    // Store image for further processing
+    $this->image = $img;
   }
 
   function show(&$driver) {
@@ -335,15 +318,11 @@ class ImgBox extends GenericImgBox {
     if ($this->get_width() < EPSILON ||
         $this->get_height() < EPSILON) {
       return true;
-    };
+    }
 
     $driver->image_scaled($this->image, 
                           $this->get_left(), $this->get_bottom(),
-                          $this->get_width() / $this->image->sx(), 
-                          $this->get_height() / $this->image->sy());
-
-    $strategy =& new StrategyLinkRenderingNormal();
-    $strategy->apply($this, $driver);
+                          $this->get_width() / imagesx($this->image), $this->get_height() / imagesy($this->image));
 
     return true;
   }

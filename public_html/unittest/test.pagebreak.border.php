@@ -29,7 +29,7 @@ LINE5
     /**
      * Calculate page heights
      */
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
@@ -38,7 +38,7 @@ LINE5
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("Two pages expected, got %s", 
-                               count($page_heights)));
+                               count((array) $page_heights)));
     $this->assertEqual($page_heights[0], 
                        $first_div->get_full_height());
   }
@@ -71,7 +71,7 @@ LINE5
     /**
      * Calculate page heights
      */
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
@@ -80,7 +80,7 @@ LINE5
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("Two pages expected, got %s", 
-                               count($page_heights)));
+                               count((array) $page_heights)));
     $this->assertEqual($page_heights[0], 
                        $first_div->get_full_height() + pt2pt(20));
   }

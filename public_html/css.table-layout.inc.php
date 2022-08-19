@@ -5,8 +5,8 @@ define('TABLE_LAYOUT_AUTO',   1);
 define('TABLE_LAYOUT_FIXED',  2);
 
 class CSSTableLayout extends CSSPropertyStringSet {
-  function CSSTableLayout() { 
-    $this->CSSPropertyStringSet(false, 
+  function __construct() {
+    CSSPropertyStringSet::__construct(false,
                                 false,
                                 array('auto'  => TABLE_LAYOUT_AUTO,
                                       'fixed' => TABLE_LAYOUT_FIXED)); 
@@ -16,15 +16,15 @@ class CSSTableLayout extends CSSPropertyStringSet {
     return TABLE_LAYOUT_AUTO; 
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_TABLE_LAYOUT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'table-layout';
   }
 }
 
-CSS::register_css_property(new CSSTableLayout());
+(new CSS())->register_css_property(new CSSTableLayout());
   
 ?>

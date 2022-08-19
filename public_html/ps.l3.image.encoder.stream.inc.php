@@ -3,21 +3,21 @@
 require_once(HTML2PS_DIR.'ps.image.encoder.stream.inc.php');
 
 class PSL3ImageEncoderStream extends PSImageEncoderStream {
-  function PSL3ImageEncoderStream() {
+  function __construct() {
     $this->last_image_id = 0;
   }
 
   function auto(&$psdata, $src_img, &$size_x, &$size_y, &$tcolor, &$image, &$mask) {
-    if (imagecolortransparent($src_img->get_handle()) == -1) {
-      $id = $this->solid($psdata, $src_img->get_handle(), $size_x, $size_y, $image->get_handle(), $mask);
+    if (imagecolortransparent($src_img) == -1) {
+      $id = $this->solid($psdata, $src_img, $size_x, $size_y, $image, $mask);
       $tcolor = 0;
       return $id;
     } else {
-      $id = $this->transparent($psdata, $src_img->get_handle(), $size_x, $size_y, $image->get_handle(), $mask);
+      $id = $this->transparent($psdata, $src_img, $size_x, $size_y, $image, $mask);
       $tcolor = 1;
 
       return $id;
-    };
+    }
   }
 
   // Encodes "solid" image without any transparent parts
@@ -61,8 +61,8 @@ class PSL3ImageEncoderStream extends PSImageEncoderStream {
           $psdata->write("\n");
           $ctr = 0;
         }
-      };
-    };
+      }
+    }
 
     // terminate the stream data
     $psdata->write(">\ndef\n");
@@ -121,8 +121,8 @@ class PSL3ImageEncoderStream extends PSImageEncoderStream {
           $psdata->write("\n");
           $ctr = 0;
         }
-      };
-    };
+      }
+    }
 
     // terminate the stream data
     $psdata->write(">\ndef\n");
@@ -144,7 +144,7 @@ class PSL3ImageEncoderStream extends PSImageEncoderStream {
           $mask_data = ($mask_data << 1) | 0x1;
         } else {
           $mask_data = ($mask_data << 1);
-        };
+        }
         $bit_ctr ++;
 
         // If we've filled the whole byte,  write it into the mask data stream
@@ -153,7 +153,7 @@ class PSL3ImageEncoderStream extends PSImageEncoderStream {
           while ($bit_ctr < 8) {
             $mask_data = ($mask_data << 1) | 0x01;
             $bit_ctr ++;
-          };
+          }
           
           $psdata->write(sprintf("%02X", $mask_data & 0xff)); 
 
@@ -167,9 +167,9 @@ class PSL3ImageEncoderStream extends PSImageEncoderStream {
             $psdata->write("\n");
             $ctr = 0;
           }
-        };
-      };
-    };
+        }
+      }
+    }
 
     // terminate the stream data
     // Write any incomplete mask byte to the mask data stream
@@ -180,7 +180,7 @@ class PSL3ImageEncoderStream extends PSImageEncoderStream {
         $bit_ctr ++;
       }
       $psdata->write(sprintf("%02X", $mask_data));
-    };
+    }
     $psdata->write(">\ndef\n");
 
     // return image and mask data references
@@ -206,7 +206,7 @@ class PSL3ImageEncoderStream extends PSImageEncoderStream {
     $ctr = 0;
 
     // Save visible background color
-    $handler =& CSS::get_handler(CSS_BACKGROUND_COLOR);
+    $handler =& (new CSS())->get_handler(CSS_BACKGROUND_COLOR);
     $bg = $handler->get_visible_background_color();
 
     for ($y = 0; $y < $size_y; $y++) {
@@ -233,8 +233,8 @@ class PSL3ImageEncoderStream extends PSImageEncoderStream {
           $psdata->write("\n");
           $ctr = 0;
         }
-      };
-    };
+      }
+    }
 
     // terminate the stream data
     $psdata->write(">\ndef\n");

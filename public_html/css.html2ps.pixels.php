@@ -1,8 +1,8 @@
 <?php
 
 class CSSHTML2PSPixels extends CSSPropertyHandler {
-  function CSSHTML2PSPixels() { 
-    $this->CSSPropertyHandler(false, false); 
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
   }
 
   function &default_value() { 
@@ -24,6 +24,6 @@ class CSSHTML2PSPixels extends CSSPropertyHandler {
   }
 }
 
-CSS::register_css_property(new CSSHTML2PSPixels);
+(new CSS())->register_css_property(new CSSHTML2PSPixels);
 
 ?>

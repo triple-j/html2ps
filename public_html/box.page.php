@@ -2,11 +2,11 @@
 
 class BoxPage extends GenericContainerBox {
   function BoxPageMargin() {
-    $this->GenericContainerBox();
+    GenericContainerBox::__construct();
   }
 
   function &create(&$pipeline, $rules) {
-    $box =& new BoxPage();
+    $box= new BoxPage();
 
     $state =& $pipeline->get_current_css_state();
     $state->pushDefaultState();

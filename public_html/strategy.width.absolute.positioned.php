@@ -1,7 +1,7 @@
 <?php
 
 class StrategyWidthAbsolutePositioned {
-  function StrategyWidthAbsolutePositioned() {
+  function __construct() {
   }
 
   /**
@@ -12,9 +12,9 @@ class StrategyWidthAbsolutePositioned {
     $containing_block =& $box->_get_containing_block();
     $containing_block_width = $containing_block['right'] - $containing_block['left'];
 
-    $right =& $box->get_css_property(CSS_RIGHT);
-    $left =& $box->get_css_property(CSS_LEFT);
-    $wc =& $box->get_css_property(CSS_WIDTH);
+    $right =& $box->getCSSProperty(CSS_RIGHT);
+    $left =& $box->getCSSProperty(CSS_LEFT);
+    $wc =& $box->getCSSProperty(CSS_WIDTH);
 
     // For the purposes of this section and the next, the term "static
     // position" (of  an element) refers, roughly, to  the position an
@@ -81,8 +81,8 @@ class StrategyWidthAbsolutePositioned {
     // apply rule number one below.
     if ($left->isAuto() && $right->isAuto() && $wc->isNull()) {
       // @todo: support 'direction' property for the containing block
-      $box->setCSSProperty(CSS_LEFT, ValueLeft::fromString('0'));
-    };
+      $box->setCSSProperty(CSS_LEFT, (new ValueLeft())->fromString('0'));
+    }
 
     // If  none of  the three  is  'auto': If  both 'margin-left'  and
     // 'margin-right' are  'auto', solve the equation  under the extra
@@ -100,7 +100,7 @@ class StrategyWidthAbsolutePositioned {
       // @todo: implement
       $box->put_width($wc->apply($box->get_width(), 
                                  $containing_block_width));
-    };
+    }
 
     // Otherwise,   set   'auto'    values   for   'margin-left'   and
     // 'margin-right'  to 0,  and pick  the one  of the  following six
@@ -110,7 +110,7 @@ class StrategyWidthAbsolutePositioned {
     // 'auto', then the width is shrink-to-fit. Then solve for 'left')
     if ($left->isAuto() && !$right->isAuto() && $wc->isNull()) {
       $box->put_width($shrink_to_fit_width);
-    };
+    }
 
     // Case  2 ('left'  and  'right'  are 'auto'  and  'width' is  not
     // 'auto',  then if  the  'direction' property  of the  containing
@@ -121,21 +121,21 @@ class StrategyWidthAbsolutePositioned {
       // @todo: implement 'direction' support
       $box->put_width($wc->apply($box->get_width(), 
                                  $containing_block_width));
-    };
+    }
 
     // Case  3 ('width'  and  'right'  are 'auto'  and  'left' is  not
     // 'auto',  then  the width  is  shrink-to-fit  .  Then solve  for
     // 'right')
     if (!$left->isAuto() && $right->isAuto() && $wc->isNull()) {
       $box->put_width($shrink_to_fit_width);
-    };
+    }
 
     // Case 4 ('left'  is 'auto', 'width' and 'right'  are not 'auto',
     // then solve for 'left')
     if ($left->isAuto() && !$right->isAuto() && !$wc->isNull()) {
       $box->put_width($wc->apply($box->get_width(), 
                                  $containing_block_width));
-    };
+    }
 
     // Case 5 ('width'  is 'auto', 'left' and 'right'  are not 'auto',
     // then solve for 'width')
@@ -143,14 +143,14 @@ class StrategyWidthAbsolutePositioned {
       $box->put_width($containing_block_width - 
                       $left->getPoints($containing_block_width) -
                       $right->getPoints($containing_block_width));
-    };
+    }
 
     // Case 6 ('right'  is 'auto', 'left' and 'width'  are not 'auto',
     // then solve for 'right')
     if (!$left->isAuto() && $right->isAuto() && !$wc->isNull()) {
       $box->put_width($wc->apply($box->get_width(), 
                                  $containing_block_width));
-    };
+    }
 
     /**
      * After this we should remove width constraints or we may encounter problem 

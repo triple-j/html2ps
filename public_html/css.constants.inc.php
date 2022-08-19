@@ -86,8 +86,6 @@ define('CSS_WIDOWS',             111);
 define('CSS_TABLE_LAYOUT',       112);
 define('CSS_DIRECTION',          113);
 define('CSS_PAGE',               114);
-define('CSS_BACKGROUND_ATTACHMENT', 115);
-define('CSS_SIZE', 116);
 
 define('CSS_HTML2PS_ALIGN',            900);
 define('CSS_HTML2PS_CELLPADDING',      901);
@@ -104,7 +102,6 @@ define('CSS_HTML2PS_TABLE_BORDER', 910);
 define('CSS_HTML2PS_HTML_CONTENT', 911);
 define('CSS_HTML2PS_PSEUDOELEMENTS', 912);
 define('CSS_HTML2PS_COMPOSITE_WIDTH', 913);
-define('CSS_HTML2PS_PIXELS', 914);
 
 // Selectors
 
@@ -169,18 +166,5 @@ define('CACHE_MIN_WIDTH',0);
 define('CACHE_MAX_WIDTH',1);
 define('CACHE_TYPEFACE', 2);
 define('CACHE_MIN_WIDTH_NATURAL', 3);
-
-// CSS regular expressions
-
-define('CSS_NL_REGEXP', '(?:\n|\r\n|\r|\f)');
-define('CSS_UNICODE_REGEXP', '\\[0-9a-f]{1,6}(?:\r\n|[ \n\r\t\f])?');
-define('CSS_NONASCII_REGEXP', '[^\0-\177]');
-define('CSS_ESCAPE_REGEXP', CSS_UNICODE_REGEXP.'|\\[^\n\r\f0-9a-f]');
-define('CSS_NMSTART_REGEXP', '(?:[_a-z]|'.CSS_NONASCII_REGEXP.'|'.CSS_ESCAPE_REGEXP.')');
-define('CSS_NMCHAR_REGEXP', '(?:[_a-z0-9-]|'.CSS_NONASCII_REGEXP.'|'.CSS_ESCAPE_REGEXP.')');
-define('CSS_IDENT_REGEXP', '-?'.CSS_NMSTART_REGEXP.CSS_NMCHAR_REGEXP.'*');
-define('CSS_FUNCTION_REGEXP', '(?:'.CSS_IDENT_REGEXP.'\()');
-define('CSS_STRING1_REGEXP', '\"(?:[^\n\r\f\\"]|\\\\'.CSS_NL_REGEXP.'|'.CSS_ESCAPE_REGEXP.')*\"');
-define('CSS_STRING2_REGEXP', '\\'."'".'(?:[^\n\r\f\\'."'".']|\\\\'.CSS_NL_REGEXP.'|'.CSS_ESCAPE_REGEXP.')*\\'."'");
 
 ?>

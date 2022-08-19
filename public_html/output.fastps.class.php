@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/output.fastps.class.php,v 1.18 2007/05/17 13:55:13 Konstantin Exp $
+// $Header: /cvsroot/html2ps/output.fastps.class.php,v 1.15 2007/02/04 17:08:20 Konstantin Exp $
 
 define('FASTPS_STATUS_DOCUMENT_INITIALIZED',0);
 define('FASTPS_STATUS_OUTPUT_STARTED',1);
@@ -14,10 +14,6 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
   var $overline;
   var $underline;
   var $linethrough;
-
-  function OutputDriverFastPS(&$image_encoder) { 
-    $this->OutputDriverGenericPS($image_encoder);
-  }
 
   function add_link($x, $y, $w, $h, $target) { 
     $this->write(sprintf("[ /Rect [ %.2f %.2f %.2f %.2f ] /Action << /Subtype /URI /URI (%s) >> /Border [0 0 0] /Subtype /Link /ANN pdfmark\n",
@@ -39,7 +35,11 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
   }
 
   function close() {
+    $this->_show_watermark();
+
+    if ($this->status != FASTPS_STATUS_OUTPUT_STARTED) { return; }
     $this->_terminate_output();
+
     fclose($this->data);
   }
 
@@ -67,22 +67,22 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
       $this->error_message .= $this->font_factory->error_message();
       $dummy = null;
       return $dummy;
-    };
+    }
 
     if (!isset($this->used_encodings[$encoding])) {
       $this->used_encodings[$encoding] = true;
       
-      $manager = ManagerEncoding::get();
+      $manager = (new ManagerEncoding())->get();
       $this->_write_document_prolog($manager->get_ps_encoding_vector($encoding));
       $this->_write_document_prolog("\n");
-    };
+    }
 
     $fontname = $font->name();
     if (!isset($this->found_fonts[$fontname])) {
       $this->found_fonts[$fontname] = true;
 
       $this->_write_document_prolog("/$fontname /$name $encoding findfont-enc def\n");
-    };
+    }
 
     return $font;
   }
@@ -91,7 +91,7 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
   //
   function font_ascender($name, $encoding) {
     $font = $this->_findfont($name, $encoding);
-    if (is_null($font)) { return null; };
+    if (is_null($font)) { return null; }
 
     return $font->ascender()/1000;
   }
@@ -100,7 +100,7 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
   //
   function font_descender($name, $encoding) {
     $font = $this->_findfont($name, $encoding);
-    if (is_null($font)) { return null; };
+    if (is_null($font)) { return null; }
 
     return -$font->descender()/1000;
   }
@@ -199,10 +199,9 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
   }
 
   function next_page($height) {
-    if ($this->current_page > 0) {
-      $this->write("showpage\n");
-    };
+    $this->_show_watermark();
 
+    $this->current_page ++;
     $this->offset -= $height - $this->offset_delta;
 
     // Reset the "correction" offset to it normal value
@@ -210,7 +209,8 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
     // in the middle of text boxes 
     $this->offset_delta = 0;
 
-    $this->write(sprintf("%%%%Page: %d %d\n", $this->current_page + 1, $this->current_page + 1));
+    $this->write("showpage\n");
+    $this->write(sprintf("%%%%Page: %d %d\n", $this->current_page, $this->current_page));
     $this->write("%%BeginPageSetup\n");
     $this->write(sprintf("initpage\n"));
     $this->write(sprintf("0 %.2f translate\n", -$this->offset));
@@ -220,7 +220,11 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
     parent::next_page($height);
   }
 
-  function reset(&$media) { 
+  function __construct(&$image_encoder) {
+    OutputDriverGenericPS::__construct($image_encoder);
+  }
+
+  function reset(&$media) {
     OutputDriverGenericPS::reset($media);
 
     $this->media =& $media;
@@ -236,12 +240,12 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
     $this->linethrough = false;
 
     // A font class factory
-    $this->font_factory =& new FontFactory;
+    $this->font_factory = new FontFactory;
 
-    $this->_document_body = '';
-    $this->_document_prolog = '';
+    $this->current_page = 1;
 
-    $this->status = FASTPS_STATUS_DOCUMENT_INITIALIZED;
+    $this->_document_body = "";
+    $this->_document_prolog = "";
   }
 
   function restore() { 
@@ -258,7 +262,7 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
     $this->fontsize    = $size;
     $this->currentfont = $this->_findfont($name, $encoding);
 
-    if (is_null($this->currentfont)) { return null; };
+    if (is_null($this->currentfont)) { return null; }
 
     $this->write(sprintf("%s %.2f scalefont setfont\n", $this->currentfont->name(), $size));
 
@@ -276,15 +280,15 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
   }
 
   function show_xy($text, $x, $y) {
-    if (trim($text) !== '') { 
+    if (trim($text) !== "") { 
       $this->moveto($x, $y);
       $this->write("(".$this->_string($text).") show\n");
-    };
+    }
       
     $width = Font::points($this->fontsize, $this->currentfont->stringwidth($text));
-    if ($this->overline)    { $this->_show_overline($x, $y, $width, $this->fontsize);  };
-    if ($this->underline)   { $this->_show_underline($x, $y, $width, $this->fontsize); };
-    if ($this->linethrough) { $this->_show_linethrough($x, $y, $width, $this->fontsize); };
+    if ($this->overline)    { $this->_show_overline($x, $y, $width, $this->fontsize);  }
+    if ($this->underline)   { $this->_show_underline($x, $y, $width, $this->fontsize); }
+    if ($this->linethrough) { $this->_show_linethrough($x, $y, $width, $this->fontsize); }
   }
 
   function stringwidth($string, $name, $encoding, $size) { 
@@ -294,7 +298,7 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
       $this->error_message .= $this->font_factory->error_message();
       $dummy = null;
       return $dummy;
-    };
+    }
 
     return Font::points($size, $font->stringwidth($string));
   }
@@ -304,9 +308,7 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
   }
 
   function write($string) {
-    if ($this->status == FASTPS_STATUS_DOCUMENT_INITIALIZED) { 
-      $this->_start_output(); 
-    };
+    if ($this->status == FASTPS_STATUS_DOCUMENT_INITIALIZED) { $this->_start_output(); }
 
     $this->_document_body .= $string;
   }
@@ -352,7 +354,7 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
      * Prepare the PS file header
      * Note that %PS-Adobe-3.0 refers to DSC version, NOT language level
      */
-    $header = file_get_contents(HTML2PS_DIR.'postscript/fastps.header.ps');
+    $header = file_get_contents(HTML2PS_DIR.'/postscript/fastps.header.ps');
 
     global $g_config;
     $header = preg_replace("/##PS2PDF##/",
@@ -364,12 +366,12 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
     $header = preg_replace("/##MEDIA##/", $this->media->to_ps(), $header);
 
     $header = preg_replace("/##PROLOG##/", $this->_document_prolog, $header);
-
+    
     fwrite($this->data, $header);   
     fwrite($this->data, "\n");
     fwrite($this->data, $this->_document_body);
 
-    $footer = file_get_contents(HTML2PS_DIR.'postscript/fastps.footer.ps');
+    $footer = file_get_contents(HTML2PS_DIR.'/postscript/fastps.footer.ps');
     fwrite($this->data, $footer);
   }
 
@@ -389,11 +391,11 @@ class OutputDriverFastPS extends OutputDriverGenericPS {
     
     // Replace characters having 8-bit set with their octal representation
     for ($i=0; $i<strlen($str); $i++) {
-      if (ord($str{$i}) > 127) {
-        $str = substr_replace($str, sprintf("\\%o", ord($str{$i})), $i, 1);
+      if (ord($str[$i]) > 127) {
+        $str = substr_replace($str, sprintf("\\%o", ord($str[$i])), $i, 1);
         $i += 3;
-      };
-    };
+      }
+    }
     
     return $str;
   }

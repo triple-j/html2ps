@@ -84,16 +84,16 @@ LARGE
     $font_size =& $large->getCSSProperty(CSS_FONT_SIZE);
     $this->assertEqual($font_size->getPoints(), 30);
   
-    $locations = PageBreakLocator::_getBreakLocations($tree);
+    $locations = (new PageBreakLocator())->_getBreakLocations($tree);
     $this->assertEqual(count($locations), 5);
 
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("Two pages expected, got %s", 
-                               count($page_heights)));
+                               count((array) $page_heights)));
     $this->assertEqual($page_heights[0], 
                        pt2pt(180));
   }

@@ -5,15 +5,15 @@
 // instead of using globally visible functions in 'show'.
 
 class TextBoxString extends TextBox {
-  function &create($text, $encoding) {
-    $box =& new TextBoxString($text, $encoding);
-    $box->readCSS($pipeline->get_current_css_state());
+  function &create($text, $encoding, &$pipeline) {
+    $box= new TextBoxString($text, $encoding);
+    $box->readCSS($pipeline->getCurrentCSSState());
     return $box;
   }
 
-  function TextBoxString($word, $encoding) {
+  function __construct($word, $encoding) {
     // Call parent constructor
-    $this->TextBox();
+    TextBox::__construct();
     $this->add_subword($word, $encoding, array());
   }
 
@@ -47,7 +47,7 @@ class TextBoxString extends TextBox {
     return $this->width;
   }
 
-  function get_max_width(&$context) {
+  function get_max_width(&$context, $limit = 10000000) {
     return $this->width;
   }
 

@@ -1,7 +1,7 @@
 <?php
 
 class ValueContentItem {
-  function ValueContentItem() {
+  function __construct() {
   }
 
   function parse($string) {
@@ -22,8 +22,8 @@ class ValueContentItem {
       if (!is_null($item)) {
         return array('item' => &$item, 
                      'rest' => $rest);
-      };
-    };
+      }
+    }
 
     $null = null;
     return array('item' => &$null, 
@@ -38,12 +38,12 @@ class ValueContentItem {
 class ValueContentItemString extends ValueContentItem {
   var $_value;
 
-  function ValueContentItemString() {
-    $this->ValueContentItem();
+  function __construct() {
+    ValueContentItem::__construct();
   }
 
   function &copy() {
-    $copy =& new ValueContentItemString();
+    $copy= new ValueContentItemString();
     $copy->set_value($this->get_value());
     return $copy;
   }
@@ -53,13 +53,13 @@ class ValueContentItemString extends ValueContentItem {
   }
 
   function parse($string) {
-    list($value, $rest) = CSS::parse_string($string);
+    list($value, $rest) = (new CSS())->parse_string($string);
     if (!is_null($value)) {
-      $item =& new ValueContentItemString();
+      $item= new ValueContentItemString();
       $item->set_value(substr($value, 1, strlen($value)-2));
       return array('item' => &$item, 
                    'rest' => $rest);
-    };
+    }
 
     $null = null;
     return array('item' => &$null, 'rest' => $string);
@@ -77,12 +77,12 @@ class ValueContentItemString extends ValueContentItem {
 class ValueContentItemUri extends ValueContentItem {
   var $_value;
 
-  function ValueContentItemUri() {
-    $this->ValueContentItem();
+  function __construct() {
+    ValueContentItem::__construct();
   }
 
   function &copy() {
-    $copy =& new ValueContentItemUri();
+    $copy= new ValueContentItemUri();
     return $copy;
   }
 
@@ -99,12 +99,12 @@ class ValueContentItemUri extends ValueContentItem {
 class ValueContentItemCounter extends ValueContentItem {
   var $_name;
 
-  function ValueContentItemCounter() {
-    $this->ValueContentItem();
+  function __construct() {
+    ValueContentItem::__construct();
   }
 
   function &copy() {
-    $copy =& new ValueContentItemCounter();
+    $copy= new ValueContentItemCounter();
     $copy->set_name($this->get_name());
     return $copy;
   }
@@ -118,11 +118,11 @@ class ValueContentItemCounter extends ValueContentItem {
       $value = $matches[1];
       $rest = $matches[2];
 
-      $item =& new ValueContentItemCounter();
+      $item= new ValueContentItemCounter();
       $item->set_name($value);
       return array('item' => &$item, 
                    'rest' => $rest);
-    };
+    }
 
     $null = null;
     return array('item' => &$null, 'rest' => $string);
@@ -132,7 +132,7 @@ class ValueContentItemCounter extends ValueContentItem {
     $counter =& $counters->get($this->get_name());
     if (is_null($counter)) {
       return '';
-    };
+    }
 
     return $counter->get();
   }
@@ -143,12 +143,12 @@ class ValueContentItemCounter extends ValueContentItem {
 }
 
 class ValueContentItemAttr extends ValueContentItem {
-  function ValueContentItemAttr() {
-    $this->ValueContentItem();
+  function __construct() {
+    ValueContentItem::__construct();
   }
 
   function &copy() {
-    $copy =& new ValueContentItemAttr();
+    $copy= new ValueContentItemAttr();
     return $copy;
   }
 
@@ -163,12 +163,12 @@ class ValueContentItemAttr extends ValueContentItem {
 }
 
 class ValueContentItemOpenQuote extends ValueContentItem {
-  function ValueContentItemOpenQuote() {
-    $this->ValueContentItem();
+  function __construct() {
+    ValueContentItem::__construct();
   }
 
   function &copy() {
-    $copy =& new ValueContentItemOpenQuote();
+    $copy= new ValueContentItemOpenQuote();
     return $copy;
   }
 
@@ -183,12 +183,12 @@ class ValueContentItemOpenQuote extends ValueContentItem {
 }
 
 class ValueContentItemCloseQuote extends ValueContentItem {
-  function ValueContentItemCloseQuote() {
-    $this->ValueContentItem();
+  function __construct() {
+    ValueContentItem::__construct();
   }
 
   function &copy() {
-    $copy =& new ValueContentItemCloseQuote();
+    $copy= new ValueContentItemCloseQuote();
     return $copy;
   }
 
@@ -203,12 +203,12 @@ class ValueContentItemCloseQuote extends ValueContentItem {
 }
 
 class ValueContentItemNoOpenQuote extends ValueContentItem {
-  function ValueContentItemNoOpenQuote() {
-    $this->ValueContentItem();
+  function __construct() {
+    ValueContentItem::__construct();
   }
 
   function &copy() {
-    $copy =& new ValueContentItemNoOpenQuote();
+    $copy= new ValueContentItemNoOpenQuote();
     return $copy;
   }
 
@@ -223,12 +223,12 @@ class ValueContentItemNoOpenQuote extends ValueContentItem {
 }
 
 class ValueContentItemNoCloseQuote extends ValueContentItem {
-  function ValueContentItemNoCloseQuote() {
-    $this->ValueContentItem();
+  function __construct() {
+    ValueContentItem::__construct();
   }
 
   function &copy() {
-    $copy =& new ValueContentItemNoCloseQuote();
+    $copy= new ValueContentItemNoCloseQuote();
     return $copy;
   }
 

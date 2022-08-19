@@ -100,7 +100,7 @@ class TestInputText extends GenericTest {
       $this->assertEqual($element->get_full_width(), 
                          px2pt($widths[$i]),
                          sprintf('Invalid input No %i width [%%s]', $i+1));
-    };
+    }
   }
 }
 

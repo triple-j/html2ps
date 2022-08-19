@@ -33,8 +33,8 @@ class ButtonSubmitBox extends ButtonBox {
    * @param String $field field name (interactive forms)
    * @param String $value field value (interactive forms)
    */
-  function ButtonSubmitBox($field, $value, $action) {
-    $this->ButtonBox();
+  function __construct($field, $value, $action) {
+    ButtonBox::__construct();
     $this->_action_url = $action;
     $this->_field_name = $field;
     $this->_value = $value;
@@ -57,13 +57,13 @@ class ButtonSubmitBox extends ButtonBox {
       $text = $root->get_attribute("value");
     } else {
       $text = DEFAULT_SUBMIT_TEXT;
-    };
+    }
 
     $field = $root->get_attribute('name');
     $value = $root->get_attribute('value');
     
-    $css_state =& $pipeline->get_current_css_state();
-    $box =& new ButtonSubmitBox($field, $value, $css_state->get_property(CSS_HTML2PS_FORM_ACTION));
+    $css_state =& $pipeline->getCurrentCSSState();
+    $box= new ButtonSubmitBox($field, $value, $css_state->getProperty(CSS_HTML2PS_FORM_ACTION));
     $box->readCSS($css_state);
     $box->_setup($text, $pipeline);
 

@@ -198,7 +198,7 @@
   parse_config_file ( HTML2PS_BASEDIR . "html2ps.config" );
 
   // ** Media
-  $g_media = Media::predefined ( $GLOBALS['g_config']['media'] );
+  $g_media = (new Media())->predefined ( $GLOBALS['g_config']['media'] );
   $g_media->set_landscape ( $GLOBALS['g_config']['landscape'] );
   $g_media->set_margins ( $GLOBALS['g_config']['margins'] );
   $g_media->set_pixels ( $GLOBALS['g_config']['pagewidth'] );
@@ -320,16 +320,7 @@
   function get_var ( $name, $array, $maxlength = 255, $default = null ) {
     if ( ! isset ( $array[$name] ) ) { return $default; }
     $data = $array[$name];
-    if ( is_array ( $data ) ) {
-      if ( get_magic_quotes_gpc() ) {
-        foreach ( $data as $key => $value ) {
-          $data[$key] = stripslashes ( $data[$key] );
-        }
-      }
-    } else {
-      if ( get_magic_quotes_gpc() ) {
-        $data = stripslashes ( $data );
-      }
+    if ( !is_array ( $data ) ) {
       $data = substr ( $data, 0, $maxlength );
     }
     return $data;

@@ -15,7 +15,7 @@ function ReadMap($enc)
   $cc2gn=array();
   foreach($a as $l)
     {
-      if($l{0}=='!')
+      if($l[0]=='!')
         {
           $e=preg_split('/[ \\t]+/',rtrim($l));
           $cc=hexdec(substr($e[0],1));
@@ -50,7 +50,7 @@ function ReadAFM($file,&$map)
   foreach($a as $l)
     {
       $e=explode(' ',rtrim($l));
-      if(count($e)<2)
+      if (is_countable($e) && count($e)<2)
         continue;
       $code=$e[0];
       $param=$e[1];
@@ -171,7 +171,7 @@ function MakeFontDescriptor($fm,$symbolic)
   //StemV
   if(isset($fm['StdVW']))
     $stemv=$fm['StdVW'];
-  elseif(isset($fm['Weight']) and eregi('(bold|black)',$fm['Weight']))
+  elseif(isset($fm['Weight']) and mb_eregi('(bold|black)',$fm['Weight']))
     $stemv=120;
   else
     $stemv=70;
@@ -289,16 +289,15 @@ function CheckTTF($file)
 }
 
 /*******************************************************************************
- * $fontfile : chemin du fichier TTF (ou chaîne vide si pas d'incorporation)    *
+ * $fontfile : chemin du fichier TTF (ou chaï¿½ne vide si pas d'incorporation)    *
  * $afmfile :  chemin du fichier AFM                                            *
- * $enc :      encodage (ou chaîne vide si la police est symbolique)            *
+ * $enc :      encodage (ou chaï¿½ne vide si la police est symbolique)            *
  * $patch :    patch optionnel pour l'encodage                                  *
  * $type :     type de la police si $fontfile est vide                          *
  *******************************************************************************/
 function MakeFont($fontfile,$afmfile,$destdir,$destfile,$enc='cp1252',$patch=array(),$type='TrueType')
 {
   //Generate a font definition file
-  set_magic_quotes_runtime(0);
   ini_set('auto_detect_line_endings','1');
   if($enc)
     {
@@ -363,7 +362,7 @@ function MakeFont($fontfile,$afmfile,$destdir,$destfile,$enc='cp1252',$patch=arr
       if($type=='Type1')
         {
           //Find first two sections and discard third one
-          $header=(ord($file{0})==128);
+          $header=(ord($file[0])==128);
           if($header)
             {
               //Strip first binary header
@@ -373,7 +372,7 @@ function MakeFont($fontfile,$afmfile,$destdir,$destfile,$enc='cp1252',$patch=arr
           if(!$pos)
             die('<B>Error:</B> font file does not seem to be valid Type1');
           $size1=$pos+6;
-          if($header and ord($file{$size1})==128)
+          if($header and ord($file[$size1])==128)
             {
               //Strip second binary header
               $file=substr($file,0,$size1).substr($file,$size1+6);

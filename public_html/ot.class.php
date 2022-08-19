@@ -19,7 +19,7 @@ class OpenTypeFile {
   var $_filehandle;
   var $_sfnt;
 
-  function OpenTypeFile() {
+  function __construct() {
     $this->_filehandle = null;
     $this->_sfnt = new OpenTypeFileSFNT();
   }
@@ -72,11 +72,11 @@ class OpenTypeFileSFNT {
     foreach ($this->_tables as $key => $value) {
       $this->_tables[$key]->_delete();
       unset($this->_tables[$key]);
-    };
+    }
     $this->_tables = array();
   }
 
-  function OpenTypeFileSFNT() {
+  function __construct() {
     $this->_offsetTable = new OpenTypeFileOffsetTable();
     $this->_tableDirectory = array();
   }
@@ -88,12 +88,12 @@ class OpenTypeFileSFNT {
       $tableDirectory = new OpenTypeFileTableDirectory();
       $tableDirectory->_read($filehandle);
       $this->_tableDirectory[] = $tableDirectory;
-    };
+    }
   }
 
   function &_getCMAPSubtable($offset, $filehandle, $file) {
     $dir = $this->_getDirectory('cmap');
-    if (is_null($dir)) { $dummy = null; return $dummy; };
+    if (is_null($dir)) { $dummy = null; return $dummy; }
     
     /**
      * Store  current  file  position,  as _getCMAPSubtable  could  be
@@ -117,11 +117,11 @@ class OpenTypeFileSFNT {
   function &_getTable($tag, $filehandle, $file) {
     if (!isset($this->_tables[$tag])) {
       $table = $this->_createTableByTag($tag);
-      if (is_null($table)) { $dummy = null; return $dummy; };
+      if (is_null($table)) { $dummy = null; return $dummy; }
       $table->setFontFile($file);
 
       $dir = $this->_getDirectory($tag);
-      if (is_null($dir)) { $dummy = null; return $dummy; };
+      if (is_null($dir)) { $dummy = null; return $dummy; }
 
       /**
        * Store  current file  position, as  _getTable could  be called
@@ -138,7 +138,7 @@ class OpenTypeFileSFNT {
       fseek($filehandle, $old_pos, SEEK_SET);
 
       $this->_tables[$tag] =& $table;
-    };
+    }
 
     return $this->_tables[$tag];
   }
@@ -147,8 +147,8 @@ class OpenTypeFileSFNT {
     foreach ($this->_tableDirectory as $directoryEntry) {
       if ($directoryEntry->_tag == $tag) {
         return $directoryEntry;
-      };
-    };
+      }
+    }
 
     return null;
   }
@@ -199,7 +199,7 @@ class OpenTypeFileOffsetTable {
   var $_entrySelector;
   var $_rangeShift;
 
-  function OpenTypeFileOffsetTable() {
+  function __construct() {
     $this->_numTables     = 0;
     $this->_searchRange   = 0;
     $this->_entrySelector = 0;
@@ -248,7 +248,7 @@ class OpenTypeFileTableDirectory {
   var $_offset;
   var $_length;
 
-  function OpenTypeFileTableDirectory() {
+  function __construct() {
     $this->_tag      = null;
     $this->_checkSum = 0;
     $this->_offset   = 0;
@@ -275,7 +275,7 @@ class OpenTypeFileTable {
   function _delete() {
   }
 
-  function OpenTypeFileTable() {
+  function __construct() {
     $this->_fontFile = null;
   }
 
@@ -292,7 +292,7 @@ class OpenTypeFileTable {
       return $value - 65536;
     } else {
       return $value;
-    };
+    }
   }
 
   function _fixShort($value) {
@@ -300,7 +300,7 @@ class OpenTypeFileTable {
       return $value - 65536;
     } else {
       return $value;
-    };
+    }
   }
 }
 
@@ -315,8 +315,8 @@ class OpenTypeFilePOST extends OpenTypeFileTable {
   var $_minMemType1;
   var $_maxMemType1;
 
-  function OpenTypeFilePOST() {
-    $this->OpenTypeFileTable();
+  function __construct() {
+    OpenTypeFileTable::__construct();
   }
 
   function _read($filehandle) {
@@ -340,8 +340,8 @@ class OpenTypeFileNAME extends OpenTypeFileTable {
   var $_stringOffset;
   var $_nameRecord;
 
-  function OpenTypeFileNAME() {
-    $this->OpenTypeFileTable();
+  function __construct() {
+    OpenTypeFileTable::__construct();
     $this->_nameRecord = array();
   }
 
@@ -356,12 +356,12 @@ class OpenTypeFileNAME extends OpenTypeFileTable {
     $baseOffset = ftell($filehandle) + OpenTypeFileNAMERecord::sizeof()*$this->_count;
 
     for ($i=0; $i<$this->_count; $i++) {
-      $record =& new OpenTypeFileNAMERecord();
+      $record= new OpenTypeFileNAMERecord();
       $record->setBaseOffset($baseOffset);
       $record->setFontFile($this->getFontFile());
       $record->_read($filehandle);
       $this->_nameRecord[] =& $record;
-    };
+    }
   }
 
   /**
@@ -378,7 +378,7 @@ class OpenTypeFileNAME extends OpenTypeFileTable {
     for ($i=0; $i<$size; $i++) {
       if ($this->_nameRecord[$i]->match($platformId, $encodingId, $languageId, $nameId)) {
         return $this->_nameRecord[$i]->getName();
-      };
+      }
     }
 
     return null;
@@ -396,12 +396,12 @@ class OpenTypeFileNAMERecord extends OpenTypeFileTable {
   var $_content;
   var $_baseOffset;
 
-  function OpenTypeFileNAMERecord() {
-    $this->OpenTypeFileTable();
+  function __construct() {
+    OpenTypeFileTable::__construct();
     $this->_content = null;
   }
 
-  function sizeof() {
+  static function sizeof() {
     return 6*2;
   }
 
@@ -431,7 +431,7 @@ class OpenTypeFileNAMERecord extends OpenTypeFileTable {
       $this->_content = fread($filehandle, $this->_length);
     
       fseek($filehandle, $old_offset, SEEK_SET);
-    };
+    }
 
     return $this->_content;
   }
@@ -515,8 +515,8 @@ class OpenTypeFileHEAD extends OpenTypeFileTable {
   var $_indexToLocFormat;
   var $_glyphDataFormat;
 
-  function OpenTypeFileHEAD() {
-    $this->OpenTypeFileTable();
+  function __construct() {
+    OpenTypeFileTable::__construct();
   }
 
   function _read($filehandle) {
@@ -548,8 +548,8 @@ class OpenTypeFileCMAP extends OpenTypeFileTable {
   var $_encodings;
   var $_subtables;
 
-  function OpenTypeFileCMAP() {
-    $this->OpenTypeFileTable();
+  function __construct() {
+    OpenTypeFileTable::__construct();
     $this->_header = new OpenTypeFileCMAPHeader();
     $this->_encodings = array();
     $this->_subtables = array();
@@ -562,7 +562,7 @@ class OpenTypeFileCMAP extends OpenTypeFileTable {
       $encoding = new OpenTypeFileCMAPEncoding();
       $encoding->_read($filehandle);
       $this->_encodings[] =& $encoding;
-    };
+    }
   }
 
   /**
@@ -586,8 +586,8 @@ class OpenTypeFileCMAP extends OpenTypeFileTable {
       if ($encoding->_platformId == $platformId &&
           $encoding->_encodingId == $encodingId) {
         return $this->getSubtable($index);
-      };
-    };
+      }
+    }
 
     $dummy = null; return $dummy;
   }
@@ -600,7 +600,7 @@ class OpenTypeFileCMAP extends OpenTypeFileTable {
       return $subtable;
     } else {
       return $this->_subtables[$index];
-    };
+    }
   }
 }
 
@@ -611,7 +611,7 @@ class OpenTypeFileCMAPSubtable {
   var $_format;
   var $_content;
 
-  function OpenTypeFileCMAPSubtable() {
+  function __construct() {
     $this->_content = null;
   }
 
@@ -650,7 +650,7 @@ class OpenTypeFileCMAPSubtable4 extends OpenTypeFileTable {
   var $_idRangeOffset;
   var $_glyphIdArray;
 
-  function OpenTypeFileCMAPSubtable4() {
+  function __construct() {
     $this->_endCount      = array();
     $this->_startCount    = array();
     $this->_idDelta       = array();
@@ -660,7 +660,7 @@ class OpenTypeFileCMAPSubtable4 extends OpenTypeFileTable {
 
   function lookup($unicode) {
     $index = $this->_lookupSegment($unicode);
-    if (is_null($index)) { return null; };
+    if (is_null($index)) { return null; }
 
     if ($this->_idRangeOffset[$index] != 0) {
       /**
@@ -691,8 +691,8 @@ class OpenTypeFileCMAPSubtable4 extends OpenTypeFileTable {
        * to  get the  corresponding  glyph index.  Again, the  idDelta
        * arithmetic is modulo 65536.
        */
-      return ($this->_idDelta[$index] + $unicode) % 65536;
-    };
+      return $this->_idDelta[$index] + $unicode;
+    }
   }
 
   /**
@@ -714,9 +714,9 @@ class OpenTypeFileCMAPSubtable4 extends OpenTypeFileTable {
           return $i;
         } else {
           return null;
-        };
-      };
-    };
+        }
+      }
+    }
     return null;
   }
 
@@ -734,7 +734,7 @@ class OpenTypeFileCMAPSubtable4 extends OpenTypeFileTable {
       $content = fread($filehandle, 2);
       $unpacked = unpack("nendCount", $content);
       $this->_endCount[] = $unpacked['endCount'];
-    };
+    }
     
     // Skip 'reservedPad' field
     $content = fread($filehandle, 2);
@@ -743,25 +743,25 @@ class OpenTypeFileCMAPSubtable4 extends OpenTypeFileTable {
       $content = fread($filehandle, 2);
       $unpacked = unpack("nstartCount", $content);
       $this->_startCount[] = $unpacked['startCount'];
-    };
+    }
 
     for ($i=0; $i<$this->_segCountX2/2; $i++) {
       $content = fread($filehandle, 2);
       $unpacked = unpack("nidDelta", $content);
       $this->_idDelta[] = $this->_fixShort($unpacked['idDelta']);
-    };
+    }
 
     for ($i=0; $i<$this->_segCountX2/2; $i++) {
       $content = fread($filehandle, 2);
       $unpacked = unpack("nidRangeOffset", $content);
       $this->_idRangeOffset[] = $unpacked['idRangeOffset'];
-    };
+    }
 
     for ($i=0; $i<$this->_length - 2*12; $i+=2) {
       $content = fread($filehandle, 2);
       $unpacked = unpack("nglyphId", $content);
       $this->_glyphIdArray[] = $unpacked['glyphId'];
-    };
+    }
   }
 }
 
@@ -797,8 +797,8 @@ class OpenTypeFileCMAPHeader {
 class OpenTypeFileMAXP extends OpenTypeFileTable {
   var $_numGlyphs;
 
-  function OpenTypeFileMAXP() {
-    $this->OpenTypeFileTable();
+  function __construct() {
+    OpenTypeFileTable::__construct();
   }
 
   function _read($filehandle) {
@@ -825,8 +825,8 @@ class OpenTypeFileHHEA extends OpenTypeFileTable {
   var $_metricDataFormat;
   var $_numberOfHMetrics;
 
-  function OpenTypeFileHHEA() {
-    $this->OpenTypeFileTable();
+  function __construct() {
+    OpenTypeFileTable::__construct();
   }
 
   function _read($filehandle) {
@@ -861,8 +861,8 @@ class OpenTypeFileHMTX extends OpenTypeFileTable {
     unset($this->_leftSideBearing);
   }
 
-  function OpenTypeFileHMTX() {
-    $this->OpenTypeFileTable();
+  function __construct() {
+    OpenTypeFileTable::__construct();
 
     $this->_hMetrics        = array();
     $this->_leftSideBearing = array();
@@ -878,13 +878,13 @@ class OpenTypeFileHMTX extends OpenTypeFileTable {
       $unpacked = unpack("nadvanceWidth/nlsb", $content);
       $this->_hMetrics[] = array('advanceWidth' => $unpacked['advanceWidth'],
                                  'lsb'          => $this->_fixShort($unpacked['lsb']));
-    };
+    }
 
     for ($i=0; $i<$maxp->_numGlyphs; $i++) {
       $content = fread($filehandle, 2);
       $unpacked = unpack("nitem", $content);
       $this->_leftSideBearing[] = $unpacked['item'];
-    };
+    }
   }
 }
 

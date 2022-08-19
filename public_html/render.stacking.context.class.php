@@ -3,16 +3,16 @@
 class RenderStackingContext {
   var $_stacking_levels;
 
-  function RenderStackingContext() {
+  function __construct() {
     $this->set_stacking_levels(array());
 
-    $level =& new StackingLevel('in-flow-non-inline');
+    $level= new StackingLevel('in-flow-non-inline');
     $this->add_stacking_level($level);
 
-    $level =& new StackingLevel('in-flow-floats');
+    $level= new StackingLevel('in-flow-floats');
     $this->add_stacking_level($level);
 
-    $level =& new StackingLevel('in-flow-inline');
+    $level= new StackingLevel('in-flow-inline');
     $this->add_stacking_level($level);
   }
 

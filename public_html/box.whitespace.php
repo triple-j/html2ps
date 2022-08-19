@@ -2,9 +2,9 @@
 // $Header: /cvsroot/html2ps/box.whitespace.php,v 1.33 2007/01/24 18:55:46 Konstantin Exp $
 
 class WhitespaceBox extends TextBox {
-  function &create(&$pipeline) {
-    $box =& new WhitespaceBox();
-    $box->readCSS($pipeline->get_current_css_state());
+  function &create($text, $encoding, &$pipeline) {
+    $box= new WhitespaceBox();
+    $box->readCSS($pipeline->getCurrentCSSState());
     $box->add_subword(" ", 'iso-8859-1', array());
     return $box;
   }
@@ -46,20 +46,20 @@ class WhitespaceBox extends TextBox {
     return $this->width;
   }
 
-  function get_max_width(&$context) {
+  function get_max_width(&$context, $limit = 10000000) {
     return $this->width;
   }
 
-  function WhitespaceBox() {
+  function __construct() {
     // Call parent constructor
-    $this->TextBox();
+    TextBox::__construct();
   }
 
   // (!) SIDE EFFECT: current whitespace box can be replaced by a null box during reflow.
   // callers of reflow should take this into account and possilby check for this 
   // after reflow returns. This can be detected by UID change.
   // 
-  function reflow(&$parent, &$context) {  
+  function reflow(&$parent, &$context, $boxes = null) {
     // Check if there are any boxes in parent's line box
     if ($parent->line_box_empty()) {
       // The very first whitespace in the line box should not affect neither height nor baseline of the line box;
@@ -76,7 +76,7 @@ class WhitespaceBox extends TextBox {
     } elseif ($this->maybe_line_break($parent, $context)) {
       $this->width = 0;
       $this->height = 0;
-    };
+    }
 
     parent::reflow($parent, $context);
   }
@@ -84,11 +84,11 @@ class WhitespaceBox extends TextBox {
   function reflow_text(&$driver) {
     if (is_null(parent::reflow_text($driver))) {
       return null;
-    };
+    }
 
     // Override widths
-    $letter_spacing = $this->get_css_property(CSS_LETTER_SPACING);
-    $word_spacing   = $this->get_css_property(CSS_WORD_SPACING);
+    $letter_spacing = $this->getCSSProperty(CSS_LETTER_SPACING);
+    $word_spacing   = $this->getCSSProperty(CSS_WORD_SPACING);
 
     $this->width = 
       $this->height * WHITESPACE_FONT_SIZE_FRACTION + 
@@ -102,16 +102,15 @@ class WhitespaceBox extends TextBox {
     if (!$linebox_started || 
         ($linebox_started && $previous_whitespace)) {     
       
-      $link_destination = $this->get_css_property(CSS_HTML2PS_LINK_DESTINATION);
-      if (is_null($link_destination)) {
+      $link_destination = $this->getCSSProperty(CSS_HTML2PS_LINK_DESTINATION);
+      if ($link_destination == "") {
         $this->parent->remove($this);
-        return;
-      };
-
-      $this->font_height = 0.001;
-      $this->height = 0;
-      $this->width = 0;
-    };
+      } else {
+        $this->font_height = 0.001;
+        $this->height = 0;
+        $this->width = 0;
+      }
+    }
 
     $previous_whitespace = true;
 

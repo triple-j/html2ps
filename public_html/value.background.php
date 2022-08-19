@@ -34,8 +34,6 @@ class Background extends CSSValue {
    */
   var $_position;
 
-  var $_attachment;
-
   /**
    * Constructs a new object containing a background information 
    *
@@ -44,12 +42,11 @@ class Background extends CSSValue {
    * @param int $repeat 'background-repeat' value
    * @param BackgroundPosition $position 'background-position' value
    */
-  function Background($color, $image, $repeat, $position, $attachment) {
-    $this->_color      = $color;
-    $this->_image      = $image;
-    $this->_repeat     = $repeat;
-    $this->_position   = $position;
-    $this->_attachment = $attachment;
+  function __construct($color, $image, $repeat, $position) {
+    $this->_color    = $color;
+    $this->_image    = $image;
+    $this->_repeat   = $repeat;
+    $this->_position = $position;
   }
 
   /**
@@ -58,11 +55,10 @@ class Background extends CSSValue {
    * @return Background A copy of current object
    */
   function &copy() {
-    $value =& new Background(is_null($this->_color) ? null : $this->_color->copy(), 
+    $value= new Background(is_null($this->_color) ? null : $this->_color->copy(), 
                              is_null($this->_image) ? null : $this->_image->copy(),
                              $this->_repeat,
-                             is_null($this->_position) ? null : $this->_position->copy(),
-                             $this->_attachment);
+                             is_null($this->_position) ? null : $this->_position->copy());
 
     return $value;
   }
@@ -80,11 +76,10 @@ class Background extends CSSValue {
    */
   function is_default() {
     return 
-      $this->_color->equals(CSSBackgroundColor::default_value()) &&
+      $this->_color->equals((new CSSBackgroundColor())->default_value()) &&
       $this->_image->is_default() &&
-      $this->_repeat == CSSBackgroundRepeat::default_value() &&
-      $this->_position->is_default() &&
-      $this->_attachment->is_default();
+      $this->_repeat == (new CSSBackgroundRepeat())->default_value() &&
+      $this->_position->is_default();
   }
 
   /**
@@ -114,14 +109,14 @@ class Background extends CSSValue {
       $driver->lineto($box->get_left_background(), $box->get_bottom_background());
       $driver->closepath();
       $driver->fill();
-    };
+    }
 
     /**
      * Render background image
      *
      * @see BackgroundImage::show
      */
-    $this->_image->show($driver, $box, $this->_repeat, $this->_position, $this->_attachment);   
+    $this->_image->show($driver, $box, $this->_repeat, $this->_position);   
   }
 
   /** 
@@ -137,25 +132,21 @@ class Background extends CSSValue {
     if ($this->_color === CSS_PROPERTY_INHERIT) {
       $value =& $state->getInheritedProperty(CSS_BACKGROUND_COLOR);
       $this->_color = $value->copy();
-    };
+    }
     
     if ($this->_image === CSS_PROPERTY_INHERIT) {
       $value =& $state->getInheritedProperty(CSS_BACKGROUND_IMAGE);
       $this->_image = $value->copy();
-    };
+    }
 
     if ($this->_position === CSS_PROPERTY_INHERIT) {
       $value =& $state->getInheritedProperty(CSS_BACKGROUND_POSITION);
       $this->_position = $value->copy();
-    };
+    }
 
     if ($this->_repeat === CSS_PROPERTY_INHERIT) {
       $this->_repeat = $state->getInheritedProperty(CSS_BACKGROUND_REPEAT);
-    };
-
-    if ($this->_attachment === CSS_PROPERTY_INHERIT) {
-      $this->_attachment =& $state->getInheritedProperty(CSS_BACKGROUND_ATTACHMENT);
-    };
+    }
   }
 }
 

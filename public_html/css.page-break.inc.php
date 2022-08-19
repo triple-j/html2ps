@@ -7,8 +7,8 @@ define('PAGE_BREAK_LEFT'  ,3);
 define('PAGE_BREAK_RIGHT' ,4);
 
 class CSSPageBreak extends CSSPropertyStringSet {
-  function CSSPageBreak() { 
-    $this->CSSPropertyStringSet(false, 
+  function __construct() {
+    CSSPropertyStringSet::__construct(false,
                                 false,
                                 array('inherit' => CSS_PROPERTY_INHERIT,
                                       'auto'    => PAGE_BREAK_AUTO,

@@ -20,27 +20,27 @@ class CSSValuePercentage extends CSSValue {
     if ($value == 'inherit') {
       $dummy = CSS_PROPERTY_INHERIT;
       return $dummy;
-    };
+    }
 
     if ($value == 'auto' || $value == '') {
       $class_object->init(null, VALUE_AUTO);
       return $class_object;
-    };
+    }
 
     $strlen = strlen($value);
-    if ($value{$strlen-1} == '%') {
+    if ($value[$strlen-1] == '%') {
       $class_object->init((float)$value, VALUE_PERCENTAGE);
       return $class_object;
-    };
+    }
 
-    $class_object->init(Value::fromString($value), VALUE_NORMAL);
+    $class_object->init((new Value())->fromString($value), VALUE_NORMAL);
     return $class_object;
   }
 
   function units2pt($font_size) {
     if ($this->isNormal()) {
       $this->_value->units2pt($font_size);
-    };
+    }
   }
 
   function getPoints($base_size = 0) {
@@ -48,7 +48,7 @@ class CSSValuePercentage extends CSSValue {
       return $base_size * $this->getPercentage();
     } else {
       return $this->_value->getPoints();
-    };
+    }
   }
 
   function isAuto() {
@@ -68,7 +68,7 @@ class CSSValuePercentage extends CSSValue {
       $value->_value  = $this->_value->copy();
     } else {
       $value->_value  = $this->_value;
-    };
+    }
 
     $value->_status = $this->_status;
     return $value;
@@ -77,7 +77,7 @@ class CSSValuePercentage extends CSSValue {
   function getPercentage() {
     if ($this->_status != VALUE_PERCENTAGE) {
       die("Invalid percentage value type");
-    };
+    }
 
     return $this->_value;
   }

@@ -3,8 +3,8 @@
 
 class IFrameBox extends InlineBlockBox {
   function &create(&$root, &$pipeline) {
-    $box =& new IFrameBox($root, $pipeline);
-    $box->readCSS($pipeline->get_current_css_state());
+    $box= new IFrameBox($root, $pipeline);
+    $box->readCSS($pipeline->getCurrentCSSState());
     return $box;
   }
 
@@ -14,18 +14,18 @@ class IFrameBox extends InlineBlockBox {
     return $this->get_max_width($context);
   } 
 
-  function get_max_width(&$context) {
+  function get_max_width(&$context, $limit = 10000000) {
     return $this->get_width();
   }
 
-  function IFrameBox(&$root, $pipeline) {
-    $this->InlineBlockBox();
+  function __construct(&$root = null, $pipeline = null) {
+    InlineBlockBox::__construct();
 
     // If NO src attribute specified, just return.
     if (!$root->has_attribute('src') || 
         trim($root->get_attribute('src')) == '') { 
       return; 
-    };
+    }
 
     // Determine the fullly qualified URL of the frame content
     $src = $root->get_attribute('src');
@@ -35,7 +35,7 @@ class IFrameBox extends InlineBlockBox {
     /**
      * If framed page could not be fetched return immediately
      */
-    if (is_null($data)) { return; };
+    if (is_null($data)) { return; }
 
     /**
      * Render only iframes containing HTML only
@@ -44,21 +44,21 @@ class IFrameBox extends InlineBlockBox {
      */
     $content_type = $data->get_additional_data('Content-Type');
     $content_type_array = explode(';', $content_type);
-    if ($content_type_array[0] != "text/html") { return; };
+    if ($content_type_array[0] != "text/html") { return; }
 
     $html = $data->get_content();
       
     // Remove control symbols if any
     $html = preg_replace('/[\x00-\x07]/', "", $html);
-    $converter = Converter::create();
+    $converter = (new Converter())->create();
     $html = $converter->to_utf8($html, $data->detect_encoding());
     $html = html2xhtml($html);
-    $tree = TreeBuilder::build($html);
+    $tree = (new TreeBuilder())->build($html);
         
     // Save current stylesheet, as each frame may load its own stylesheets
     //
-    $pipeline->push_css();
-    $css =& $pipeline->get_current_css();
+    $pipeline->pushCSS();
+    $css =& $pipeline->getCurrentCSS();
     $css->scan_styles($tree, $pipeline);
 
     $frame_root = traverse_dom_tree_pdf($tree);
@@ -67,7 +67,7 @@ class IFrameBox extends InlineBlockBox {
 
     // Restore old stylesheet
     //
-    $pipeline->pop_css();
+    $pipeline->popCSS();
 
     $pipeline->pop_base_url();
   }

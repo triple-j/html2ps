@@ -4,15 +4,15 @@ class FakeTableCellBox extends TableCellBox {
   var $colspan;
   var $rowspan;
 
-  function create(&$pipeline) {
-    $box =& new FakeTableCellBox;
+  function &create(&$root, &$pipeline) {
+    $box= new FakeTableCellBox;
     
-    $css_state =& $pipeline->get_current_css_state();
+    $css_state =& $pipeline->getCurrentCSSState();
     $css_state->pushDefaultState();
 
     $box->readCSS($css_state);
 
-    $nullbox =& new NullBox;
+    $nullbox= new NullBox;
     $nullbox->readCSS($css_state);
     $box->add_child($nullbox);
 
@@ -23,11 +23,11 @@ class FakeTableCellBox extends TableCellBox {
     return $box;
   }
 
-  function FakeTableCellBox() {
+  function __construct() {
     // Required to reset any constraints initiated by CSS properties
     $this->colspan = 1;
     $this->rowspan = 1;
-    $this->GenericContainerBox();
+    GenericContainerBox::__construct();
 
     $this->setCSSProperty(CSS_DISPLAY, 'table-cell');
     $this->setCSSProperty(CSS_VERTICAL_ALIGN, VA_MIDDLE);
@@ -61,11 +61,11 @@ class FakeTableCellBox extends TableCellBox {
     return 0;
   }
 
-  function get_max_width() {
+  function get_max_width(&$context, $limit = 10000000) {
     return 0;
   }
 
-  function get_min_width() {
+  function get_min_width(&$context) {
     return 0;
   }
 }

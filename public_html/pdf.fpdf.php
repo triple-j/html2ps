@@ -12,10 +12,6 @@
 /**
  * Heavily patched to adapt to the HTML2PS/HTML2PDF script requirements by 
  * Konstantin Bournayev (bkon@bkon.ru)
- *
- * Note: this FPDF variant assumes that magic_quotes_runtime are disabled;
- * the reason is that HTML2PS/PDF explicitly disables them during pipeline 
- * processing, thus all calls to FPDF API are "safe"
  */
 
 if (!class_exists('FPDF')) {
@@ -103,7 +99,7 @@ if (!class_exists('FPDF')) {
         $handler->_out($handler->_indirect_object($this));
 
         $this->_out_nested($handler);
-      };
+      }
     }
 
     /**
@@ -118,9 +114,9 @@ if (!class_exists('FPDF')) {
       return true;
     }
 
-    function PDFIndirectObject(&$handler,
-                               $object_id, 
-                               $generation_id) {
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id) {
       $this->object_id = $object_id;
       $this->generation_id = $generation_id;
     }
@@ -129,7 +125,7 @@ if (!class_exists('FPDF')) {
       return $handler->_dictionary($this->_dict($handler));
     }
 
-    function _dict() {
+    function _dict(&$handler) {
       return array();
     }
   }
@@ -137,17 +133,17 @@ if (!class_exists('FPDF')) {
   class PDFCMap extends PDFIndirectObject {
     var $_content;
 
-    function PDFCMap($mapping, &$handler, $object_id, $generation_id) {
-      $this->PDFIndirectObject($handler,
+    function __construct($mapping, &$handler, $object_id, $generation_id) {
+      PDFIndirectObject::__construct($handler,
                                $object_id, 
                                $generation_id);
 
-      $num_chars = count($mapping);
+      $num_chars = is_countable($mapping) ? count($mapping) : 0;
 
       $chars     = "";
       foreach ($mapping as $code => $utf) {
         $chars .= sprintf("<%02X> <%04X> \n", $code, $utf);
-      };
+      }
 
       $this->_content = <<<EOF
 /CIDInit /ProcSet findresource begin
@@ -184,20 +180,13 @@ EOF
 
   class PDFPage extends PDFIndirectObject {
     var $annotations;
-    var $_width;
-    var $_height;
 
-    function PDFPage(&$handler, 
-                     $width, 
-                     $height,
-                     $object_id, 
-                     $generation_id) {
-      $this->PDFIndirectObject($handler, 
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id) {
+      PDFIndirectObject::__construct($handler,
                                $object_id, 
                                $generation_id);
-
-      $this->set_width($width);
-      $this->set_height($height);
     }
 
     function add_annotation(&$annotation) {
@@ -207,32 +196,16 @@ EOF
     function _annotations(&$handler) {
       return $handler->_reference_array($this->annotations);
     }
-
-    function get_height() {
-      return $this->_height;
-    }
-    
-    function get_width() {
-      return $this->_width;
-    }
-
-    function set_height($height) {
-      $this->_height = $height;
-    }
-
-    function set_width($width) {
-      $this->_width = $width;
-    }
   }
 
   class PDFAppearanceStream extends PDFIndirectObject {
     var $_content;
 
-    function PDFAppearanceStream(&$handler, 
-                                 $object_id, 
-                                 $generation_id,
-                                 $content) {
-      $this->PDFIndirectObject($handler, 
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $content) {
+      PDFIndirectObject::__construct($handler,
                                $object_id, 
                                $generation_id);
 
@@ -259,10 +232,10 @@ EOF
   }
 
   class PDFAnnotation extends PDFIndirectObject {
-    function PDFAnnotation(&$handler,
-                           $object_id, 
-                           $generation_id) {
-      $this->PDFIndirectObject($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id) {
+      PDFIndirectObject::__construct($handler,
                                $object_id, 
                                $generation_id);
     }
@@ -279,7 +252,7 @@ EOF
     var $w;
     var $h;
 
-    function PDFRect($x,$y,$w,$h) {
+    function __construct($x, $y, $w, $h) {
       $this->x = $x;
       $this->y = $y;
       $this->w = $w;
@@ -315,12 +288,12 @@ EOF
     var $rect;
     var $link;
 
-    function PDFAnnotationExternalLink(&$handler,
-                                       $object_id, 
-                                       $generation_id,
-                                       $rect,
-                                       $link) {
-      $this->PDFAnnotation($handler, 
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $link) {
+      PDFAnnotation::__construct($handler,
                            $object_id,
                            $generation_id);
 
@@ -343,12 +316,12 @@ EOF
     var $rect;
     var $link;
 
-    function PDFAnnotationInternalLink(&$handler,
-                                       $object_id, 
-                                       $generation_id,
-                                       $rect,
-                                       $link) {
-      $this->PDFAnnotation($handler, 
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $link) {
+      PDFAnnotation::__construct($handler,
                            $object_id, 
                            $generation_id);
 
@@ -363,7 +336,7 @@ EOF
       } else {
         $wPt=$handler->fhPt;
         $hPt=$handler->fwPt;
-      };
+      }
       $l = $handler->links[$this->link];
       $h = $hPt;
 
@@ -396,11 +369,11 @@ EOF
   class PDFAnnotationWidget extends PDFAnnotation {
     var $_rect;
 
-    function PDFAnnotationWidget(&$handler,
-                                 $object_id, 
-                                 $generation_id,
-                                 $rect) {
-      $this->PDFAnnotation($handler, 
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect) {
+      PDFAnnotation::__construct($handler,
                            $object_id, 
                            $generation_id);
 
@@ -421,11 +394,11 @@ EOF
     var $_kids;
     var $_group_name;
 
-    function PDFFieldGroup(&$handler, 
-                           $object_id, 
-                           $generation_id,
-                           $group_name) {
-      $this->PDFIndirectObject($handler, 
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $group_name) {
+      PDFIndirectObject::__construct($handler,
                                $object_id, 
                                $generation_id);
 
@@ -434,7 +407,7 @@ EOF
        */
       if (is_null($group_name) || $group_name == "") {
         $group_name = sprintf("FieldGroup%d", $this->get_object_id());
-      };
+      }
       $this->_group_name = $group_name;
 
       $this->_kids = array();
@@ -447,7 +420,7 @@ EOF
       if (trim($field->get_field_name()) == "") {
         error_log(sprintf("Found form field with empty name"));
         return false;
-      };
+      }
 
       /**
        * Check if field name is unique inside this form! If we will not do it, 
@@ -460,7 +433,7 @@ EOF
                             $kid->get_field_name()));
           return false;
         }
-      };
+      }
 
       return true;
     }
@@ -473,7 +446,7 @@ EOF
         $field->set_field_name(sprintf("%s_FieldObject%d",
                                        $field->get_field_name(),
                                        $field->get_object_id()));
-      };
+      }
 
       $this->_kids[] =& $field;
       $field->set_parent($this);
@@ -512,12 +485,12 @@ EOF
      */
     var $_parent;
 
-    function PDFField(&$handler,
-                      $object_id, 
-                      $generation_id, 
-                      $rect, 
-                      $field_name) {
-      $this->PDFAnnotationWidget($handler, 
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $field_name) {
+      PDFAnnotationWidget::__construct($handler,
                                  $object_id, 
                                  $generation_id, 
                                  $rect);
@@ -528,7 +501,7 @@ EOF
        */
       if (is_null($field_name) || $field_name == "") {
         $field_name = sprintf("FieldObject%d", $this->get_object_id());
-      };
+      }
 
       $this->_field_name = $field_name;
     }
@@ -538,7 +511,7 @@ EOF
         return $this->_field_name;
       } else {
         return sprintf("FormObject%d", $this->get_object_id());
-      };
+      }
     }
 
     function _dict(&$handler) {
@@ -574,14 +547,14 @@ EOF
     var $_appearance_off;
     var $_checked;
 
-    function PDFFieldCheckBox(&$handler,
-                              $object_id, 
-                              $generation_id,
-                              $rect, 
-                              $field_name, 
-                              $value,
-                              $checked) {
-      $this->PDFField($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $field_name,
+                         $value,
+                         $checked) {
+      PDFField::__construct($handler,
                       $object_id, 
                       $generation_id,
                       $rect, 
@@ -637,13 +610,13 @@ EOF
       $this->_appearance->out($handler);
     }
 
-    function PDFFieldPushButton(&$handler,
-                                $object_id, 
-                                $generation_id,
-                                $rect, 
-                                $fontindex, 
-                                $fontsize) {
-      $this->PDFField($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $fontindex,
+                         $fontsize) {
+      PDFField::__construct($handler,
                       $object_id, 
                       $generation_id,
                       $rect,
@@ -680,16 +653,16 @@ EOF
   class PDFFieldPushButtonImage extends PDFFieldPushButton {
     var $_link;
 
-    function PDFFieldPushButtonImage(&$handler,
-                                      $object_id, 
-                                      $generation_id,
-                                      $rect, 
-                                      $fontindex, 
-                                      $fontsize, 
-                                      $field_name,
-                                      $value, 
-                                      $link) {
-      $this->PDFFieldPushButton($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $fontindex,
+                         $fontsize,
+                         $field_name,
+                         $value,
+                         $link) {
+      PDFFieldPushButton::__construct($handler,
                                 $object_id, 
                                 $generation_id, 
                                 $rect, 
@@ -716,16 +689,16 @@ EOF
     var $_link;
     var $_caption;
 
-    function PDFFieldPushButtonSubmit(&$handler,
-                                      $object_id, 
-                                      $generation_id,
-                                      $rect, 
-                                      $fontindex, 
-                                      $fontsize, 
-                                      $field_name,
-                                      $value, 
-                                      $link) {
-      $this->PDFFieldPushButton($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $fontindex,
+                         $fontsize,
+                         $field_name,
+                         $value,
+                         $link) {
+      PDFFieldPushButton::__construct($handler,
                                 $object_id, 
                                 $generation_id, 
                                 $rect, 
@@ -750,13 +723,13 @@ EOF
   }
 
   class PDFFieldPushButtonReset extends PDFFieldPushButton {
-    function PDFFieldPushButtonReset(&$handler,
-                                     $object_id, 
-                                     $generation_id,
-                                     $rect, 
-                                     $fontindex, 
-                                     $fontsize) {
-      $this->PDFFieldPushButton($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $fontindex,
+                         $fontsize) {
+      PDFFieldPushButton::__construct($handler,
                                 $object_id, 
                                 $generation_id,
                                 $rect, 
@@ -792,12 +765,12 @@ EOF
     var $_appearance_on;
     var $_appearance_off;
 
-    function PDFFieldRadio(&$handler,
-                           $object_id, 
-                           $generation_id,
-                           $rect, 
-                           $value) {
-      $this->PDFAnnotationWidget($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $value) {
+      PDFAnnotationWidget::__construct($handler,
                                  $object_id, 
                                  $generation_id,
                                  $rect);
@@ -851,7 +824,7 @@ EOF
     var $_parent;
     var $_checked;
 
-    function _dict($handler) {
+    function _dict(&$handler) {
       return array_merge(parent::_dict($handler),
                          array(
                                'DV'      => $this->_checked ? $handler->_name($this->_checked) : "/Off",
@@ -870,11 +843,11 @@ EOF
       return true;
     }
     
-    function PDFFieldRadioGroup(&$handler,
-                                $object_id,
-                                $generation_id, 
-                                $group_name) {
-      $this->PDFFieldGroup($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $group_name) {
+      PDFFieldGroup::__construct($handler,
                            $object_id, 
                            $generation_id,
                            $group_name);
@@ -908,7 +881,7 @@ EOF
         $options[] = $handler->_array(sprintf("%s %s", 
                                               $handler->_textstring($arr[0]),
                                               $handler->_textstring($arr[1])));
-      };
+      }
 
       $options_str = $handler->_array(implode(" ",$options));
 
@@ -921,14 +894,14 @@ EOF
                                'Opt'     => $options_str));
     }
 
-    function PDFFieldSelect(&$handler,
-                            $object_id, 
-                            $generation_id,
-                            $rect, 
-                            $field_name,
-                            $value,
-                            $options) {
-      $this->PDFField($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $field_name,
+                         $value,
+                         $options) {
+      PDFField::__construct($handler,
                       $object_id, 
                       $generation_id,
                       $rect, 
@@ -973,15 +946,15 @@ EOF
       //      $this->_appearance->out($handler);
     }
 
-    function PDFFieldText(&$handler,
-                          $object_id, 
-                          $generation_id,
-                          $rect, 
-                          $field_name,
-                          $value,
-                          $fontindex, 
-                          $fontsize) {
-      $this->PDFField($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $field_name,
+                         $value,
+                         $fontindex,
+                         $fontsize) {
+      PDFField::__construct($handler,
                       $object_id, 
                       $generation_id,
                       $rect, 
@@ -1009,15 +982,15 @@ EOF
    * "Password" text input field
    */
   class PDFFieldPassword extends PDFFieldText {
-    function PDFFieldPassword(&$handler, 
-                              $object_id,
-                              $generation_id,
-                              $rect,
-                              $field_name,
-                              $value,
-                              $fontindex,
-                              $fontsize) {
-      $this->PDFFieldText($handler,
+    function __construct(&$handler,
+                         $object_id,
+                         $generation_id,
+                         $rect,
+                         $field_name,
+                         $value,
+                         $fontindex,
+                         $fontsize) {
+      PDFFieldText::__construct($handler,
                           $object_id,
                           $generation_id,
                           $rect,
@@ -1164,7 +1137,7 @@ EOF
       $content = "";
       foreach ($dict as $key => $value) {
         $content .= "/$key $value\n";
-      };
+      }
       return "<<\n".$content."\n>>";
     }
 
@@ -1180,9 +1153,10 @@ EOF
 
     function _reference_array($object_array) {
       $array_str = "";
-      for ($i=0; $i<count($object_array); $i++) {
+      $size = is_countable($object_array) ? count($object_array) : 0;
+      for ($i=0; $i<$size; $i++) {
         $array_str .= $this->_reference($object_array[$i])." ";
-      };
+      }
       return $this->_array($array_str);
     }
 
@@ -1200,7 +1174,7 @@ EOF
     }
 
     function add_field_select($x, $y, $w, $h, $name, $value, $options) {
-      $field =& new PDFFieldSelect($this,
+      $field= new PDFFieldSelect($this,
                                    $this->_generate_new_object_number(),    // Object identifier
                                    0,                                       // Generation
                                    new PDFRect($x, $y, $w, $h),             // Annotation rectangle
@@ -1227,7 +1201,7 @@ EOF
      * @TODO check if fully qualified field name will be unique in PDF file
      */
     function add_field_checkbox($x, $y, $w, $h, $name, $value, $checked) {
-      $field =& new PDFFieldCheckBox($this,
+      $field= new PDFFieldCheckBox($this,
                                      $this->_generate_new_object_number(),    // Object identifier
                                      0,                                       // Generation
                                      new PDFRect($x, $y, $w, $h),             // Annotation rectangle
@@ -1258,7 +1232,7 @@ EOF
                                   0,
                                   $name);
         $this->_forms[] =& $form;
-      };
+      }
 
       return $this->_forms[count($this->_forms)-1];
     }
@@ -1267,7 +1241,7 @@ EOF
       if (isset($this->_form_radios[$group_name])) {
         $field =& $this->_form_radios[$group_name];
       } else {
-        $field =& new PDFFieldRadioGroup($this, 
+        $field= new PDFFieldRadioGroup($this,
                                          $this->_generate_new_object_number(),
                                          0,
                                          $group_name);
@@ -1276,15 +1250,15 @@ EOF
         $current_form->add_field($field);
 
         $this->_form_radios[$group_name] =& $field;
-      };
+      }
 
-      $radio =& new PDFFieldRadio($this, 
+      $radio= new PDFFieldRadio($this,
                                   $this->_generate_new_object_number(),
                                   0,
                                   new PDFRect($x, $y, $w, $h),
                                   $value);
       $field->add_field($radio);
-      if ($checked) { $field->set_checked($value); };
+      if ($checked) { $field->set_checked($value); }
 
       $this->_pages[count($this->_pages)-1]->add_annotation($radio);
     }
@@ -1302,7 +1276,7 @@ EOF
      * @return Field number
      */
     function add_field_text($x, $y, $w, $h, $value, $field_name) {
-      $field =& new PDFFieldText($this, 
+      $field= new PDFFieldText($this,
                                  $this->_generate_new_object_number(),
                                  0,
                                  new PDFRect($x, $y, $w, $h), 
@@ -1318,7 +1292,7 @@ EOF
     }
 
     function add_field_multiline_text($x, $y, $w, $h, $value, $field_name) {
-      $field =& new PDFFieldMultilineText($this, 
+      $field= new PDFFieldMultilineText($this,
                                           $this->_generate_new_object_number(),
                                           0,
                                           new PDFRect($x, $y, $w, $h), 
@@ -1346,7 +1320,7 @@ EOF
      * @return Field number
      */
     function add_field_password($x, $y, $w, $h, $value, $field_name) {
-      $field =& new PDFFieldPassword($this,
+      $field= new PDFFieldPassword($this,
                                      $this->_generate_new_object_number(),
                                      0,
                                      new PDFRect($x, $y, $w, $h),
@@ -1362,7 +1336,7 @@ EOF
     }
 
     function add_field_pushbuttonimage($x, $y, $w, $h, $field_name, $value, $actionURL) {
-      $field =& new PDFFieldPushButtonImage($this,
+      $field= new PDFFieldPushButtonImage($this,
                                             $this->_generate_new_object_number(),
                                             0,
                                             new PDFRect($x, $y, $w, $h),
@@ -1379,7 +1353,7 @@ EOF
     }
 
     function add_field_pushbuttonsubmit($x, $y, $w, $h, $field_name, $value, $actionURL) {
-      $field =& new PDFFieldPushButtonSubmit($this,
+      $field= new PDFFieldPushButtonSubmit($this,
                                              $this->_generate_new_object_number(),
                                              0,
                                              new PDFRect($x, $y, $w, $h),
@@ -1396,7 +1370,7 @@ EOF
     }
 
     function add_field_pushbuttonreset($x, $y, $w, $h) {
-      $field =& new PDFFieldPushButtonReset($this,
+      $field= new PDFFieldPushButtonReset($this,
                                             $this->_generate_new_object_number(),
                                             0,
                                             new PDFRect($x, $y, $w, $h),
@@ -1411,7 +1385,7 @@ EOF
     }
 
     function add_field_pushbutton($x, $y, $w, $h) {
-      $field =& new PDFFieldPushButton($this,
+      $field= new PDFFieldPushButton($this,
                                        $this->_generate_new_object_number(),
                                        0,
                                        new PDFRect($x, $y, $w, $h),
@@ -1485,9 +1459,9 @@ EOF
     }
 
     function ClipPath($path) {
-      if (count($path) < 3) { 
+      if (is_countable($path) && count($path) < 3) {
         die("Attempt to clip on the path containing less than three points"); 
-      };
+      }
 
       $this->MakePath($path);
       $this->Clip();
@@ -1509,18 +1483,17 @@ EOF
         $file = substr($file, 0, strlen($file) - 4);
           
         // Generate (if required) PHP font description files
-        if (!file_exists($this->_getfontpath().$fontkey.'.php') || 
-            ManagerEncoding::is_custom_encoding($encoding)) {
+        if (!file_exists($this->_getfontpath().$fontkey.'.php') || $encoding == 'custom') {
           // As MakeFont squeaks a lot, we'll need to capture and discard its output
           MakeFont(TTF_FONTS_REPOSITORY.$file.'.ttf',
                    TTF_FONTS_REPOSITORY.$file.'.afm',
                    $this->_getfontpath(),
                    $fontkey.'.php',
                    $encoding);
-        };
+        }
 
         $this->AddFont($fontkey, $family, $encoding, $fontkey.'.php', $embed); 
-      };
+      }
     }
 
     function _MakeFontKey($family, $encoding) {
@@ -1540,13 +1513,8 @@ EOF
     }
 
     // Note that FPDF do some caching, which can conflict with "save/restore" pairs
-    function Save() { 
-      $this->_out("q"); 
-    }
-
-    function Restore() { 
-      $this->_out("Q"); 
-    }
+    function Save() { $this->_out("q"); }
+    function Restore() { $this->_out("Q"); }
 
     function Translate($dx, $dy) {
       $this->_out(sprintf("1 0 0 1 %.2f %.2f cm", $dx, $dy));
@@ -1570,13 +1538,13 @@ EOF
 
       for ($i=1; $i<count($path); $i++) {
         $this->_out(sprintf("%.2f %.2f l", $path[$i]['x'], $path[$i]['y']));
-      };
+      }
     }
 
     function FillPath($path) {
-      if (count($path) < 3) { 
+      if (is_countable($path) && count($path) < 3) {
         die("Attempt to fill path containing less than three points"); 
-      };
+      }
 
       $this->_out($this->FillColor);
       $this->MakePath($path);
@@ -1619,7 +1587,7 @@ EOF
      *                               Public methods                                 *
      *                                                                              *
      *******************************************************************************/
-    function FPDF($orientation='P', $unit='mm', $format='A4') {
+    function __construct($orientation='P', $unit='mm', $format='A4') {
       $this->_forms = array();
       $this->_form_radios = array();
       $this->_pages = array();
@@ -1666,10 +1634,52 @@ EOF
         $this->k = 72;
       default:
         $this->Error('Incorrect unit: '.$unit);
-      };
+      }
 
-      $this->setup_format($format[0], $format[1]);
+      //Page format
+      if (is_string($format)) {
+        $format=strtolower($format);
 
+        switch ($format) {
+        case 'a3':
+          $format=array(841.89,1190.55); break;
+        case 'a4':
+          $format=array(595.28,841.89); break;
+        case 'a5':
+          $format=array(420.94,595.28); break;
+        case 'letter':
+          $format=array(612,792); break;
+        case 'legal':
+          $format=array(612,1008); break;
+        default:
+          $this->Error('Unknown page format: '.$format);
+        }
+        $this->fwPt=$format[0];
+        $this->fhPt=$format[1];
+      } else {
+        $this->fwPt=$format[0]*$this->k;
+        $this->fhPt=$format[1]*$this->k;
+      }
+
+      $this->fw=$this->fwPt/$this->k;
+      $this->fh=$this->fhPt/$this->k;
+
+      //Page orientation
+      $orientation=strtolower($orientation);
+      if ($orientation=='p' || $orientation=='portrait') {
+        $this->DefOrientation='P';
+        $this->wPt=$this->fwPt;
+        $this->hPt=$this->fhPt;
+      } elseif($orientation=='l' || $orientation=='landscape') {
+        $this->DefOrientation='L';
+        $this->wPt=$this->fhPt;
+        $this->hPt=$this->fwPt;
+      } else {
+        $this->Error('Incorrect orientation: '.$orientation);
+      }
+
+      $this->w=$this->wPt/$this->k;
+      $this->h=$this->hPt/$this->k;
       //Line width (0.2 mm)
       $this->LineWidth=.567/$this->k;
 
@@ -1681,20 +1691,6 @@ EOF
 
       //Set default PDF version number
       $this->PDFVersion='1.3';
-    }
-
-    function setup_format($width, $height) {
-      $this->fwPt = $width * $this->k;
-      $this->fhPt = $height * $this->k;
-      $this->wPt = $this->fwPt;
-      $this->hPt = $this->fhPt;
-
-      $this->fw = $width;
-      $this->fh = $height;
-      $this->w = $this->fw;
-      $this->h = $this->fh;
-
-      $this->DefOrientation='P';
     }
 
     function SetDisplayMode($zoom,$layout='continuous') {
@@ -1717,7 +1713,7 @@ EOF
         $this->compress=$compress;
       } else {
         $this->compress=false;
-      };
+      }
     }
 
     function SetTitle($title) {
@@ -1759,11 +1755,11 @@ EOF
       //Terminate document
       if ($this->state == FPDF_STATE_COMPLETED) {
         return;
-      };
+      }
 
       if ($this->page==0) {
         $this->AddPage();
-      };
+      }
 
       //Close page
       $this->_endpage();
@@ -1771,25 +1767,16 @@ EOF
       $this->_enddoc();
     }
 
-    function AddPage($width = null, $height = null) {
-      if (!$width) {
-        $width = $this->fwPt;
-      };
-
-      if (!$height) {
-        $height = $this->fhPt;
-      };
-
-      $this->setup_format($width, $height);
-
-      $this->_pages[] =& new PDFPage($this, $width, $height, $this->_generate_new_object_number(), 0);
+    function AddPage() {
+      $this->_pages[]= new PDFPage($this, $this->_generate_new_object_number(), 0);
 
       //Start a new page
       if ($this->state == FPDF_STATE_UNINITIALIZED) {
         $this->Open();
-      };
+      }
 
       $family=$this->FontFamily;
+
       $size=$this->FontSizePt;
       $lw=$this->LineWidth;
       $dc=$this->DrawColor;
@@ -1813,12 +1800,12 @@ EOF
       $this->DrawColor=$dc;
       if ($dc!='0 G') {
         $this->_out($dc);
-      };
+      }
 
       $this->FillColor=$fc;
       if ($fc!='0 g') {
         $this->_out($fc);
-      };
+      }
 
       $this->TextColor=$tc;
       $this->ColorFlag=$cf;
@@ -1843,7 +1830,7 @@ EOF
 
       if (!is_null($this->CurrentFont)) {
         $this->_out(sprintf('BT /F%d %.2f Tf ET',$this->CurrentFont['i'],$this->FontSizePt));
-      };
+      }
     }
 
     function SetDrawColor($r,$g=-1,$b=-1) {
@@ -1852,12 +1839,12 @@ EOF
         $new_color = sprintf('%.3f G',$r/255);
       } else {
         $new_color = sprintf('%.3f %.3f %.3f RG',$r/255,$g/255,$b/255);
-      };
+      }
 
       if ($this->page > 0 /*&& $this->DrawColor != $new_color*/) {
         $this->DrawColor = $new_color;
         $this->_out($this->DrawColor);
-      };
+      }
     }
 
     function SetFillColor($r,$g=-1,$b=-1) {
@@ -1866,13 +1853,13 @@ EOF
         $new_color = sprintf('%.3f g',$r/255);
       } else { 
         $new_color = sprintf('%.3f %.3f %.3f rg',$r/255,$g/255,$b/255);
-      };
+      }
 
       if ($this->page>0 /*&& $this->FillColor != $new_color*/) {
         $this->FillColor = $new_color;
         $this->ColorFlag = ($this->FillColor!=$this->TextColor);
         $this->_out($this->FillColor);
-      };
+      }
     }
 
     function SetTextColor($r,$g=-1,$b=-1) {
@@ -1881,7 +1868,7 @@ EOF
         $this->TextColor=sprintf('%.3f g',$r/255);
       } else {
         $this->TextColor=sprintf('%.3f %.3f %.3f rg',$r/255,$g/255,$b/255);
-      };
+      }
       
       $this->ColorFlag=($this->FillColor!=$this->TextColor);
     }
@@ -1894,8 +1881,8 @@ EOF
 
       $l=strlen($s);
       for ($i=0; $i<$l; $i++) {
-        $w+=$cw[$s{$i}];
-      };
+        $w+=$cw[$s[$i]];
+      }
 
       return $w*$this->FontSize/1000;
     }
@@ -1907,7 +1894,7 @@ EOF
       $this->LineWidth = $width;
       if ($this->page > 0) {
         $this->_out(sprintf('%.2f w',$width*$this->k));
-      };
+      }
     }
 
     /**
@@ -1923,7 +1910,7 @@ EOF
     function AddFont($fontkey, $family, $encoding, $file, $bEmbed) {
       if(isset($this->fonts[$fontkey])) {
         $this->Error('Font already added: '.$family);
-      };
+      }
 
       $filepath = $this->_getfontpath().$file;
       include($filepath);
@@ -1931,11 +1918,11 @@ EOF
       // After we've executed 'include' the $file variable
       // have been overwritten by $file declared in font definition file; if we do not want 
       // to embed the font in the PDF file, we should set to empty string
-      if (!$bEmbed) { $file = ''; };
+      if (!$bEmbed) { $file = ''; }
 
       if(!isset($name)) {
         $this->Error("Could not include font definition file: $filepath");
-      };
+      }
 
       $i=count($this->fonts)+1;
       $this->fonts[$fontkey]=array('i'    =>$i,
@@ -1979,7 +1966,7 @@ EOF
           $this->FontFiles[$file]=array('length1'=>$originalsize);
         } else {
           $this->FontFiles[$file]=array('length1'=>$size1,'length2'=>$size2);
-        };
+        }
       }
     }
 
@@ -1992,14 +1979,15 @@ EOF
       $fontkey = $this->_MakeFontKey($family, $encoding);
       $this->_LoadFont($fontkey, $family, $encoding);
 
-      $this->FontFamily  = $family;
-      $this->FontSizePt  = $size;
-      $this->FontSize    = $size/$this->k;
-      $this->CurrentFont = &$this->fonts[$fontkey];
-
       if ($this->page > 0) {
+        //Select it
+        $this->FontFamily  = $family;
+        $this->FontSizePt  = $size;
+        $this->FontSize    = $size/$this->k;
+
+        $this->CurrentFont = &$this->fonts[$fontkey];
         $this->_out(sprintf('BT /F%d %.2f Tf ET',$this->CurrentFont['i'],$this->FontSizePt));
-      };
+      }
     }
 
     /**
@@ -2056,9 +2044,9 @@ EOF
       $this->_pages[count($this->_pages)-1]->add_annotation($link);      
     }    
 
-    function Text($x, $y, $txt) {
+    function Text($x,$y,$txt) {
       //Output a string
-      $s = sprintf('BT %.2f %.2f Td (%s) Tj ET',$x*$this->k,($this->h-$y)*$this->k,$this->_escape($txt));
+      $s=sprintf('BT %.2f %.2f Td (%s) Tj ET',$x*$this->k,($this->h-$y)*$this->k,$this->_escape($txt));
 
       if ($this->underline && $txt!='') {
         $s.=' '.$this->_dounderline($x,$y,$txt);
@@ -2074,7 +2062,7 @@ EOF
 
       if ($this->ColorFlag) {
         $s='q '.$this->TextColor.' '.$s.' Q';
-      };
+      }
       $this->_out($s);
     }
 
@@ -2082,24 +2070,16 @@ EOF
      * Accepts PNG images only
      */
     function Image($file, $x, $y, $w, $h) {
-      // Image used first time, parse input file
+      // Put an image on the page
       if (!isset($this->images[$file])) {
-        $ext = pathinfo($file, PATHINFO_EXTENSION);
-        switch ($ext) {
-        case 'jpg':
-        case 'jpeg':
-          $info = $this->_parsejpg($file);
-          break;
-        case 'png':
-          $info = $this->_parsepng($file);
-          break;
-        };
+        $info=$this->_parsepng($file);
 
-        $info['i'] = count($this->images) + 1;
-        $this->images[$file] = $info;
-      };
+        $info['i']=count($this->images)+1;
+        $this->images[$file]=$info;
+      } else {
+        $info=$this->images[$file];
+      }
 
-      $info = $this->images[$file];
       $this->_out(sprintf('q %.2f 0 0 %.2f %.2f %.2f cm /I%d Do Q',
                           $w*$this->k,
                           $h*$this->k,
@@ -2115,12 +2095,12 @@ EOF
       //Finish document if necessary
       if ($this->state != FPDF_STATE_COMPLETED) {
         $this->Close();
-      };
+      }
 
       $f=fopen($name,'wb');
       if (!$f) {
         $this->Error('Unable to create output file: '.$name);
-      };
+      }
       fwrite($f,$this->buffer,strlen($this->buffer));
       fclose($f);
     }
@@ -2134,12 +2114,12 @@ EOF
       // Check for locale-related bug
       if (1.1==1) {
         $this->Error('Don\'t alter the locale before including class file');
-      };
+      }
 
       // Check for decimal separator
       if (sprintf('%.1f',1.0)!='1.0') {
         setlocale(LC_NUMERIC,'C');
-      };
+      }
     }
 
     function _getfontpath() {
@@ -2155,7 +2135,7 @@ EOF
       } else {
         $wPt=$this->fhPt;
         $hPt=$this->fwPt;
-      };
+      }
 
       $filter=($this->compress) ? '/Filter /FlateDecode ' : '';
 
@@ -2170,9 +2150,6 @@ EOF
         
         $this->_out('<</Type /Page');
         $this->_out('/Parent 1 0 R');
-        $this->_out(sprintf('/MediaBox [0 0 %.2f %.2f]',
-                            $page->get_width(),
-                            $page->get_height()));
         $this->_out("/Annots ".$this->_pages[$n-1]->_annotations($this));
         $this->_out('/Resources 2 0 R');
 
@@ -2187,11 +2164,11 @@ EOF
 
         // Output annotation object for this page
         $annotations = $this->_pages[$n-1]->annotations;
-        $size = count($annotations);
+        $size = is_countable($annotations) ? count($annotations) : 0;
 
         for ($j=0; $j<$size; $j++) {
           $annotations[$j]->out($this);
-        };
+        }
       }
 
       //Pages root
@@ -2226,7 +2203,7 @@ EOF
 
         $cmap->out($this);
       }
-      
+
       foreach ($this->FontFiles as $file=>$info) {
         //Font file embedding
         $this->_newobj();
@@ -2235,19 +2212,19 @@ EOF
         $f=fopen($this->_getfontpath().$file,'rb',1);
         if (!$f) {
           $this->Error('Font file not found');
-        };
+        }
 
-        while (!feof($f)) { $font.=fread($f,8192); };
+        while (!feof($f)) { $font.=fread($f,8192); }
 
         fclose($f);
         $compressed=(substr($file,-2)=='.z');
         if (!$compressed && isset($info['length2'])) {
-          $header=(ord($font{0})==128);
+          $header=(ord($font[0])==128);
           if($header) {
             //Strip first binary header
             $font=substr($font,6);
           }
-          if($header && ord($font{$info['length1']})==128) {
+          if($header && ord($font[$info['length1']])==128) {
             //Strip second binary header
             $font=substr($font,0,$info['length1']).substr($font,$info['length1']+6);
           }
@@ -2256,12 +2233,12 @@ EOF
 
         if ($compressed) {
           $this->_out('/Filter /FlateDecode');
-        };
+        }
 
         $this->_out('/Length1 '.$info['length1']);
         if(isset($info['length2'])) {
           $this->_out('/Length2 '.$info['length2'].' /Length3 0');
-        };
+        }
         $this->_out('>>');
         $this->_putstream($font);
         $this->_out('endobj');
@@ -2288,7 +2265,7 @@ EOF
               $this->_out('/ToUnicode '.($this->_reference($this->cmaps[$font['diff']])));
             } else {
               $this->_out('/Encoding /WinAnsiEncoding');
-            };
+            }
           }
           $this->_out('>>');
           $this->_out('endobj');
@@ -2299,7 +2276,7 @@ EOF
           $s='[';
           for ($i=32;$i<=255;$i++) {
             $s.=$cw[chr($i)].' ';
-          };
+          }
           $this->_out($s.']');
           $this->_out('endobj');
 
@@ -2320,7 +2297,7 @@ EOF
           if ($font['file'] != "") {
             $fontDescriptor['FontFile'.($type=='Type1' ? '' : '2')] = 
               $this->FontFiles[$font['file']]['n'].' 0 R';
-          };
+          }
           $this->_out($this->_dictionary($fontDescriptor));
           $this->_out('endobj');
 
@@ -2337,7 +2314,7 @@ EOF
     function _putimages() {
       $filter=($this->compress) ? '/Filter /FlateDecode ' : '';
       reset($this->images);
-      while (list($file,$info) = each($this->images)) {
+      foreach ($this->images as $file => $info) {
         $this->_newobj();
         $this->images[$file]['n']=$this->n;
         $this->_out('<</Type /XObject');
@@ -2350,24 +2327,24 @@ EOF
           $this->_out('/ColorSpace /'.$info['cs']);
           if($info['cs']=='DeviceCMYK') {
             $this->_out('/Decode [1 0 1 0 1 0 1 0]');
-          };
+          }
         }
         $this->_out('/BitsPerComponent '.$info['bpc']);
         if (isset($info['f'])) {
           $this->_out('/Filter /'.$info['f']);
-        };
+        }
 
         if(isset($info['parms'])) {
           $this->_out($info['parms']);
-        };
+        }
 
         if(isset($info['trns']) && is_array($info['trns'])) {
           $trns='';
           for ($i=0;$i<count($info['trns']);$i++) {
             $trns.=$info['trns'][$i].' '.$info['trns'][$i].' ';
-          };
+          }
           $this->_out('/Mask ['.$trns.']');
-        };
+        }
 
         $this->_out('/Length '.strlen($info['data']).'>>');
         $this->_putstream($info['data']);
@@ -2381,14 +2358,14 @@ EOF
           $this->_out('<<'.$filter.'/Length '.strlen($pal).'>>');
           $this->_putstream($pal);
           $this->_out('endobj');
-        };
+        }
       }
     }
 
     function _putxobjectdict() {
       foreach ($this->images as $image) {
         $this->_out('/I'.$image['i'].' '.$image['n'].' 0 R');
-      };
+      }
     }
 
     function _putresourcedict() {
@@ -2396,7 +2373,7 @@ EOF
       $this->_out('/Font <<');
       foreach ($this->fonts as $font) {
         $this->_out('/F'.$font['i'].' '.$font['n'].' 0 R');
-      };
+      }
       $this->_out('>>');
       $this->_out('/XObject <<');
       $this->_putxobjectdict();
@@ -2421,23 +2398,23 @@ EOF
 
       if (!empty($this->title)) {
         $this->_out('/Title '.$this->_textstring($this->title));
-      };
+      }
 
       if (!empty($this->subject)) {
         $this->_out('/Subject '.$this->_textstring($this->subject));
-      };
+      }
 
       if (!empty($this->author)) {
         $this->_out('/Author '.$this->_textstring($this->author));
-      };
+      }
 
       if (!empty($this->keywords)) {
         $this->_out('/Keywords '.$this->_textstring($this->keywords));
-      };
+      }
 
       if (!empty($this->creator)) {
         $this->_out('/Creator '.$this->_textstring($this->creator));
-      };
+      }
 
       $this->_out('/CreationDate '.$this->_textstring('D:'.date('YmdHis')));
     }
@@ -2455,7 +2432,7 @@ EOF
         $this->_out("/OpenAction [$pages_start_obj_number 0 R /XYZ null null 1]");
       } elseif (!is_string($this->ZoomMode)) {
         $this->_out("/OpenAction [$pages_start_obj_number 0 R /XYZ null null ".($this->ZoomMode/100).']');
-      };
+      }
 
       if ($this->LayoutMode=='single') {
         $this->_out('/PageLayout /SinglePage');
@@ -2463,7 +2440,7 @@ EOF
         $this->_out('/PageLayout /OneColumn');
       } elseif ($this->LayoutMode=='two') {
         $this->_out('/PageLayout /TwoColumnLeft');
-      };
+      }
 
       if (count($this->_forms) > 0) {
         $this->_out('/AcroForm <<');
@@ -2471,7 +2448,7 @@ EOF
         $this->_out('/DR 2 0 R');
         $this->_out('/NeedAppearances true');
         $this->_out('>>');
-      };
+      }
     }
     
     function _putheader() {
@@ -2502,7 +2479,7 @@ EOF
         $form =& $this->_forms[$i];
 
         $form->out($this);
-      };
+      }
 
       //Catalog
       $this->_newobj();
@@ -2519,7 +2496,7 @@ EOF
 
       for ($i=1; $i<=$this->n; $i++) {
         $this->_out(sprintf('%010d 00000 n ',$this->offsets[$i]));
-      };
+      }
 
       //Trailer
       $this->_out('trailer');
@@ -2555,68 +2532,31 @@ EOF
       $this->_out($num.' 0 obj');
     }
 
-    // Extract info from a JPEG file
-    function _parsejpg($file) {
-      $size_info = GetImageSize($file);
-      if (!$size_info) {
-        $this->Error('Missing or incorrect image file: '.$file);
-      };
-
-      if ($size_info[2]!=2) {
-        $this->Error('Not a JPEG file: '.$file);
-      };
-
-      if (!isset($size_info['channels']) || $size_info['channels']==3) {
-        $colspace='DeviceRGB';
-      } elseif($size_info['channels']==4) {
-        $colspace='DeviceCMYK';
-      } else {
-        $colspace='DeviceGray';
-      };
-
-      $bpc = isset($size_info['bits']) ? $size_info['bits'] : 8;
-
-      //Read whole file
-      $f=fopen($file,'rb');
-      $data='';
-      while (!feof($f)) {
-        $data .= fread($f, 4096);
-      };
-      fclose($f);
-
-      return array('w' => $size_info[0],
-                   'h' => $size_info[1],
-                   'cs' => $colspace,
-                   'bpc' => $bpc,
-                   'f' => 'DCTDecode',
-                   'data' => $data);
-    }
-
-    // Extract info from a PNG file
     function _parsepng($file) {
-      $f = fopen($file,'rb');
+      //Extract info from a PNG file
+      $f=fopen($file,'rb');
       if (!$f) {
         $this->Error('Can\'t open image file: '.$file);
-      };
+      }
 
       //Check signature
       if (fread($f,8)!=chr(137).'PNG'.chr(13).chr(10).chr(26).chr(10)) {
         $this->Error('Not a PNG file: '.$file);
-      };
+      }
 
       //Read header chunk
       fread($f,4);
       if (fread($f,4)!='IHDR') {
         $this->Error('Incorrect PNG file: '.$file);
-      };
+      }
 
-      $w = $this->_freadint($f);
-      $h = $this->_freadint($f);
-      $bpc = ord(fread($f,1));
+      $w=$this->_freadint($f);
+      $h=$this->_freadint($f);
+      $bpc=ord(fread($f,1));
 
       if ($bpc>8) {
         $this->Error('16-bit depth not supported: '.$file);
-      };
+      }
 
       $ct=ord(fread($f,1));
       if ($ct==0) {
@@ -2627,19 +2567,19 @@ EOF
         $colspace='Indexed';
       } else {
         $this->Error('Alpha channel not supported: '.$file);
-      };
+      }
 
       if (ord(fread($f,1))!=0) {
         $this->Error('Unknown compression method: '.$file);
-      };
+      }
 
       if (ord(fread($f,1))!=0) {
         $this->Error('Unknown filter method: '.$file);
-      };
+      }
 
       if (ord(fread($f,1))!=0) {
         $this->Error('Interlacing not supported: '.$file);
-      };
+      }
 
       fread($f,4);
       $parms='/DecodeParms <</Predictor 15 /Colors '.($ct==2 ? 3 : 1).' /BitsPerComponent '.$bpc.' /Columns '.$w.'>>';
@@ -2677,12 +2617,12 @@ EOF
           break;
         } else {
           fread($f,$n+4);
-        };
+        }
       } while($n);
 
       if ($colspace=='Indexed' && empty($pal)) {
         $this->Error('Missing palette in '.$file);
-      };
+      }
       fclose($f);
       return array('w'     => $w,
                    'h'     => $h,

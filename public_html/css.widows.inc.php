@@ -1,8 +1,8 @@
 <?php
 
 class CSSWidows extends CSSPropertyHandler {
-  function CSSWidows() { 
-    $this->CSSPropertyHandler(true, false); 
+  function __construct() {
+    CSSPropertyHandler::__construct(true, false);
   }
 
   function default_value() { return 2; }
@@ -11,15 +11,15 @@ class CSSWidows extends CSSPropertyHandler {
     return (int)$value;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_WIDOWS;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'widows';
   }
 }
 
-CSS::register_css_property(new CSSWidows);
+(new CSS())->register_css_property(new CSSWidows);
 
 ?>

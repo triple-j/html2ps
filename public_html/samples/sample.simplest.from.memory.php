@@ -4,11 +4,9 @@
  * Thanks for JensE for providing the code of fetcher class
  */
 
-require_once(dirname(__FILE__).'/../config.inc.php');
+require_once('../config.inc.php');
 require_once(HTML2PS_DIR.'pipeline.factory.class.php');
 
-error_reporting(E_ALL);
-ini_set("display_errors","1");
 @set_time_limit(10000);
 parse_config_file(HTML2PS_DIR.'html2ps.config');
 
@@ -22,7 +20,7 @@ class MyDestinationFile extends Destination {
    */
   var $_dest_filename;
 
-  function MyDestinationFile($dest_filename) {
+  function __construct($dest_filename) {
     $this->_dest_filename = $dest_filename;
   }
 
@@ -35,7 +33,7 @@ class MyFetcherMemory extends Fetcher {
   var $base_path;
   var $content;
 
-  function MyFetcherMemory($content, $base_path) {
+  function __construct($content, $base_path) {
     $this->content   = $content;
     $this->base_path = $base_path;
   }
@@ -69,9 +67,9 @@ class MyFetcherMemory extends Fetcher {
  * @param $path_to_pdf  String path to file to save generated PDF to.
  * @param $base_path    String base path to use when resolving relative links in HTML code.
  */
-function convert_to_pdf($html, $path_to_pdf, $base_path='') {
-  $pipeline = PipelineFactory::create_default_pipeline('', // Attempt to auto-detect encoding
-                                                       '');
+function convert_to_pdf($html, $path_to_pdf, $base_path="") {
+  $pipeline =  (new PipelineFactory())->create_default_pipeline("", // Attempt to auto-detect encoding
+                                                       "");
 
   // Override HTML source 
   // @TODO: default http fetcher will return null on incorrect images 
@@ -81,8 +79,8 @@ function convert_to_pdf($html, $path_to_pdf, $base_path='') {
   // Override destination to local file
   $pipeline->destination = new MyDestinationFile($path_to_pdf);
 
-  $baseurl = '';
-  $media =& Media::predefined('A4');
+  $baseurl = "";
+  $media = (new Media())->predefined("A4");
   $media->set_landscape(false);
   $media->set_margins(array('left'   => 0,
                             'right'  => 0,
@@ -105,10 +103,9 @@ function convert_to_pdf($html, $path_to_pdf, $base_path='') {
                     'draw_page_border' => false
                     );
 
-  $pipeline->configure($g_config);
-  $pipeline->process_batch(array($baseurl), $media);
+  $pipeline->process($baseurl, $media);
 }
 
-convert_to_pdf(file_get_contents('../temp/long.html'), '../out/test.pdf');
+convert_to_pdf(file_get_contents("../testsuite/encoding/iso-8859-2.html"), "../data/testing/test.pdf");
 
 ?>

@@ -4,7 +4,7 @@ class MyFetcherMemory extends Fetcher {
   var $base_path;
   var $content;
 
-  function MyFetcherMemory($content, $base_path) {
+  function __construct($content, $base_path) {
     $this->content   = $content;
     $this->base_path = $base_path;
   }
@@ -16,9 +16,9 @@ class MyFetcherMemory extends Fetcher {
       // remove the "file:///" protocol
       if (substr($url,0,8)=='file:///') {
         $url=substr($url,8);
-      };
-
-      $url = urldecode($url);
+        // remove the additional '/' that is currently inserted by utils_url.php
+        if (PHP_OS == "WINNT") $url=substr($url,1);
+      }
       return new FetchedDataURL(@file_get_contents($url), array(), "");
     }
   }

@@ -25,14 +25,14 @@ class CSSFontWeight extends CSSSubFieldProperty {
     case '600':
     default:
       return WEIGHT_NORMAL;
-    };
+    }
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_FONT_WEIGHT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'font-weight';
   }
 }

@@ -3,7 +3,7 @@
 class FeatureFactory {
   var $_features;
 
-  function FeatureFactory() {
+  function __construct() {
     $this->_features = array();
   }
 
@@ -15,7 +15,7 @@ class FeatureFactory {
   function &_get($name) {
     if (!isset($this->__features[$name])) {
       $this->_features[$name] =& $this->_load($name);
-    };
+    }
     return $this->_features[$name];
   }
 
@@ -27,18 +27,18 @@ class FeatureFactory {
     if (!file_exists($file_name)) {
       $null = null;
       return $null;
-    };
+    }
 
     require_once($file_name);
-    $feature_object =& new $class_name;
+    $feature_object= new $class_name;
     return $feature_object;
   }
 
   function &get_instance() {
     static $instance = null;
     if (is_null($instance)) {
-      $instance =& new FeatureFactory();
-    };
+      $instance= new FeatureFactory();
+    }
 
     return $instance;
   }

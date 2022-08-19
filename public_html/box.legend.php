@@ -4,22 +4,22 @@
 class LegendBox extends GenericContainerBox {
   function &create(&$root, &$pipeline) {
     $box = new LegendBox($root);
-    $box->readCSS($pipeline->get_current_css_state());
+    $box->readCSS($pipeline->getCurrentCSSState());
     $box->create_content($root, $pipeline);
 
     return $box;
   }
 
-  function LegendBox(&$root) {
+  function __construct(&$root) {
     // Call parent constructor
-    $this->GenericContainerBox();
+    GenericContainerBox::__construct();
 
     $this->_current_x = 0;
     $this->_current_y = 0;
   }
 
   // Flow-control
-  function reflow(&$parent, &$context) {
+  function reflow(&$parent, &$context, $boxes = null) {
     GenericFormattedBox::reflow($parent, $context);
 
     // Determine upper-left _content_ corner position of current box 

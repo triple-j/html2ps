@@ -1,17 +1,17 @@
 <?php
-// $Header: /cvsroot/html2ps/xhtml.utils.inc.php,v 1.35 2007/03/15 18:37:36 Konstantin Exp $
+// $Header: /cvsroot/html2ps/xhtml.utils.inc.php,v 1.34 2006/12/24 14:42:45 Konstantin Exp $
 
 function close_tag($tag, $sample_html) {
   return preg_replace("!(<{$tag}(\s[^>]*[^/>])?)>!si","\\1/>",$sample_html);
-};
+}
 
 function make_attr_value($attr, $html) {
   return preg_replace("#(<[^>]*\s){$attr}(\s|>|/>)#si","\\1{$attr}=\"{$attr}\"\\2",$html);
-};
+}
 
 
-function mk_open_tag_regexp($tag) { return "<\s*{$tag}(\s+[^>]*)?>"; };
-function mk_close_tag_regexp($tag) { return "<\s*/\s*{$tag}\s*>"; };
+function mk_open_tag_regexp($tag) { return "<\s*{$tag}(\s+[^>]*)?>"; }
+function mk_close_tag_regexp($tag) { return "<\s*/\s*{$tag}\s*>"; }
 
 function process_html($html) {
   $open  = mk_open_tag_regexp("html");
@@ -19,7 +19,7 @@ function process_html($html) {
 
   if (!preg_match("#{$open}#is",$html)) {
     $html = "<html>".$html;
-  };
+  }
 
   /**
    * Let's check if there's more than one <html> tags inside the page text
@@ -27,29 +27,24 @@ function process_html($html) {
    */
   while (preg_match("#{$open}(.*?){$open}#is", $html)) {
     $html = preg_replace("#{$open}(.*?){$open}#is", "<html>\\2", $html);
-  };
+  }
 
   if (!preg_match("#{$close}#is", $html)) {
     $html = $html."</html>";
-  };
+  }
 
   // PHP 5.2.0 compatilibty issue
   // preg_replace may accidentally return NULL on large files not matching this 
-  // protect from twice processed
-  $html = preg_replace("#.*({$open})#is","\\1", $html);
+  $html = preg_replace("#.*({$open})#is","\\1",$html);
 
   // PHP 5.2.0 compatilibty issue
   // preg_replace may accidentally return NULL on large files not matching this 
 
   // Cut off all data before and after 'html' tag; unless we'll do it,
   // the XML parser will die violently
-  $html = preg_replace("#^.*<html#is","<html", $html);
+  $html = preg_replace("#^.*<html#is","<html",$html);
 
   $html = preg_replace("#</html\s*>.*$#is","</html>",$html);
-
-  if (!$html) {
-    trigger_error('pcre.pcre.backtrack_limit('.ini_get('pcre.backtrack_limit').') and pcre.recursion_limit('.ini_get('pcre.recursion_limit').') too low', E_USER_ERROR);
-  }
 
   return $html;
 }
@@ -68,8 +63,8 @@ function process_head($html) {
       $html = preg_replace("#({$obody})#is","</head>\\1",$html);
     } else {
       $html = preg_replace("#({$chtml})#is","</head>\\1",$html);
-    };
-  };
+    }
+  }
   return $html;
 }
 
@@ -85,11 +80,11 @@ function process_body($html) {
       $html = preg_replace("#({$chead})#is","\\1<body>",$html);
     } else {
       $html = preg_replace("#({$ohtml})#is","\\1<body>",$html);
-    };
-  };
+    }
+  }
   if (!preg_match("#{$close}#is",$html)) {
     $html = preg_replace("#({$chtml})#is","</body>\\1",$html);
-  };
+  }
 
   // Now check is there any data between </head> and <body>.
   $html = preg_replace("#({$chead})(.+)({$open})#is","\\1\\3\\2",$html);
@@ -130,7 +125,7 @@ function fix_tags($html) {
         $no_critical_tags = !array_search('table',$tag_stack);
         if (!$no_critical_tags) {
           $no_critical_tags = (array_search('table',$tag_stack) >= array_search($tag, $tag_stack));
-        };
+        }
 
         if ($no_critical_tags) {
           // Corresponding opening tag exist on the stack (somewhere deep)
@@ -141,7 +136,7 @@ function fix_tags($html) {
           while ($tag_stack[$i] != $tag) {
             $result .= "</{$tag_stack[$i]}> ";
             $i++;
-          }; 
+          } 
           
           // close current tag
           $result .= "</{$tag_stack[$i]}> ";
@@ -153,15 +148,15 @@ function fix_tags($html) {
             while ($i > 0) {
               $i--;
               $result .= "<{$tag_stack[$i]}> ";
-            }; 
+            } 
           } else {
             array_splice($tag_stack, 0, $i);
-          };
-        };
+          }
+        }
       } else {
         // No such tag found on the stack, just remove it (do nothing in out case, as we have to explicitly 
         // add things to result
-      };
+      }
     } elseif (isset($matches[4])) {
       // Opening tag
       $tag = $matches[4];
@@ -170,8 +165,8 @@ function fix_tags($html) {
     } else {
       // Autoclosing tag; do nothing specific
       $result .= $matches[2];
-    };
-  };
+    }
+  }
 
   // Close all tags left
   while (count($tag_stack) > 0) {
@@ -188,9 +183,9 @@ function fix_tags($html) {
 function quote_attrs($html) {
   while (preg_match("!(<[^>]*)\s([^=>]+)=([^'\"\r\n >]+)([\r\n >])!si",$html, $matches)) {
     $html = preg_replace("#(<[^>]*)\s([^=>]+)=([^'\"\r\n >]+)([\r\n >])#si","\\1 \\2='\\3'\\4",$html);
-  };
+  }
   return $html;
-};
+}
 
 function escape_attr_value_entities($html) {
   $html = str_replace("<","&lt;",$html);
@@ -222,19 +217,19 @@ function escape_attrs_entities($html) {
 
     $result .= $matches[1].$matches[2]." ".$matches[3]."=".$matches[4].$new_value.$matches[4];
     $html = $matches[6];
-  };
+  }
 
   return $result.$html;
-};
+}
 
 function fix_attrs_spaces(&$html) {
   while (preg_match("#(<[^>]*)\s([^\s=>]+)=\"([^\"]*?)\"([^\s])#si", $html)) {
     $html = preg_replace("#(<[^>]*)\s([^\s=>]+)=\"([^\"]*?)\"([^\s])#si","\\1 \\2=\"\\3\" \\4",$html);
-  };
+  }
 
   while (preg_match("#(<[^>]*)\s([^\s=>]+)='([^']*?)'([^\s])#si", $html)) {
     $html = preg_replace("#(<[^>]*)\s([^\s=>]+)='([^']*?)'([^\s])#si","\\1 \\2='\\3' \\4",$html);
-  };
+  }
 }
 
 function fix_attrs_tag($tag) {
@@ -248,7 +243,7 @@ function fix_attrs_tag($tag) {
     $content = $matches[2];
   } else {
     return;
-  };
+  }
 
   if (preg_match("#^\s*(\w+)\s*(.*)\s*/\s*\$#is", $content, $matches)) {
     $tagname   = $matches[1];
@@ -260,7 +255,7 @@ function fix_attrs_tag($tag) {
     // A strange tag occurred; just remove everything
     $tagname   = "";
     $raw_attrs = "";
-  };
+  }
 
   $attrs = array();
   while (!empty($raw_attrs)) {
@@ -270,7 +265,7 @@ function fix_attrs_tag($tag) {
 
       if (!isset($attrs[$attr])) {
         $attrs[$attr] = $value;
-      };
+      }
 
       $raw_attrs = $matches[3];
     } elseif (preg_match("#^\s*(\w+?)\s*=\s*'(.*?)'(.*)$#is",$raw_attrs,$matches)) {
@@ -279,7 +274,7 @@ function fix_attrs_tag($tag) {
 
       if (!isset($attrs[$attr])) {
         $attrs[$attr] = $value;
-      };
+      }
 
       $raw_attrs = $matches[3];
     } elseif (preg_match("#^\s*(\w+?)=(\w+)(.*)$#is",$raw_attrs,$matches)) {
@@ -288,7 +283,7 @@ function fix_attrs_tag($tag) {
 
       if (!isset($attrs[$attr])) {
         $attrs[$attr] = $value;
-      };
+      }
 
       $raw_attrs = $matches[3];
     } elseif (preg_match("#^\s*\S+\s+(.*)$#is",$raw_attrs,$matches)) {
@@ -296,21 +291,21 @@ function fix_attrs_tag($tag) {
       $raw_attrs = $matches[1];
     } else {
       $raw_attrs = "";
-    };
-  };
+    }
+  }
 
   $str = "";
   foreach ($attrs as $key => $value) {
     // In theory, if the garbage have been found inside the attrs section, we could get
     // and invalid attribute name here; just ignore them in this case
-    if (HTML2PS_XMLUtils::valid_attribute_name($key)) {     
+    if ((new HTML2PS_XMLUtils())->valid_attribute_name($key)) {
       if (strpos($value,'"') !== false) {
         $str .= " ".$key."='".$value."'";
       } else {
         $str .= " ".$key."=\"".$value."\"";
-      };
-    };
-  };
+      }
+    }
+  }
 
   return $prefix.$tagname.$str.$suffix;
 }
@@ -321,7 +316,7 @@ function fix_attrs($html) {
   while (preg_match("#^(.*?)(<[^/].*?>)#is",$html,$matches)) {
     $result .= $matches[1].fix_attrs_tag($matches[2]);
     $html = substr($html, strlen($matches[0]));
-  };
+  }
 
   return $result.$html;
 }
@@ -336,14 +331,14 @@ function process_pagebreak_commands(&$html) {
 
 function xhtml2xhtml($html) {
   process_pagebreak_commands($html);
-  // Remove STYLE tags for the same reason and store them in the temporary variable
-  // later they will be added back to HEAD section
-  $styles = process_style($html);
 
   // Do HTML -> XML (XHTML) conversion
   // Convert HTML character references to their Unicode analogues
   process_character_references($html);
- 
+  
+  // Remove HTML and CSS comments inside STYLE tags
+  process_style($html);
+
   remove_comments($html);
 
   // Convert all tags to lower case
@@ -352,8 +347,6 @@ function xhtml2xhtml($html) {
 
   // Remove SCRIPT tags
   $html = process_script($html);
-
-  $html = insert_styles($html, $styles);
 
   return $html;
 }
@@ -365,12 +358,10 @@ function html2xhtml($html) {
   // mess the firther html-parsing utilities 
   $html = process_script($html);
 
-  // Remove STYLE tags for the same reason and store them in the temporary variable
-  // later they will be added back to HEAD section
-  $styles = process_style($html);
-
   // Convert HTML character references to their Unicode analogues
   process_character_references($html);
+
+  process_style($html);
 
   remove_comments($html);
 
@@ -433,8 +424,6 @@ function html2xhtml($html) {
   $html = fix_tags($html);
   $html = fix_attrs($html);
 
-  $html = insert_styles($html, $styles);
-
   return $html;
 }
 
@@ -453,7 +442,7 @@ function escape_textarea_content($html) {
                                     str_replace('>', '&#62;',
                                                 str_replace('<', '&#60;', $match_content)));
     $html = substr_replace($html, $escaped_content, $match_offset, $match_length);
-  };
+  }
 
   return $html;
 }
@@ -466,10 +455,10 @@ function lowercase_tags($html) {
     $html = substr($html,strlen($matches[0]));
     // Move extracted part to the result
     $result .= $matches[1].$matches[2].strtolower($matches[3]).$matches[4];
-  };
+  }
 
   return $result.$html;
-};
+}
 
 function lowercase_closing_tags($html) {
   $result = "";
@@ -479,9 +468,9 @@ function lowercase_closing_tags($html) {
     $html = substr($html,strlen($matches[0]));
     // Move extracted part to the result
     $result .= $matches[1].$matches[2].strtolower($matches[3]).$matches[4];
-  };
+  }
 
   return $result.$html;
-};
+}
 
 ?>

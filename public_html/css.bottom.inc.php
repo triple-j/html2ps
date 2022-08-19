@@ -25,9 +25,9 @@ require_once(HTML2PS_DIR.'value.bottom.php');
  */
 
 class CSSBottom extends CSSPropertyHandler {
-  function CSSBottom() { 
-    $this->CSSPropertyHandler(false, false); 
-    $this->_autoValue = ValueBottom::fromString('auto');
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
+    $this->_autoValue = (new ValueBottom())->fromString('auto');
   }
 
   function _getAutoValue() {
@@ -38,19 +38,19 @@ class CSSBottom extends CSSPropertyHandler {
     return $this->_getAutoValue();
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_BOTTOM;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'bottom';
   }
 
   function parse($value) { 
-    return ValueBottom::fromString($value);
+    return (new ValueBottom())->fromString($value);
   }
 }
 
-CSS::register_css_property(new CSSBottom);
+(new CSS())->register_css_property(new CSSBottom);
 
 ?>

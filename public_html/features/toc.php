@@ -4,7 +4,7 @@ class FeatureToc {
   var $_anchor_locator;
   var $_document_updater;
 
-  function FeatureToc() {
+  function __construct() {
     $this->set_anchor_locator(new FeatureTocAnchorLocatorHeaders());
     $this->set_document_updater(new FeatureTocDocumentUpdaterPrependPage());
   }
@@ -28,7 +28,7 @@ class FeatureToc {
     $this->update_page_numbers($toc, $pipeline, $document, $page_heights, $media);
   }
 
-  function &find_toc_anchors(&$pipeline, &$media, &$document) {
+  function &find_toc_anchors(&$pipeline, $media, &$document) {
     $locator =& $this->get_anchor_locator();
     $toc =& $locator->run($pipeline, $media, $document);
     return $toc;
@@ -70,8 +70,8 @@ class FeatureToc {
       default:
         $this->set_document_updater(new FeatureTocDocumentUpdaterAppendPage());
         break;
-      };
-    };
+      }
+    }
   }
 
   function set_anchor_locator(&$locator) {
@@ -109,10 +109,10 @@ class FeatureToc {
                        $toc_element['level'],
                        "\n");
       $index++;
-    };
+    }
 
     $toc_box_document =& $pipeline->parser->process('<body><div>'.$code.'</div></body>', $pipeline, $media);
-    $context =& new FlowContext();
+    $context= new FlowContext();
     $pipeline->layout_engine->process($toc_box_document, $media, $pipeline->get_output_driver(), $context);
     $toc_box =& $toc_box_document->content[0];
 
@@ -121,12 +121,12 @@ class FeatureToc {
   }
 
   function update_page_numbers(&$toc, &$pipeline, &$document, &$page_heights, &$media) {
-    for ($i = 0, $size = count($toc); $i < $size; $i++) {
+    for ($i = 0, $size = is_countable($toc) ? count($toc) : 0; $i < $size; $i++) {
       $toc_element =& $document->get_element_by_id($this->make_toc_page_element_id($i+1));
       $element =& $toc[$i]['element'];
 
       $toc_element->content[0]->content[0]->words[0] = $this->guess_page($element, $page_heights, $media);
-    };
+    }
   }
 }
 
@@ -134,7 +134,7 @@ class FeatureTocAnchorLocatorHeaders {
   var $_locations;
   var $_last_generated_anchor_id;
 
-  function FeatureTocAnchorLocatorHeaders() {
+  function __construct() {
     $this->set_locations(array());
     $this->_last_generated_anchor_id = 0;
   }
@@ -156,18 +156,18 @@ class FeatureTocAnchorLocatorHeaders {
       if (!$node->get_id()) {
         $id = $this->generate_toc_anchor_id();
         $node->set_id($id);
-      };
+      }
       
       $this->_locations[] = array('name' => $node->get_content(),
                                   'level' => (int)$matches[1],
                                   'anchor' => $node->get_id(),
                                   'element' => &$node);
-    };
+    }
   }
 
   function &run(&$pipeline, &$media, &$document) {
     $this->set_locations(array());
-    $walker =& new TreeWalkerDepthFirst(array(&$this, 'process_node'));
+    $walker= new TreeWalkerDepthFirst(array(&$this, 'process_node'));
     $walker->run($document);
     $locations = $this->get_locations();
 
@@ -176,7 +176,7 @@ class FeatureTocAnchorLocatorHeaders {
 
       // $id = $location['element']->get_id();
       // $pipeline->output_driver->anchors[$id] =& $location['element']->make_anchor($media, $id);
-    };
+    }
 
     return $locations;
   }
@@ -187,7 +187,7 @@ class FeatureTocAnchorLocatorHeaders {
 }
 
 class FeatureTocDocumentUpdaterAppendPage {
-  function FeatureTocDocumentUpdaterAppendPage() {
+  function __construct() {
   }
 
   function run(&$toc_box, &$media, &$document) {
@@ -197,7 +197,7 @@ class FeatureTocDocumentUpdaterAppendPage {
 }
 
 class FeatureTocDocumentUpdaterPrependPage {
-  function FeatureTocDocumentUpdaterPrependPage() {
+  function __construct() {
   }
 
   function run(&$toc_box, &$media, &$document) {
@@ -207,7 +207,7 @@ class FeatureTocDocumentUpdaterPrependPage {
 }
 
 class FeatureTocDocumentUpdaterPlaceholder {
-  function FeatureTocDocumentUpdaterPlaceholder() {
+  function __construct() {
   }
 
   function run(&$toc_box, &$media, &$document) {

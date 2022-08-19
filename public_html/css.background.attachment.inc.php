@@ -19,7 +19,7 @@ class CSSBackgroundAttachment extends CSSSubFieldProperty {
   function &parse($value_string) {
     if ($value_string === 'inherit') {
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
     if (preg_match('/\bscroll\b/', $value_string)) {
       $value = BACKGROUND_ATTACHMENT_SCROLL;
@@ -27,7 +27,7 @@ class CSSBackgroundAttachment extends CSSSubFieldProperty {
       $value = BACKGROUND_ATTACHMENT_FIXED;
     } else {
       $value = BACKGROUND_ATTACHMENT_SCROLL;
-    };
+    }
 
     return $value;
   }

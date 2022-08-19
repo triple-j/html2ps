@@ -29,10 +29,10 @@ function process_p($sample_html) {
       $offset = $cutpos+4;
     } else {
       $offset += strlen($matches[1])+1;
-    };
-  };
+    }
+  }
 
   return $sample_html;
-};
+}
 
 ?>

@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/box.generic.php,v 1.73 2007/05/06 18:49:29 Konstantin Exp $
+// $Header: /cvsroot/html2ps/box.generic.php,v 1.72 2007/01/24 18:55:44 Konstantin Exp $
 
 require_once(HTML2PS_DIR.'globals.php');
 
@@ -11,12 +11,10 @@ class GenericBox {
   var $_parent;
   var $baseline;
   var $default_baseline;
-  var $_tagname;
-  var $_id;
 
   var $_cached_base_font_size;
 
-  function GenericBox() {
+  function __construct() {
     $this->_cache = array();
     $this->_css   = array();
     $this->_cached_base_font_size = null;
@@ -29,15 +27,11 @@ class GenericBox {
     $this->baseline = 0;
     $this->default_baseline = 0;
 
-    $this->set_tagname(null);
-
     /**
      * Assign an unique box identifier
      */
     $GLOBALS['g_box_uid']++;
     $this->uid = $GLOBALS['g_box_uid'];
-
-    $this->_id = null;
   } 
 
   function destroy() {
@@ -51,13 +45,13 @@ class GenericBox {
   }
 
   /**
-   * see get_property for optimization description
+   * see getProperty for optimization description
    */
   function setCSSProperty($code, $value) {
     static $cache = array();
     if (!isset($cache[$code])) {
-      $cache[$code] =& CSS::get_handler($code);
-    };
+      $cache[$code] =& (new CSS())->get_handler($code);
+    }
 
     $cache[$code]->replace_array($value, $this->_css);
   }
@@ -67,26 +61,14 @@ class GenericBox {
    * so even a slight overhead for CSS::get_handler call
    * accumulates in a significiant processing delay.
    */
-  function &get_css_property($code) {
+  function &getCSSProperty($code) {
     static $cache = array();
     if (!isset($cache[$code])) {
-      $cache[$code] =& CSS::get_handler($code);
-    };
+      $cache[$code] =& (new CSS())->get_handler($code);
+    }
 
     $value =& $cache[$code]->get($this->_css);
     return $value;
-  }
-
-  function get_tagname() {
-    return $this->_tagname;
-  }
-
-  function set_tagname($tagname) {
-    $this->_tagname = $tagname;
-  }
-
-  function get_content() {
-    return '';
   }
 
   function show_postponed(&$driver) {
@@ -105,22 +87,22 @@ class GenericBox {
    */
   function _readCSSLengths($state, $property_list) {
     if (is_null($this->_cached_base_font_size)) {
-      $font =& $this->get_css_property(CSS_FONT);
+      $font =& $this->getCSSProperty(CSS_FONT);
       $this->_cached_base_font_size = $font->size->getPoints();
-    };
+    }
 
     foreach ($property_list as $property) {
-      $value =& $state->get_property($property);
+      $value =& $state->getProperty($property);
 
       if ($value === CSS_PROPERTY_INHERIT) {
         $value =& $state->getInheritedProperty($property);
-      };
+      }
 
       if (is_object($value)) {
         $value =& $value->copy();
         $value->doInherit($state);
         $value->units2pt($this->_cached_base_font_size);
-      };
+      }
 
       $this->setCSSProperty($property, $value);
     }
@@ -128,19 +110,19 @@ class GenericBox {
 
   function _readCSS($state, $property_list) {
     foreach ($property_list as $property) {
-      $value = $state->get_property($property);
+      $value = $state->getProperty($property);
 
       // Note that order is important; composite object-value could be inherited and
       // object itself could contain subvalues with 'inherit' value
 
       if ($value === CSS_PROPERTY_INHERIT) {
         $value = $state->getInheritedProperty($property);
-      };
+      }
 
       if (is_object($value)) {
         $value = $value->copy();
         $value->doInherit($state);
-      };
+      }
 
       $this->setCSSProperty($property, $value);
     }
@@ -150,17 +132,17 @@ class GenericBox {
     /**
      * Determine font size to be used in this box (required for em/ex units)
      */
-    $value = $state->get_property(CSS_FONT);
+    $value = $state->getProperty(CSS_FONT);
     if ($value === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty(CSS_FONT);
-    };
+    }
     $base_font_size = $state->getBaseFontSize();
 
     if (is_object($value)) {
       $value = $value->copy();
       $value->doInherit($state);
       $value->units2pt($base_font_size);
-    };
+    }
 
     $this->setCSSProperty(CSS_FONT, $value);
 
@@ -181,25 +163,15 @@ class GenericBox {
     if ($g_config["renderlinks"]) {
       $this->_readCSS($state,
                       array(CSS_HTML2PS_LINK_DESTINATION));
-    };
+    }
 
     // Save ID attribute value
-    $id = $state->get_property(CSS_HTML2PS_LINK_DESTINATION);
-    if (!is_null($id)) {
-      $this->set_id($id);
-    };
-  }
-
-  function set_id($id) {
-    $this->_id = $id;
-
-    if (!isset($GLOBALS['__html_box_id_map'][$id])) {
-      $GLOBALS['__html_box_id_map'][$id] =& $this;
-    };
-  }
-
-  function get_id() {
-    return $this->_id;
+    $id = $state->getProperty(CSS_HTML2PS_LINK_DESTINATION);
+    if (!empty($id)) {
+      if (!isset($GLOBALS['__html_box_id_map'][$id])) {
+        $GLOBALS['__html_box_id_map'][$id] =& $this;
+      }
+    }
   }
 
   function show(&$driver) {
@@ -216,7 +188,7 @@ class GenericBox {
     // Set current text color
     // Note that text color is used not only for text drawing (for example, list item markers 
     // are drawn with text color)
-    $color = $this->get_css_property(CSS_COLOR);
+    $color = $this->getCSSProperty(CSS_COLOR);
     $color->apply($driver);
   }
 
@@ -229,14 +201,6 @@ class GenericBox {
   }
 
   function pre_reflow_images() {}
-
-  function set_top($value) {
-    $this->_top = $value;
-  }
-
-  function set_left($value) {
-    $this->_left = $value;
-  }
 
   function offset($dx, $dy) {
     $this->_left += $dx;
@@ -282,47 +246,78 @@ class GenericBox {
     return $this->baseline - $this->default_baseline; 
   }
 
-  function &make_anchor(&$media, $link_destination, $page_heights) {
-    $page_index = 0;
-    $pages_count = count($page_heights);
-    $bottom = mm2pt($media->height() - $media->margins['top']);
-    do {
-      $bottom -= $page_heights[$page_index];
-      $page_index ++;
-    } while ($this->get_top() < $bottom && $page_index < $pages_count);
-
-    /**
-     * Now let's calculate the coordinates on this particular page
-     *
-     * X coordinate calculation is pretty straightforward (and, actually, unused, as it would be 
-     * a bad idea to scroll PDF horiaontally).
-     */
-    $x = $this->get_left();
-
-    /**
-     * Y coordinate should be calculated relatively to the bottom page edge 
-     */     
-    $y = ($this->get_top() - $bottom) + (mm2pt($media->real_height()) - $page_heights[$page_index-1]) + mm2pt($media->margins['bottom']);
-
-    $anchor =& new Anchor($link_destination, 
-                          $page_index, 
-                          $x, 
-                          $y);
-    return $anchor;
-  }
-
-  function reflow_anchors(&$driver, &$anchors, $page_heights) {
+  function reflow_anchors(&$driver, &$anchors) {
     if ($this->is_null()) { 
       return; 
-    };
+    }
 
-    $link_destination = $this->get_css_property(CSS_HTML2PS_LINK_DESTINATION);
-    if (!is_null($link_destination)) {
-      $anchors[$link_destination] =& $this->make_anchor($driver->media, $link_destination, $page_heights);
-    };
+    $link_destination = $this->getCSSProperty(CSS_HTML2PS_LINK_DESTINATION);
+
+    if ($link_destination !== "") {
+
+      /**
+       * Y=0 designates the bottom edge of the first page (without margins)
+       * Y axis is oriented to the bottom.
+       *
+       * Here we calculate the offset from the bottom edge of first page PRINTABLE AREA
+       * to the bottom edge of the current box
+       */
+      $y2 = $this->get_bottom() - mm2pt($driver->media->margins['bottom']);
+
+      /**
+       * Now let's calculate the number of the page corresponding to this offset.
+       * Note that $y2>0 for the first page and $y2<0 on all subsequent pages
+       */
+      $page_fraction = $y2 / mm2pt($driver->media->real_height());
+
+      /**
+       * After the last operation we've got the "page fraction" between 
+       * bottom of the first page and box bottom edge;
+       *
+       * it will be equal to:
+       * 1 for the top of the first page, 
+       * 0 for the bottom of the first page
+       * -Epsilon for the top of the first page
+       * -1 for the bottom of the second page
+       * -n+1 for the bottom of the N-th page.
+       */
+      $page_fraction2 = -$page_fraction+1;
+
+      /**
+       * Here:
+       * 0 for the top of the first page, 
+       * 1 for the bottom of the first page
+       * 1+Epsilon for the top of the first page
+       * 2 for the bottom of the second page
+       * n for the bottom of the N-th page.
+       *
+       * Keeping in mind said above, we may calculate the real page number, 
+       * rounding it UP after calculation. The reason of rounding UP is simple:
+       * pages are numbered starting at 1.
+       */
+      $page = ceil($page_fraction2);
+
+      /**
+       * Now let's calculate the coordinates on this particular page
+       *
+       * X coordinate calculation is pretty straight forward (and, actually, unused, as it would be 
+       * a bad idea to scroll PDF horiaontally).
+       */
+      $x = $this->get_left();
+
+      /**
+       * Y coordinate should be calculated relatively to the bottom page edge 
+       */     
+      $y = mm2pt($driver->media->real_height()) * ($page - $page_fraction2) + mm2pt($driver->media->margins['bottom']);
+
+      $anchors[$link_destination] = new Anchor($link_destination, 
+                                               $page, 
+                                               $x, 
+                                               $y);
+    }
   }
 
-  function reflow(&$parent, &$context) {}
+  function reflow(&$parent, &$context, $boxes = null) {}
 
   function reflow_inline() { }
 
@@ -355,7 +350,7 @@ class GenericBox {
 
   function isVisibleInFlow() { return true; }
 
-  function reflow_text() { return true; }
+  function reflow_text(&$viewport) { return true; }
 
   /**
    * Note that linebox is started by any non-whitespace inline element; all whitespace elements before
@@ -398,20 +393,20 @@ class GenericBox {
   function hasAbsolutePositionedParent() {
     if (is_null($this->parent)) {
       return false;
-    };
+    }
 
     return 
-      $this->parent->get_css_property(CSS_POSITION) == POSITION_ABSOLUTE ||
+      $this->parent->getCSSProperty(CSS_POSITION) == POSITION_ABSOLUTE ||
       $this->parent->hasAbsolutePositionedParent();
   }
 
   function hasFixedPositionedParent() {
     if (is_null($this->parent)) {
       return false;
-    };
+    }
 
     return 
-      $this->parent->get_css_property(CSS_POSITION) == POSITION_FIXED ||
+      $this->parent->getCSSProperty(CSS_POSITION) == POSITION_FIXED ||
       $this->parent->hasFixedPositionedParent();
   }
 
@@ -420,21 +415,21 @@ class GenericBox {
    * all it parents has no width constraints
    */
   function mayBeExpanded() {
-    $wc = $this->get_css_property(CSS_WIDTH);
-    if (!$wc->isNull()) { return false; };
+    $wc = $this->getCSSProperty(CSS_WIDTH);
+    if (!$wc->isNull()) { return false; }
 
-    if ($this->get_css_property(CSS_FLOAT) <> FLOAT_NONE) {
+    if ($this->getCSSProperty(CSS_FLOAT) <> FLOAT_NONE) {
       return true;
-    };
+    }
 
-    if ($this->get_css_property(CSS_POSITION) <> POSITION_STATIC &&
-        $this->get_css_property(CSS_POSITION) <> POSITION_RELATIVE) {
+    if ($this->getCSSProperty(CSS_POSITION) <> POSITION_STATIC &&
+        $this->getCSSProperty(CSS_POSITION) <> POSITION_RELATIVE) {
       return true;
-    };
+    }
         
     if (is_null($this->parent)) { 
       return true;
-    };
+    }
 
     return $this->parent->mayBeExpanded();
   }
@@ -443,7 +438,7 @@ class GenericBox {
     return false;
   }
 
-  function get_min_width_natural($context) {
+  function get_min_width_natural(&$context) {
     return $this->get_min_width($context);
   }
 

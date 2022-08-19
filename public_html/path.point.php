@@ -4,7 +4,7 @@ class Point {
   var $x;
   var $y;
   
-  function Point($x, $y) {
+  function __construct($x, $y) {
     $this->x = $x;
     $this->y = $y;
   }

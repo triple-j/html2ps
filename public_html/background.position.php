@@ -40,7 +40,7 @@ class BackgroundPosition {
    * @param float $y Y-offset value
    * @param boolean $y_percentage A flag indicating that $y value should be treated as percentage
    */
-  function BackgroundPosition($x, $x_percentage, $y, $y_percentage) {
+  function __construct($x, $x_percentage, $y, $y_percentage) {
     $this->x = $x;
     $this->x_percentage = $x_percentage;
     $this->y = $y;
@@ -53,7 +53,7 @@ class BackgroundPosition {
    * @return BackgroundPosition A copy of current object
    */
   function &copy() {
-    $value =& new BackgroundPosition($this->x, $this->x_percentage,
+    $value= new BackgroundPosition($this->x, $this->x_percentage,
                                      $this->y, $this->y_percentage);
     return $value;
   }
@@ -77,11 +77,11 @@ class BackgroundPosition {
   function units2pt($font_size) {
     if (!$this->x_percentage) {
       $this->x = units2pt($this->x, $font_size);
-    };
+    }
 
     if (!$this->y_percentage) {
       $this->y = units2pt($this->y, $font_size);
-    };
+    }
   }
 }
 

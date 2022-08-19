@@ -3,8 +3,9 @@
 
 error_reporting(E_ALL);
 ini_set("display_errors","1");
-if (ini_get("pcre.backtrack_limit") < 1000000) { ini_set("pcre.backtrack_limit",1000000); };
+if (ini_get("pcre.backtrack_limit") < 1000000) { ini_set("pcre.backtrack_limit",1000000); }
 @set_time_limit(10000);
+ini_set("memory_limit", "150M");
 
 require_once('generic.param.php');
 require_once('../config.inc.php');
@@ -23,43 +24,45 @@ if (!preg_match("/^https?:/",$g_baseurl)) {
   $g_baseurl = 'http://'.$g_baseurl;
 }
 
+#if(!empty($_REQUEST['sNewFilename'])) $g_baseurl = $_REQUEST['sNewFilename'];
+
 $g_css_index = 0;
 
 // Title of styleshee to use (empty if no preferences are set)
 $g_stylesheet_title = "";
 
 $GLOBALS['g_config'] = array(
-                             'compress'      => isset($_REQUEST['compress']),
-                             'cssmedia'      => get_var('cssmedia', $_REQUEST, 255, "screen"),
-                             'debugbox'      => isset($_REQUEST['debugbox']),
-                             'debugnoclip'   => isset($_REQUEST['debugnoclip']),
-                             'draw_page_border'        => isset($_REQUEST['pageborder']),
-                             'encoding'      => get_var('encoding', $_REQUEST, 255, ""),
-                             'html2xhtml'    => !isset($_REQUEST['html2xhtml']),
-                             'imagequality_workaround' => isset($_REQUEST['imagequality_workaround']),
-                             'landscape'     => isset($_REQUEST['landscape']),
-                             'margins'       => array(
-                                                      'left'    => (int)get_var('leftmargin',   $_REQUEST, 10, 0),
-                                                      'right'   => (int)get_var('rightmargin',  $_REQUEST, 10, 0),
-                                                      'top'     => (int)get_var('topmargin',    $_REQUEST, 10, 0),
-                                                      'bottom'  => (int)get_var('bottommargin', $_REQUEST, 10, 0),
-                                                      ),
-                             'media'         => get_var('media', $_REQUEST, 255, "A4"),
-                             'method'        => get_var('method', $_REQUEST, 255, "fpdf"),
-                             'mode'          => 'html',
-                             'output'        => get_var('output', $_REQUEST, 255, ""),
-                             'pagewidth'     => (int)get_var('pixels', $_REQUEST, 10, 800),
-                             'pdfversion'    => get_var('pdfversion', $_REQUEST, 255, "1.2"),
-                             'ps2pdf'        => isset($_REQUEST['ps2pdf']),
-                             'pslevel'       => (int)get_var('pslevel', $_REQUEST, 1, 3),
-                             'renderfields'  => isset($_REQUEST['renderfields']),
-                             'renderforms'   => isset($_REQUEST['renderforms']),
-                             'renderimages'  => isset($_REQUEST['renderimages']),
-                             'renderlinks'   => isset($_REQUEST['renderlinks']),
-                             'scalepoints'   => isset($_REQUEST['scalepoints']),
-                             'smartpagebreak' => isset($_REQUEST['smartpagebreak']),
-                             'transparency_workaround' => isset($_REQUEST['transparency_workaround'])
-                             );
+							 'compress'      => isset($_REQUEST['compress']),
+							 'cssmedia'      => get_var('cssmedia', $_REQUEST, 255, "screen"),
+							 'debugbox'      => isset($_REQUEST['debugbox']),
+							 'debugnoclip'   => isset($_REQUEST['debugnoclip']),
+							 'draw_page_border'        => isset($_REQUEST['pageborder']),
+							 'encoding'      => get_var('encoding', $_REQUEST, 255, ""),
+							 'html2xhtml'    => !isset($_REQUEST['html2xhtml']),
+							 'imagequality_workaround' => isset($_REQUEST['imagequality_workaround']),
+							 'landscape'     => isset($_REQUEST['landscape']),
+							 'margins'       => array(
+													  'left'    => (int)get_var('leftmargin',   $_REQUEST, 10, 0),
+													  'right'   => (int)get_var('rightmargin',  $_REQUEST, 10, 0),
+													  'top'     => (int)get_var('topmargin',    $_REQUEST, 10, 0),
+													  'bottom'  => (int)get_var('bottommargin', $_REQUEST, 10, 0),
+													  ),
+							 'media'         => get_var('media', $_REQUEST, 255, "A4"),
+							 'method'        => get_var('method', $_REQUEST, 255, "fpdf"),
+							 'mode'          => 'html',
+							 'output'        => get_var('output', $_REQUEST, 255, ""),
+							 'pagewidth'     => (int)get_var('pixels', $_REQUEST, 10, 800),
+							 'pdfversion'    => get_var('pdfversion', $_REQUEST, 255, "1.2"),
+							 'ps2pdf'        => isset($_REQUEST['ps2pdf']),
+							 'pslevel'       => (int)get_var('pslevel', $_REQUEST, 1, 3),
+							 'renderfields'  => isset($_REQUEST['renderfields']),
+							 'renderforms'   => isset($_REQUEST['renderforms']),
+							 'renderimages'  => isset($_REQUEST['renderimages']),
+							 'renderlinks'   => isset($_REQUEST['renderlinks']),
+							 'scalepoints'   => isset($_REQUEST['scalepoints']),
+							 'smartpagebreak' => isset($_REQUEST['smartpagebreak']),
+							 'transparency_workaround' => isset($_REQUEST['transparency_workaround'])
+							 );
 
 $proxy = get_var('proxy', $_REQUEST, 255, '');
 
@@ -69,11 +72,11 @@ parse_config_file('../html2ps.config');
 // validate input data
 if ($GLOBALS['g_config']['pagewidth'] == 0) {
   die("Please specify non-zero value for the pixel width!");
-};
+}
 
 // begin processing
 
-$g_media = Media::predefined($GLOBALS['g_config']['media']);
+$g_media = (new Media())->predefined($GLOBALS['g_config']['media']);
 $g_media->set_landscape($GLOBALS['g_config']['landscape']);
 $g_media->set_margins($GLOBALS['g_config']['margins']);
 $g_media->set_pixels($GLOBALS['g_config']['pagewidth']);
@@ -87,12 +90,12 @@ if (extension_loaded('curl')) {
   require_once(HTML2PS_DIR.'fetcher.url.curl.class.php');
   $pipeline->fetchers = array(new FetcherUrlCurl());
   if ($proxy != '') {
-    $pipeline->fetchers[0]->set_proxy($proxy);
-  };
+	$pipeline->fetchers[0]->set_proxy($proxy);
+  }
 } else {
   require_once(HTML2PS_DIR.'fetcher.url.class.php');
   $pipeline->fetchers[] = new FetcherURL();
-};
+}
 
 // Configure the data filters
 $pipeline->data_filters[] = new DataFilterDoctype();
@@ -101,7 +104,7 @@ if ($GLOBALS['g_config']['html2xhtml']) {
   $pipeline->data_filters[] = new DataFilterHTML2XHTML();
 } else {
   $pipeline->data_filters[] = new DataFilterXHTML2XHTML();
-};
+}
 
 $pipeline->parser = new ParserXHTML();
 
@@ -116,7 +119,7 @@ $pipeline->pre_tree_filters[] = $filter;
 
 if ($GLOBALS['g_config']['renderfields']) {
   $pipeline->pre_tree_filters[] = new PreTreeFilterHTML2PSFields();
-};
+}
 
 // 
 
@@ -124,7 +127,7 @@ if ($GLOBALS['g_config']['method'] === 'ps') {
   $pipeline->layout_engine = new LayoutEnginePS();
 } else {
   $pipeline->layout_engine = new LayoutEngineDefault();
-};
+}
 
 $pipeline->post_tree_filters = array();
 
@@ -133,15 +136,15 @@ if ($GLOBALS['g_config']['pslevel'] == 3) {
   $image_encoder = new PSL3ImageEncoderStream();
 } else {
   $image_encoder = new PSL2ImageEncoderStream();
-};
+}
 
 switch ($GLOBALS['g_config']['method']) {
  case 'fastps':
    if ($GLOBALS['g_config']['pslevel'] == 3) {
-     $pipeline->output_driver = new OutputDriverFastPS($image_encoder);
+	 $pipeline->output_driver = new OutputDriverFastPS($image_encoder);
    } else {
-     $pipeline->output_driver = new OutputDriverFastPSLevel2($image_encoder);
-   };
+	 $pipeline->output_driver = new OutputDriverFastPSLevel2($image_encoder);
+   }
    break;
  case 'pdflib':
    $pipeline->output_driver = new OutputDriverPDFLIB16($GLOBALS['g_config']['pdfversion']);
@@ -157,13 +160,39 @@ switch ($GLOBALS['g_config']['method']) {
    break;
  default:
    die("Unknown output method");
-};
+}
 
 // Setup watermark
 $watermark_text = trim(get_var('watermarkhtml', $_REQUEST, 65535, ""));
 if ($watermark_text != '') {
   $pipeline->add_feature('watermark', array('text' => $watermark_text));
-};
+}
+
+// Check whether PDF encryption should be enabled
+if (isset($_REQUEST['encryption_copy']) ||
+	isset($_REQUEST['encryption_print']) ||
+	isset($_REQUEST['encryption_modify']) ||
+	isset($_REQUEST['encryption_modify_annotations'])) {
+  $mode = 0;
+
+  if (isset($_REQUEST['encryption_copy'])) {
+	$mode = $mode | 1;
+  }
+
+  if (isset($_REQUEST['encryption_print'])) {
+	$mode = $mode | 2;
+  }
+  
+  if (isset($_REQUEST['encryption_modify'])) {
+	$mode = $mode | 4;
+  }
+
+  if (isset($_REQUEST['encryption_modify_annotations'])) {
+	$mode = $mode | 8;
+  }
+
+  $pipeline->add_feature('encryption', array('mode' => $mode));
+}
 
 if ($GLOBALS['g_config']['debugbox']) {
   $pipeline->output_driver->set_debug_boxes(true);
@@ -185,7 +214,9 @@ if (get_var('process_mode', $_REQUEST) == 'batch') {
   $filename = "batch";
 } else {
   $filename = $g_baseurl;
-};
+}
+
+if(!empty($_REQUEST['sNewFilename'])) $filename = $_REQUEST['sNewFilename'];
 
 switch ($GLOBALS['g_config']['output']) {
  case 0:
@@ -197,16 +228,16 @@ switch ($GLOBALS['g_config']['output']) {
  case 2:
    $pipeline->destination = new DestinationFile($filename, 'File saved as: <a href="%link%">%name%</a>');
    break;
-};
+}
 
 // Add additional requested features
 if (isset($_REQUEST['toc'])) {
   $pipeline->add_feature('toc', array('location' => isset($_REQUEST['toc-location']) ? $_REQUEST['toc-location'] : 'after'));
-};
+}
 
 if (isset($_REQUEST['automargins'])) {
   $pipeline->add_feature('automargins', array());
-};
+}
 
 // Start the conversion
 
@@ -215,17 +246,17 @@ if (get_var('process_mode', $_REQUEST) == 'batch') {
   $batch = get_var('batch', $_REQUEST);
 
   for ($i=0; $i<count($batch); $i++) {
-    if (trim($batch[$i]) != "") {
-      if (!preg_match("/^https?:/",$batch[$i])) {
-        $batch[$i] = "http://".$batch[$i];
-      }
-    };
-  };
+	if (trim($batch[$i]) != "") {
+	  if (!preg_match("/^https?:/",$batch[$i])) {
+		$batch[$i] = "http://".$batch[$i];
+	  }
+	}
+  }
 
   $status = $pipeline->process_batch($batch, $g_media);
 } else {
   $status = $pipeline->process($g_baseurl, $g_media);
-};
+}
 
 error_log(sprintf("Processing of '%s' completed in %u seconds", $g_baseurl, time() - $time));
 

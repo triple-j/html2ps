@@ -1,6 +1,6 @@
 <?php
 class DataFilterDoctype extends DataFilter {
-  function DataFilterDoctype() { }
+  function __construct() { }
 
   function process(&$data) {
     $html = $data->get_content();
@@ -40,9 +40,9 @@ class DataFilterDoctype extends DataFilter {
       case '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">':
         $GLOBALS['g_config']['mode'] = 'xhtml';
         return $data;
-      };
+      }
       
-    };
+    }
 
     /**
      * No DOCTYPE found; fall back to quirks mode

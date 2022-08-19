@@ -46,7 +46,7 @@ class PHPClass {
 	  *	@param		optional string filename
 	  *	@returns	none
 	  */
-	function PHPClass($filename = "") {
+	function __construct($filename = "") {
 		$this->methods = array();
 		$this->properties = array();
 		$this->info = array();

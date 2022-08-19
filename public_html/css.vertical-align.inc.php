@@ -75,10 +75,10 @@ class VerticalAlignTextBottom {
 }
 
 class CSSVerticalAlign extends CSSPropertyHandler {
-  function CSSVerticalAlign() { 
+  function __construct() {
     // Note that in general, parameters 'true' and 'false' are non meaningful in out case,
     // as we anyway override 'inherit' and 'inherit_text' in this class.
-    $this->CSSPropertyHandler(true, true); 
+    CSSPropertyHandler::__construct(true, true);
   }
 
   function inherit($old_state, &$new_state) { 
@@ -95,7 +95,7 @@ class CSSVerticalAlign extends CSSPropertyHandler {
     if (is_inline_element($parent_display)) {
       $this->replace_array($this->get($old_state), $new_state);
       return;
-    };
+    }
         
     $this->replace_array($this->default_value(), $new_state);
     return;
@@ -114,25 +114,25 @@ class CSSVerticalAlign extends CSSPropertyHandler {
   function parse($value) {
     if ($value === 'inherit') {
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
     // Convert value to lower case, as html allows values 
     // in both cases to be entered
     $value = strtolower($value);
 
-    if ($value === 'baseline')    { return VA_BASELINE; };
-    if ($value === 'sub')         { return VA_SUB; };
-    if ($value === 'super')       { return VA_SUPER; };
-    if ($value === 'top')         { return VA_TOP; };
-    if ($value === 'middle')      { return VA_MIDDLE; };
+    if ($value === 'baseline')    { return VA_BASELINE; }
+    if ($value === 'sub')         { return VA_SUB; }
+    if ($value === 'super')       { return VA_SUPER; }
+    if ($value === 'top')         { return VA_TOP; }
+    if ($value === 'middle')      { return VA_MIDDLE; }
 
     // As some brainless designers sometimes use 'center' instead of 'middle',
     // we'll add support for it
     if ($value === 'center')      { return VA_MIDDLE; }
 
-    if ($value === 'bottom')      { return VA_BOTTOM; };
-    if ($value === 'text-top')    { return VA_TEXT_TOP; };
-    if ($value === 'text-bottom') { return VA_TEXT_BOTTOM; };
+    if ($value === 'bottom')      { return VA_BOTTOM; }
+    if ($value === 'text-top')    { return VA_TEXT_TOP; }
+    if ($value === 'text-bottom') { return VA_TEXT_BOTTOM; }
     return $this->default_value();
   }
 
@@ -149,7 +149,7 @@ class CSSVerticalAlign extends CSSPropertyHandler {
   }
 
   function applicable($css_state) {
-    $handler =& CSS::get_handler(CSS_DISPLAY);
+    $handler =& (new CSS())->get_handler(CSS_DISPLAY);
     $display = $handler->get($css_state->getState());
     return
       $display === 'table-cell' ||
@@ -157,15 +157,15 @@ class CSSVerticalAlign extends CSSPropertyHandler {
       is_inline_element($display);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_VERTICAL_ALIGN;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'vertical-align';
   }
 }
 
-CSS::register_css_property(new CSSVerticalAlign);
+(new CSS())->register_css_property(new CSSVerticalAlign);
 
 ?>

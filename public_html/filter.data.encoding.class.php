@@ -1,6 +1,6 @@
 <?php
 class DataFilterEncoding extends DataFilter {
-  function DataFilterEncoding($encoding) {
+  function __construct($encoding) {
     $this->encoding = $encoding;
   }
 
@@ -17,13 +17,13 @@ class DataFilterEncoding extends DataFilter {
 
       if (is_null($encoding)) {
         $encoding = DEFAULT_ENCODING;
-      };
-      $converter = Converter::create();
+      }
+      $converter = (new Converter())->create();
       $data->set_content($converter->to_utf8($data->get_content(), $encoding));
     } else {
-      $converter = Converter::create();
+      $converter = (new Converter())->create();
       $data->set_content($converter->to_utf8($data->get_content(), $this->encoding));
-    };
+    }
 
     return $data;
   }

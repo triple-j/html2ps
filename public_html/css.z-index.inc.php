@@ -1,8 +1,8 @@
 <?php
 
 class CSSZIndex extends CSSPropertyHandler {
-  function CSSZIndex() { 
-    $this->CSSPropertyHandler(false, false); 
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
   }
 
   function default_value() { return 0; }
@@ -10,20 +10,20 @@ class CSSZIndex extends CSSPropertyHandler {
   function parse($value) {
     if ($value === 'inherit') { 
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
     return (int)$value;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_Z_INDEX;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'z-index';
   }
 }
 
-CSS::register_css_property(new CSSZIndex);
+(new CSS())->register_css_property(new CSSZIndex);
 
 ?>

@@ -11,13 +11,13 @@ class PaddingSideValue {
   function calcPercentage($base) {
     if (is_null($this->percentage)) { 
       return; 
-    };
+    }
 
     $this->value = $base * $this->percentage / 100;
   }
 
   function &copy() {
-    $value =& new PaddingSideValue;
+    $value= new PaddingSideValue;
     $value->value      = $this->value;
     $value->auto       = $this->auto;
     $value->percentage = $this->percentage;
@@ -40,11 +40,11 @@ class PaddingSideValue {
     $len = strlen($data);
     $is_percentage = false;
     if ($len > 0) {
-      $is_percentage = ($data{$len-1} === '%');
-    };
+      $is_percentage = ($data[$len-1] === '%');
+    }
 
     $value = new PaddingSideValue;
-    $value->_units     = Value::fromString($data);
+    $value->_units     = (new Value())->fromString($data);
     $value->value      = $data;
     $value->percentage = $is_percentage ? (int)($data) : null;
     $value->auto       = $data === 'auto';
@@ -54,7 +54,7 @@ class PaddingSideValue {
   function units2pt($base) {
     if (is_null($this->percentage)) {
       $this->value = $this->_units->toPt($base);
-    };
+    }
   }
 }
 
@@ -68,26 +68,26 @@ class PaddingValue extends CSSValue {
     if ($this->top === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty(CSS_PADDING_TOP);
       $this->top = $value->copy();
-    };
+    }
 
     if ($this->bottom === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty(CSS_PADDING_BOTTOM);
       $this->bottom = $value->copy();
-    };
+    }
 
     if ($this->right === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty(CSS_PADDING_RIGHT);
       $this->right = $value->copy();
-    };
+    }
 
     if ($this->left === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty(CSS_PADDING_LEFT);
       $this->left = $value->copy();
-    };
+    }
   }
 
   function &copy() {
-    $value =& new PaddingValue;
+    $value= new PaddingValue;
     $value->top    = ($this->top    === CSS_PROPERTY_INHERIT) ? CSS_PROPERTY_INHERIT : $this->top->copy();
     $value->bottom = ($this->bottom === CSS_PROPERTY_INHERIT) ? CSS_PROPERTY_INHERIT : $this->bottom->copy();
     $value->left   = ($this->left   === CSS_PROPERTY_INHERIT) ? CSS_PROPERTY_INHERIT : $this->left->copy();
@@ -105,10 +105,10 @@ class PaddingValue extends CSSValue {
 
   function init($data) {
     $value = new PaddingValue;
-    $value->top    = PaddingSideValue::init($data[0]);
-    $value->right  = PaddingSideValue::init($data[1]);
-    $value->bottom = PaddingSideValue::init($data[2]);
-    $value->left   = PaddingSideValue::init($data[3]);
+    $value->top    = (new PaddingSideValue())->init($data[0]);
+    $value->right  = (new PaddingSideValue())->init($data[1]);
+    $value->bottom = (new PaddingSideValue())->init($data[2]);
+    $value->left   = (new PaddingSideValue())->init($data[3]);
     return $value;
   }
 

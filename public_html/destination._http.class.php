@@ -1,7 +1,7 @@
 <?php
 class DestinationHTTP extends Destination {  
-  function DestinationHTTP($filename) {
-    $this->Destination($filename);
+  function __construct($filename) {
+    Destination::__construct($filename);
   }
 
   function headers($content_type) {
@@ -14,7 +14,7 @@ class DestinationHTTP extends Destination {
     $headers = $this->headers($content_type);
     foreach ($headers as $header) {
       header($header);
-    };
+    }
 
     // NOTE: readfile does not work well with some Windows machines
     // echo(file_get_contents($tmp_filename));

@@ -15,8 +15,8 @@ class FetchedDataURL extends FetchedDataHTML {
       foreach ($this->headers as $header) {
         if (preg_match("/Content-Type: .*charset=\s*([^\s;]+)/i", $header, $matches)) {
           $encoding = strtolower($matches[1]);
-        };
-      };
+        }
+      }
     }
 
     // At last, fall back to default encoding
@@ -26,7 +26,7 @@ class FetchedDataURL extends FetchedDataHTML {
     return $encoding;
   }
 
-  function FetchedDataURL($content, $headers, $url) {
+  function __construct($content, $headers, $url) {
     $this->content     = $content;
     $this->headers     = $headers;
     $this->url         = $url;
@@ -38,10 +38,10 @@ class FetchedDataURL extends FetchedDataHTML {
       foreach ($this->headers as $header) {
         if (preg_match("/Content-Type: (.*)/", $header, $matches)) {
           return $matches[1];
-        };
-      };
+        }
+      }
       return null;
-    };
+    }
   }
 
   function get_uri() {

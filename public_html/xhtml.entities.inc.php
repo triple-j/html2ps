@@ -5,7 +5,7 @@ function process_character_references(&$html) {
   // Process symbolic character references
   global $g_html_entities;
   foreach ($g_html_entities as $entity => $code) {
-    $html = str_replace("&{$entity};","&#{$code};",$html);
+    $html = str_replace("&{$entity}","&#{$code}",$html);
 
     // Some ill-brained webmasters write HTML symbolic references without 
     // terminating semicolor (especially at www.whitehouse.gov. The following 
@@ -15,8 +15,8 @@ function process_character_references(&$html) {
     // We use [\s<] as entity name terminator to avoid breaking up longer entity
     // names by filtering in only space or HTML-tag terminated ones.
     // 
-    $html = preg_replace("/&{$entity}([\s<])/","&#{$code};\\1",$html);
-  };
+    $html = preg_replace("/&{$entity}([\s<])/","&#{$code}\\1",$html);
+  }
 
   // Process hecadecimal character references
   while (preg_match("/&#x([[:xdigit:]]{2,4});/i", $html, $matches)) {
@@ -25,7 +25,7 @@ function process_character_references(&$html) {
     // compatibility problems
 
     $html = preg_replace("/&#x".$matches[1].";/i","&#".hexdec($matches[1]).";",$html);
-  };
+  }
 }
 
 function escape_amp($html) {
@@ -44,7 +44,7 @@ function escape_amp($html) {
   $html = preg_replace("/&(?!#\d)/si","&#38;\\1",$html);
 
   return $html;
-};
+}
 
 function escape_lt($html) {
   // Why this loop is needed here? 
@@ -57,23 +57,23 @@ function escape_lt($html) {
   //
   while (preg_match("#<(\s*[^!/a-zA-Z])#",$html)) {
     $html = preg_replace("#<(\s*[^!/a-zA-Z])#si","&#60;\\1",$html);
-  };
+  }
     
   while (preg_match("#(<[^>]*?)<#si",$html)) {
     $html = preg_replace("#(<[^>]*?)<#si","\\1&#60;",$html);
-  };
+  }
 
   return $html;
-};
+}
 
 function escape_gt($html) {
   $html = preg_replace("#([^\s\da-zA-Z'\"/=-])\s*>#si","\\1&#62;",$html);
 
   while (preg_match("#(>[^<]*?)>#si",$html)) {
     $html = preg_replace("#(>[^<]*?)>#si","\\1&#62;",$html);
-  };
+  }
 
   return $html;
-};
+}
 
 ?>

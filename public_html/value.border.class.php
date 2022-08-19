@@ -8,19 +8,19 @@ class BorderPDF extends CSSValue {
   var $top;
   var $bottom;
 
-  function BorderPDF() {
-    $this->left   =& new EdgePDF();
-    $this->right  =& new EdgePDF();
-    $this->top    =& new EdgePDF();
-    $this->bottom =& new EdgePDF();
+  function __construct() {
+    $this->left   = new EdgePDF();
+    $this->right  = new EdgePDF();
+    $this->top    = new EdgePDF();
+    $this->bottom= new EdgePDF();
   }
 
   function create($data) {
-    $border         =& new BorderPDF();
-    $border->left   =& EdgePDF::create($data['left']);
-    $border->right  =& EdgePDF::create($data['right']);
-    $border->top    =& EdgePDF::create($data['top']);
-    $border->bottom =& EdgePDF::create($data['bottom']);
+    $border         = new BorderPDF();
+    $border->left   =& (new EdgePDF())->create($data['left']);
+    $border->right  =& (new EdgePDF())->create($data['right']);
+    $border->top    =& (new EdgePDF())->create($data['top']);
+    $border->bottom =& (new EdgePDF())->create($data['bottom']);
     return $border;
   }
 
@@ -29,31 +29,31 @@ class BorderPDF extends CSSValue {
    * case (PHP 5.1.1, Win)
    */
   function &copy() {
-    $border =& new BorderPDF();
+    $border= new BorderPDF();
 
     if ($this->left !== CSS_PROPERTY_INHERIT) {
       $border->left = $this->left->copy();
     } else {
       $border->left = CSS_PROPERTY_INHERIT;
-    };
+    }
 
     if ($this->right !== CSS_PROPERTY_INHERIT) {
       $border->right = $this->right->copy();
     } else {
       $border->right = CSS_PROPERTY_INHERIT;
-    };
+    }
 
     if ($this->top !== CSS_PROPERTY_INHERIT) {
       $border->top = $this->top->copy();
     } else {
       $border->top = CSS_PROPERTY_INHERIT;
-    };
+    }
 
     if ($this->bottom !== CSS_PROPERTY_INHERIT) {
       $border->bottom = $this->bottom->copy();
     } else {
       $border->bottom = CSS_PROPERTY_INHERIT;
-    };
+    }
 
     return $border;
   }
@@ -62,22 +62,22 @@ class BorderPDF extends CSSValue {
     if ($this->top === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty(CSS_BORDER_TOP);
       $this->top = $value->copy();
-    };
+    }
 
     if ($this->right === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty(CSS_BORDER_RIGHT);
       $this->right = $value->copy();
-    };
+    }
 
     if ($this->bottom === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty(CSS_BORDER_BOTTOM);
       $this->bottom = $value->copy();
-    };
+    }
     
     if ($this->left === CSS_PROPERTY_INHERIT) {
       $value = $state->getInheritedProperty(CSS_BORDER_LEFT);
       $this->left = $value->copy();
-    };
+    }
 
     $this->top->doInherit($state, 
                           CSS_BORDER_TOP_WIDTH, 

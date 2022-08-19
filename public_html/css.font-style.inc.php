@@ -16,14 +16,14 @@ class CSSFontStyle extends CSSSubFieldProperty {
       return FS_ITALIC;
     case 'oblique':
       return FS_OBLIQUE;
-    };
+    }
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_FONT_STYLE;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'font-style';
   }
 

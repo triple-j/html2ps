@@ -4,7 +4,7 @@ class StrategyWidthMinNowrap {
   var $_maxw;
   var $_cmaxw;
 
-  function StrategyWidthMinNowrap() {
+  function __construct() {
   }
 
   function add_width($delta) {
@@ -20,7 +20,7 @@ class StrategyWidthMinNowrap {
     $this->_maxw = 0;
     
     // We need to add text indent to the width
-    $ti = $box->get_css_property(CSS_TEXT_INDENT);
+    $ti = $box->getCSSProperty(CSS_TEXT_INDENT);
     $this->add_width($ti->calculate($box));
 
     for ($i=0, $size = count($box->content); $i<$size; $i++) {
@@ -37,14 +37,14 @@ class StrategyWidthMinNowrap {
           $this->add_width($child->get_min_width($context));
           $this->line_break();
         }
-      };
+      }
     }
 
     // Check if last line have maximal width
     $this->line_break();
 
     // Apply width constraint to min width. Return maximal value
-    $wc = $box->get_css_property(CSS_WIDTH);
+    $wc = $box->getCSSProperty(CSS_WIDTH);
     return max($this->_maxw, $wc->apply($this->_maxw, $box->parent->get_width())) + $box->_get_hor_extra();
   }
 }

@@ -2,30 +2,30 @@
 
 require_once(HTML2PS_DIR.'filter.post.positioned.class.php');
 
-class LayoutEngineDefault extends LayoutEngine {
+class LayoutEngineDefault {
   function process(&$box, &$media, &$driver, &$context) {
     // Calculate the size of text boxes
     if (is_null($box->reflow_text($driver))) {
       error_log("LayoutEngineDefault::process: reflow_text call failed");
       return null;
-    };
+    }
 
     // Explicitly remove any height declarations from the BODY-generated box;
     // BODY should always fill last page completely. Percentage height of the BODY is meaningless 
     // on the paged media.
     $box->_height_constraint = new HCConstraint(null, null, null);
 
-    $margin = $box->get_css_property(CSS_MARGIN);
+    $margin = $box->getCSSProperty(CSS_MARGIN);
     $margin->calcPercentages(mm2pt($media->width() - $media->margins['left'] - $media->margins['right']));
     $box->setCSSProperty(CSS_MARGIN, $margin);
 
-    $box->width = mm2pt($media->width() - $media->margins['left'] - $media->margins['right']) - 
+    $box->width = mm2pt($media->width() - $media->margins['left'] - $media->margins['right']) -
       $box->_get_hor_extra();
     $box->setCSSProperty(CSS_WIDTH, new WCConstant($box->width));
 
     $box->height = mm2pt($media->real_height()) - $box->_get_vert_extra();
 
-    $box->put_top(mm2pt($media->height() - 
+    $box->put_top(mm2pt($media->height() -
                         $media->margins['top']) - 
                   $box->get_extra_top());
 
@@ -64,24 +64,26 @@ class LayoutEngineDefault extends LayoutEngine {
     $box->height = $pages * $page_real_height - $box->_get_vert_extra();
 
     $driver->set_expected_pages($pages);
+    $driver->anchors = array();
+    $box->reflow_anchors($driver, $driver->anchors);
 
     /**
      * Flow absolute-positioned boxes;
      * note that we should know the number of expected pages at this moment, unless
      * we will not be able to calculate positions for elements using 'bottom: ...' CSS property
      */
-    for ($i=0, $num_positioned = count($context->absolute_positioned); $i < $num_positioned; $i++) {
+    for ($i=0, $num_positioned = count((array) $context->absolute_positioned); $i < $num_positioned; $i++) {
       $context->push();
       $context->absolute_positioned[$i]->reflow_absolute($context);
       $context->pop();
-    };
+    }
          
     // Flow fixed-positioned box
-    for ($i=0, $num_positioned = count($context->fixed_positioned); $i < $num_positioned; $i++) {
+    for ($i=0, $num_positioned = count((array) $context->fixed_positioned); $i < $num_positioned; $i++) {
       $context->push();
       $context->fixed_positioned[$i]->reflow_fixed($context);
       $context->pop();
-    };
+    }
 
     $box->reflow_inline();
 

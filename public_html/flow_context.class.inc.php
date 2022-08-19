@@ -37,13 +37,13 @@ class FlowContext {
   function float_bottom() {
     $floats =& $this->current_floats();
 
-    if (count($floats) == 0) { return null; }
+    if (is_countable($floats) && count($floats) == 0) { return null; }
 
     $bottom = $floats[0]->get_bottom_margin();
-    $size = count($floats);
+    $size = count((array) $floats);
     for ($i=1; $i<$size; $i++) {
       $bottom = min($bottom, $floats[$i]->get_bottom_margin());
-    };
+    }
 
     return $bottom;
   }
@@ -58,12 +58,12 @@ class FlowContext {
   function float_left_x($x, $y) {
     $floats =& $this->current_floats();
 
-    $size = count($floats);
+    $size = count((array) $floats);
     for ($i=0; $i<$size; $i++) {
       $float =& $floats[$i];
 
       // Process only left-floating boxes
-      if ($float->get_css_property(CSS_FLOAT) == FLOAT_LEFT) {
+      if ($float->getCSSProperty(CSS_FLOAT) == FLOAT_LEFT) {
         // Check if this float contains given Y-coordinate
         //
         // Note that top margin coordinate is inclusive but 
@@ -78,9 +78,9 @@ class FlowContext {
         if ($float->get_top_margin() + EPSILON >= $y &&
             $float->get_bottom_margin() < $y) {
           $x = max($x, $float->get_right_margin());
-        };
-      };
-    };
+        }
+      }
+    }
     
     return $x;
   }
@@ -108,10 +108,10 @@ class FlowContext {
 
     // Prepare information about the float bottom coordinates
     $float_bottoms = array();
-    $size = count($floats);
+    $size = count((array) $floats);
     for ($i=0; $i<$size; $i++) {
       $float_bottoms[] = $floats[$i]->get_bottom_margin();
-    };
+    }
 
     // Note that the sort function SHOULD NOT maintain key-value assotiations!
     rsort($float_bottoms); 
@@ -123,7 +123,7 @@ class FlowContext {
       // OR if there's no parent boxes with constrained width (it will expanded in this case anyway)
 
       // small value to hide the rounding errors
-      $parent_wc = $parent->get_css_property(CSS_WIDTH);
+      $parent_wc = $parent->getCSSProperty(CSS_WIDTH);
       if ($parent->get_right() + EPSILON >= $x + $width ||
           $parent->mayBeExpanded()) {
 
@@ -133,9 +133,9 @@ class FlowContext {
         $x1 = $this->float_right_x($parent->get_right(), $y);
         if ($x1 + EPSILON > $x + $width) {
           return;
-        };
+        }
         return;
-      };
+      }
 
       //      print("CLEAR<br/>");
 
@@ -144,7 +144,7 @@ class FlowContext {
       
       // Check if we've cleared all existing floats; the loop will be terminated in this case, of course,
       // but we can get a notice/warning message if we'll try to access the non-existing array element
-      if ($clear <= count($floats)) { $y = min( $y, $float_bottoms[$clear-1] ); };
+      if ($clear <= count($floats)) { $y = min( $y, $float_bottoms[$clear-1] ); }
 
     } while ($clear <= count($floats)); // We need to check if all floats have been cleared to avoid infinite loop
 
@@ -161,13 +161,13 @@ class FlowContext {
   function float_right() {
     $floats =& $this->current_floats();
 
-    if (count($floats) == 0) { return null; }
+    if (is_countable($floats) && count($floats) == 0) { return null; }
 
     $right = $floats[0]->get_right_margin();
-    $size = count($floats);
+    $size = is_countable($floats) ? count($floats) : 0;
     for ($i=1; $i<$size; $i++) {
       $right = max($right, $floats[$i]->get_right_margin());
-    };
+    }
 
     return $right;
   }
@@ -182,12 +182,12 @@ class FlowContext {
   function float_right_x($x, $y) {
     $floats =& $this->current_floats();
 
-    $size = count($floats);
+    $size = is_countable($floats) ? count($floats) : 0;
     for ($i=0; $i<$size; $i++) {
       $float =& $floats[$i];
 
       // Process only right-floating boxes
-      if ($float->get_css_property(CSS_FLOAT) == FLOAT_RIGHT) {
+      if ($float->getCSSProperty(CSS_FLOAT) == FLOAT_RIGHT) {
         // Check if this float contains given Y-coordinate
         //
         // Note that top margin coordinate is inclusive but 
@@ -202,9 +202,9 @@ class FlowContext {
         if ($float->get_top_margin() + EPSILON >= $y &&
             $float->get_bottom_margin() < $y) {
           $x = min($x, $float->get_left_margin());
-        };
-      };
-    };
+        }
+      }
+    }
     
     return $x;
   }
@@ -232,10 +232,10 @@ class FlowContext {
 
     // Prepare information about the float bottom coordinates
     $float_bottoms = array();
-    $size = count($floats);
+    $size = is_countable($floats) ? count($floats) : 0;
     for ($i=0; $i<$size; $i++) {
       $float_bottoms[] = $floats[$i]->get_bottom_margin();
-    };
+    }
 
     // Note that the sort function SHOULD NOT maintain key-value assotiations!
     rsort($float_bottoms); 
@@ -255,8 +255,8 @@ class FlowContext {
         $x1 = $this->float_left_x($parent->get_left(), $y);
         if ($x1 - EPSILON < $x - $width) {
           return;
-        };
-      };
+        }
+      }
 
 
       // No, float does not fit at current level, let's try to 'clear' some previous floats
@@ -264,7 +264,7 @@ class FlowContext {
       
       // Check if we've cleared all existing floats; the loop will be terminated in this case, of course,
       // but we can get a notice/warning message if we'll try to access the non-existing array element
-      if ($clear <= count($floats)) { $y = min( $y, $float_bottoms[$clear-1] ); };
+      if ($clear <= count($floats)) { $y = min( $y, $float_bottoms[$clear-1] ); }
 
     } while($clear <= count($floats)); // We need to check if all floats have been cleared to avoid infinite loop
 
@@ -272,7 +272,7 @@ class FlowContext {
     $x = $parent->get_right();
   }
 
-  function FlowContext() {
+  function __construct() {
     $this->absolute_positioned = array();
     $this->fixed_positioned = array();
 
@@ -331,7 +331,7 @@ class FlowContext {
   function &point_in_floats($x, $y) {
     // Scan the floating children list of the current container box
     $floats =& $this->current_floats();
-    $size = count($floats);
+    $size = is_countable($floats) ? count($floats) : 0;
     for ($i=0; $i<$size; $i++) {
       if ($floats[$i]->contains_point_margin($x, $y)) {
         return $floats[$i]; 
@@ -352,8 +352,8 @@ class FlowContext {
 }
 
 function cmp_boxes_by_z_index($a, $b) {
-  $a_z = $a->get_css_property(CSS_Z_INDEX);
-  $b_z = $b->get_css_property(CSS_Z_INDEX);
+  $a_z = $a->getCSSProperty(CSS_Z_INDEX);
+  $b_z = $b->getCSSProperty(CSS_Z_INDEX);
 
   if ($a_z == $b_z) return 0;
   return ($a_z < $b_z) ? -1 : 1;

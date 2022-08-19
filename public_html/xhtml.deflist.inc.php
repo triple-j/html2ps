@@ -14,12 +14,12 @@ function process_dl(&$sample_html, $offset) {
                        array("dt" => "process_dt",
                              "dd" => "process_dd"), 
                        "/dl");  
-};
+}
 
 function process_deflists(&$sample_html, $offset) {
   return autoclose_tag($sample_html, $offset, "(dl)", 
                        array("dl" => "process_dl"),
                        "");
-};
+}
 
 ?>

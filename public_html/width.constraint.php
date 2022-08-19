@@ -4,13 +4,13 @@ require_once(HTML2PS_DIR.'value.generic.php');
 
 /**
  * @version 1.0
- * @created 14-èþí-2006 17:49:11
+ * @created 14-ï¿½ï¿½ï¿½-2006 17:49:11
  */
 class WidthConstraint extends CSSValue {
   var $_min_width;
 
-  function WidthConstraint() {
-    $this->_min_width = Value::fromData(0, UNIT_PT);
+  function __construct() {
+    $this->_min_width = (new Value())->fromData(0, UNIT_PT);
   }
 
   function apply($w, $pw) {
@@ -26,7 +26,7 @@ class WidthConstraint extends CSSValue {
       $copy->_min_width = CSS_PROPERTY_INHERIT;
     } else {
       $copy->_min_width = $this->_min_width->copy();
-    };
+    }
 
     return $copy;
   }

@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/output.png.class.php,v 1.7 2007/05/07 13:12:07 Konstantin Exp $
+// $Header: /cvsroot/html2ps/output.png.class.php,v 1.6 2006/12/18 19:44:22 Konstantin Exp $
 
 require_once(HTML2PS_DIR.'ot.class.php');
 require_once(HTML2PS_DIR.'path.php');
@@ -14,7 +14,7 @@ class AffineTransform {
   var $_x_scale;
   var $_y_scale;
 
-  function AffineTransform($y_offset, $x_scale, $y_scale) {
+  function __construct($y_offset, $x_scale, $y_scale) {
     $this->_y_offset = $y_offset;
     $this->_x_scale = $x_scale;
     $this->_y_scale = $y_scale;
@@ -173,19 +173,15 @@ class OutputDriverPNG extends OutputDriverGeneric {
   }
 
   function _fixSizeX($x) {
-    static $scale = null;
-    if (is_null($scale)) { $scale = $this->_widthPixels / mm2pt($this->media->width()); };
-    return ceil($x * $scale);
+    return ceil($x * $this->_widthPixels / mm2pt($this->_media->width()));
   }
 
   function _fixSizeY($y) {
-    static $scale = null;
-    if (is_null($scale)) { $scale = $this->_heightPixels / mm2pt($this->media->height()); };
-    return ceil($y * $scale);
+    return ceil($y * $this->_heightPixels / mm2pt($this->_media->height()));
   }
 
-  function OutputDriverPNG() {
-    $this->OutputDriverGeneric();
+  function __construct() {
+    OutputDriverGeneric::__construct();
 
     $this->_color    = array();
     $this->_font     = array();
@@ -198,11 +194,10 @@ class OutputDriverPNG extends OutputDriverGeneric {
   function reset(&$media) {
     parent::reset($media);
 
-    $this->update_media($media);
-  }
-
-  function update_media($media) {
-    parent::update_media($media);
+    /**
+     * Store reference to media object for future use
+     */
+    $this->_media =& $media;
 
     /**
      * Here we use a small hack; media height and width (in millimetres) match
@@ -226,15 +221,14 @@ class OutputDriverPNG extends OutputDriverGeneric {
     /**
      * Setup initial clipping region
      */
-    $this->_clipping = array();
     $this->_saveClip(new Rectangle(new Point(0,
                                              0), 
                                    new Point($this->_widthPixels-1, 
                                              $this->_heightPixels-1)));
 
     $this->_transform = new AffineTransform($this->_heightPixels, 
-                                            $this->_widthPixels / mm2pt($this->media->width()),
-                                            $this->_heightPixels / mm2pt($this->media->height()));
+                                            $this->_widthPixels / mm2pt($this->_media->width()),
+                                            $this->_heightPixels / mm2pt($this->_media->height()));
   }
 
   function add_link($x, $y, $w, $h, $target) { /* N/A */ }
@@ -283,7 +277,7 @@ class OutputDriverPNG extends OutputDriverGeneric {
      */
     while (count($this->_clipping) > 0) {
       $this->restore();
-    };
+    }
 
     imagepng($this->_image, $this->get_filename());
     imagedestroy($this->_image);
@@ -294,7 +288,7 @@ class OutputDriverPNG extends OutputDriverGeneric {
   }
 
   function content_type() { 
-    return ContentType::png();
+    return (new ContentType())->png();
   }
 
   function dash($x, $y) { }
@@ -346,8 +340,8 @@ class OutputDriverPNG extends OutputDriverGeneric {
   function image_scaled($image, $x, $y, $scale_x, $scale_y) {
     $this->_fixCoords($x, $y);
 
-    $sx = $image->sx();
-    $sy = $image->sy();
+    $sx = imagesx($image);
+    $sy = imagesy($image);
 
     /**
      * Get image size in device coordinates
@@ -356,7 +350,7 @@ class OutputDriverPNG extends OutputDriverGeneric {
     $dy = $sy*$scale_y;
     $this->_fixSizes($dx, $dy);
 
-    imagecopyresampled($this->_image, $image->get_handle(), 
+    imagecopyresampled($this->_image, $image, 
                        $x, $y-$dy,
                        0, 0,
                        $dx, $dy,
@@ -369,21 +363,21 @@ class OutputDriverPNG extends OutputDriverGeneric {
     $dest_height = floor($this->_fixSizeY($height));
     $start_y = $y - $dest_height;
 
-    $sx = $image->sx();
-    $sy = $image->sy();
+    $sx = imagesx($image);
+    $sy = imagesy($image);
     $dx = $this->_fixSizeX($sx * $scale);
     $dy = $this->_fixSizeY($sy * $scale);
 
     $cx = $x;
     $cy = $start_y - ceil($this->_fixSizeY($oy) / $dest_height) * $dest_height;
     while ($cy < $base_y) {
-      imagecopyresampled($this->_image, $image->get_handle(),
+      imagecopyresampled($this->_image, $image,
                          $cx, $cy,
                          0, 0,
                          $dx, $dy,
                          $sx, $sy);
       $cy += $dest_height;
-    };
+    }
   }
 
   function image_rx($image, $x, $y, $width, $right, $ox, $oy, $scale) {
@@ -392,8 +386,8 @@ class OutputDriverPNG extends OutputDriverGeneric {
     $dest_width = floor($this->_fixSizeX($width));
     $start_x = $x - $dest_width;
 
-    $sx = $image->sx();
-    $sy = $image->sy();
+    $sx = imagesx($image);
+    $sy = imagesy($image);
     $dx = $this->_fixSizeX($sx * $scale);
     $dy = $this->_fixSizeY($sy * $scale);
 
@@ -402,13 +396,13 @@ class OutputDriverPNG extends OutputDriverGeneric {
     $cy = $y - $dy;
 
     while ($cx < $base_x) {
-      imagecopyresampled($this->_image, $image->get_handle(),
+      imagecopyresampled($this->_image, $image,
                          $cx, $cy,
                          0, 0,
                          $dx, $dy,
                          $sx, $sy);
       $cx += $dest_width;
-    };
+    }
   }
 
   function image_rx_ry($image, $x, $y, $width, $height, $right, $bottom, $ox, $oy, $scale) {
@@ -420,8 +414,8 @@ class OutputDriverPNG extends OutputDriverGeneric {
     $start_x = $x - $dest_width;
     $start_y = $y - $dest_height;
 
-    $sx = $image->sx();
-    $sy = $image->sy();
+    $sx = imagesx($image);
+    $sy = imagesy($image);
     $dx = $this->_fixSizeX($sx * $scale);
     $dy = $this->_fixSizeY($sy * $scale);
 
@@ -430,17 +424,16 @@ class OutputDriverPNG extends OutputDriverGeneric {
 
     while ($cy < $base_y) {
       while ($cx < $base_x) {
-        imagecopyresampled($this->_image, 
-                           $image->get_handle(),
+        imagecopyresampled($this->_image, $image,
                            $cx, $cy,
                            0, 0,
                            $dx, $dy,
                            $sx, $sy);
         $cx += $dest_width;
-      };
+      }
       $cx = $start_x - ceil($this->_fixSizeX($ox) / $dest_width)  * $dest_width;
       $cy += $dest_height;
-    };
+    }
   }
 
   function lineto($x, $y) { 
@@ -453,7 +446,7 @@ class OutputDriverPNG extends OutputDriverGeneric {
   }
 
   function new_form($name) { /* N/A */ }
-  function next_page() { /* N/A */ }
+  function next_page($old_page_height) { /* N/A */ }
   function release() { }
 
   /**
@@ -499,18 +492,17 @@ class OutputDriverPNG extends OutputDriverGeneric {
     $this->_fixCoords($x, $y);
 
     $font = $this->_getFont();
-    $converter = Converter::create();
+    $converter = (new Converter())->create();
 
     global $g_font_resolver_pdf;
     $fontFile = $g_font_resolver_pdf->ttf_mappings[$font['font']];
 
     $fontSize = $font['size'];
-
     $dummy = 0;
     $this->_fixSizes($dummy, $fontSize);
 
     $utf8_string = $converter->to_utf8($text, $font['encoding']);
-
+    
     imagefttext($this->_image, 
                 $fontSize * $font['ascender'], 
                 0,

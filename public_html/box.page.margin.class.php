@@ -11,74 +11,74 @@ class BoxPageMargin extends GenericContainerBox {
   function &create(&$pipeline, $at_rule) {
     switch ($at_rule->getSelector()) {
     case CSS_MARGIN_BOX_SELECTOR_TOP:
-      $box =& new BoxPageMarginTop($pipeline, $at_rule);
+      $box= new BoxPageMarginTop($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_TOP_LEFT_CORNER:
-      $box =& new BoxPageMarginTopLeftCorner($pipeline, $at_rule);
+      $box= new BoxPageMarginTopLeftCorner($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_TOP_LEFT:
-      $box =& new BoxPageMarginTopLeft($pipeline, $at_rule);
+      $box= new BoxPageMarginTopLeft($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_TOP_CENTER:
-      $box =& new BoxPageMarginTopCenter($pipeline, $at_rule);
+      $box= new BoxPageMarginTopCenter($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_TOP_RIGHT:
-      $box =& new BoxPageMarginTopRight($pipeline, $at_rule);
+      $box= new BoxPageMarginTopRight($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_TOP_RIGHT_CORNER:
-      $box =& new BoxPageMarginTopRightCorner($pipeline, $at_rule);
+      $box= new BoxPageMarginTopRightCorner($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_BOTTOM:
-      $box =& new BoxPageMarginBottom($pipeline, $at_rule);
+      $box= new BoxPageMarginBottom($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_BOTTOM_LEFT_CORNER:
-      $box =& new BoxPageMarginBottomLeftCorner($pipeline, $at_rule);
+      $box= new BoxPageMarginBottomLeftCorner($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_BOTTOM_LEFT:
-      $box =& new BoxPageMarginBottomLeft($pipeline, $at_rule);
+      $box= new BoxPageMarginBottomLeft($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_BOTTOM_CENTER:
-      $box =& new BoxPageMarginBottomCenter($pipeline, $at_rule);
+      $box= new BoxPageMarginBottomCenter($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_BOTTOM_RIGHT:
-      $box =& new BoxPageMarginBottomRight($pipeline, $at_rule);
+      $box= new BoxPageMarginBottomRight($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_BOTTOM_RIGHT_CORNER:
-      $box =& new BoxPageMarginBottomRightCorner($pipeline, $at_rule);
+      $box= new BoxPageMarginBottomRightCorner($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_LEFT_TOP:
-      $box =& new BoxPageMarginLeftTop($pipeline, $at_rule);
+      $box= new BoxPageMarginLeftTop($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_LEFT_MIDDLE:
-      $box =& new BoxPageMarginLeftMiddle($pipeline, $at_rule);
+      $box= new BoxPageMarginLeftMiddle($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_LEFT_BOTTOM:
-      $box =& new BoxPageMarginLeftBottom($pipeline, $at_rule);
+      $box= new BoxPageMarginLeftBottom($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_RIGHT_TOP:
-      $box =& new BoxPageMarginRightTop($pipeline, $at_rule);
+      $box= new BoxPageMarginRightTop($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_RIGHT_MIDDLE:
-      $box =& new BoxPageMarginRightMiddle($pipeline, $at_rule);
+      $box= new BoxPageMarginRightMiddle($pipeline, $at_rule);
       break;
     case CSS_MARGIN_BOX_SELECTOR_RIGHT_BOTTOM:
-      $box =& new BoxPageMarginRightBottom($pipeline, $at_rule);
+      $box= new BoxPageMarginRightBottom($pipeline, $at_rule);
       break;
     default:
       trigger_error("Unknown selector type", E_USER_ERROR);
-    };
+    }
 
     return $box;
   }
 
-  function BoxPageMargin(&$pipeline, $at_rule) {
-    $state =& $pipeline->get_current_css_state();
+  function  __construct(&$pipeline, $at_rule) {
+    $state =& $pipeline->getCurrentCSSState();
     $state->pushDefaultState();
 
     $root = null;
     $at_rule->css->apply($root, $state, $pipeline);
 
-    $this->GenericContainerBox();
+    GenericContainerBox::__construct();
     $this->readCSS($state);
 
     $state->pushDefaultstate();
@@ -87,24 +87,23 @@ class BoxPageMargin extends GenericContainerBox {
      * Check whether 'content' or '-html2ps-html-content' properties had been defined 
      * (if both properties are defined, -html2ps-html-content takes precedence)
      */
-    $raw_html_content =& $at_rule->get_css_property(CSS_HTML2PS_HTML_CONTENT);
-    $html_content = $raw_html_content->render($pipeline->get_counters());
+    $raw_html_content = $at_rule->getCSSProperty(CSS_HTML2PS_HTML_CONTENT);
+    $html_content = $pipeline->_fillContent($raw_html_content);
 
     if ($html_content !== '') {
       // We should wrap html_content in DIV tag, 
       // as we treat only the very first box of the resulting DOM tree as margin box content
 
       $html_content = html2xhtml("<div>".$html_content."</div>");
-      $tree = TreeBuilder::build($html_content);
+      $tree = (new TreeBuilder())->build($html_content);
       $tree_root = traverse_dom_tree_pdf($tree);
       $body_box =& create_pdf_box($tree_root, $pipeline);
       $box =& $body_box->content[0];
     } else {
-      $raw_content =& $at_rule->get_css_property(CSS_CONTENT);
-      $content = $raw_content->render($pipeline->get_counters());
-
-      $box =& InlineBox::create_from_text($content,
-                                          WHITESPACE_PRE_LINE,
+      $raw_content = $at_rule->getCSSProperty(CSS_CONTENT);
+      $content = $pipeline->_fillContent($raw_content);
+      $box =& (new InlineBox())->create_from_text($content,
+                                          WHITESPACE_NORMAL,
                                           $pipeline);
     }
     $this->add_child($box);
@@ -113,11 +112,7 @@ class BoxPageMargin extends GenericContainerBox {
     $state->popState();
   }
 
-  function get_cell_baseline() {
-    return 0;
-  }
-
-  function reflow(&$driver, &$media, $boxes) {
+  function reflow(&$driver, &$media, $boxes = null) {
     $context = new FlowContext;
     $this->_position($media, $boxes, $context);
 
@@ -131,7 +126,7 @@ class BoxPageMargin extends GenericContainerBox {
     /**
      * Apply vertical-align (behave like table cell)
      */
-    $va = CSSVerticalAlign::value2pdf($this->get_css_property(CSS_VERTICAL_ALIGN));
+    $va = (new CSSVerticalAlign())->value2pdf($this->getCSSProperty(CSS_VERTICAL_ALIGN));
 
     $va->apply_cell($this,$this->get_full_height(),0);
   }
@@ -147,7 +142,7 @@ class BoxPageMargin extends GenericContainerBox {
     $left_width   = $left->get_max_width($context);
     $center_width = $center->get_max_width($context);
     $right_width  = $right->get_max_width($context);
-    
+
     $calculated_left_width   = 0;
     $calculated_center_width = 0;
     $calculated_right_width  = 0;
@@ -172,7 +167,7 @@ class BoxPageMargin extends GenericContainerBox {
       $calculated_center_width = 0;
       $calculated_left_width   = $full_width * $left_width / ($left_width + $right_width);
       $calculated_right_width  = $full_width - $calculated_left_width;
-    };
+    }
 
     return array($calculated_left_width, 
                  $calculated_center_width,
@@ -263,7 +258,7 @@ class BoxPageMarginTopRight extends BoxPageMargin {
 class BoxPageMarginTopRightCorner extends BoxPageMargin {
   function _position($media, $boxes, $context) {
     $this->put_left($this->get_extra_left() + mm2pt($media->width() - $media->margins['right']));
-    $this->put_top(-$this->get_extra_top() +mm2pt($media->height()));    
+    $this->put_top(-$this->get_extra_top() +mm2pt($media->height()));
 
     $this->put_full_width(mm2pt($media->margins['right']));
     $this->put_full_height(mm2pt($media->margins['top']));

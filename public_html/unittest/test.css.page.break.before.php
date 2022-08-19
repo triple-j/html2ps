@@ -2,9 +2,20 @@
 
 class TestCSSPageBreakBefore extends GenericTest {
   function testCSSPageBreakBefore1() {
-    $tree = $this->runPipeline(file_get_contents('test.css.page.break.before.1.html'));
+    $tree = $this->runPipeline('
+<html>
+<head>
+<style type="text/css">
+#div { page-break-before: avoid; }
+</style>
+</head>
+<body>
+<div id="div">&nbsp;</div>
+</body>
+</html>
+');
 
-    $div = $tree->get_element_by_id('div');
+    $div = $tree->getElementById('div');
 
     $this->assertEqual(PAGE_BREAK_AVOID, $div->getCSSProperty(CSS_PAGE_BREAK_BEFORE));
   }

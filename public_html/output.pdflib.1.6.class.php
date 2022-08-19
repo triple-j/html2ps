@@ -6,7 +6,7 @@ require_once(HTML2PS_DIR.'output.pdflib.class.php');
 class PDFLIBForm {
   var $_name;
 
-  function PDFLIBForm($name /*, $submit_action, $reset_action */) {
+  function __construct($name /*, $submit_action, $reset_action */) {
     $this->_name          = $name;
   }
 
@@ -112,7 +112,7 @@ class OutputDriverPdflib16 extends OutputDriverPdflib {
                              " "));
   }
 
-  function field_checkbox($x, $y, $w, $h, $name, $value, $checked) {
+  function field_checkbox($x, $y, $w, $h, $name, $value, $checked = false) {
     pdf_create_field($this->pdf, 
                      $x, $y, $x + $w, $y - $h,
                      $this->_fqn($name),
@@ -128,7 +128,7 @@ class OutputDriverPdflib16 extends OutputDriverPdflib {
 
     if (!isset($this->_radiogroups[$fqgn])) {
       $this->_radiogroups[$fqgn] = pdf_create_fieldgroup($this->pdf, $fqgn, "fieldtype=radiobutton");
-    };
+    }
 
     pdf_create_field($this->pdf, 
                      $x, $y, $x + $w, $y - $h,
@@ -146,7 +146,7 @@ class OutputDriverPdflib16 extends OutputDriverPdflib {
     foreach ($options as $option) {
       $items_str .= sprintf("%s ",$option[0]);
       $text_str  .= sprintf("%s ",$option[1]);
-    };
+    }
 
     $font = $this->_control_font();
     pdf_create_field($this->pdf,
@@ -187,13 +187,13 @@ class OutputDriverPdflib16 extends OutputDriverPdflib {
       
       error_log(sprintf("Anonymous form generated with name %s; check your HTML for validity", 
                         $name));
-    };
+    }
 
     return $this->_forms[count($this->_forms)-1];
   }
 
   function _valid_name($name) {
-    if (empty($name)) { return false; };
+    if (empty($name)) { return false; }
 
     return true;
   }
@@ -203,7 +203,7 @@ class OutputDriverPdflib16 extends OutputDriverPdflib {
       $name = uniqid("AnonymousFormFieldObject_");
       error_log(sprintf("Anonymous field generated with name %s; check your HTML for validity", 
                         $name));
-    };
+    }
 
     $lastform = $this->_lastform();
     $fqn = sprintf("%s.%s",
@@ -217,7 +217,7 @@ class OutputDriverPdflib16 extends OutputDriverPdflib {
                         $lastform->name(),
                         $name));
       $fqn .= md5(rand().time());
-    };
+    }
 
     return $fqn;
   }

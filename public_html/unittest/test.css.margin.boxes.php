@@ -3,15 +3,15 @@
 class TestCSSParseMarginBoxes extends GenericTest {
   function testCSSParseMarginBoxesTopLeftCornerSize() {
     parse_config_file('../html2ps.config');
-    $media =& Media::predefined('A4');
+    $media =& (new Media())->predefined('A4');
     $media->set_margins(array('left' => 10,
                               'top' => 10,
                               'right' => 10,
                               'bottom' => 10));
 
-    $pipeline =& PipelineFactory::create_default_pipeline('utf-8', 'test.pdf');
+    $pipeline =&  (new PipelineFactory())->create_default_pipeline('utf-8', 'test.pdf');
     $pipeline->_setupScales($media);
-    $pipeline->_cssState = array(new CSSState(CSS::get()));
+    $pipeline->_cssState = array(new CSSState((new CSS())->get()));
 
     $boxes = $pipeline->reflow_margin_boxes(1, $media);
 
@@ -22,15 +22,15 @@ class TestCSSParseMarginBoxes extends GenericTest {
 
   function testCSSParseMarginBoxesTopLeftSizeNoContent() {
     parse_config_file('../html2ps.config');
-    $media =& Media::predefined('A4');
+    $media =& (new Media())->predefined('A4');
     $media->set_margins(array('left' => 10,
                               'top' => 10,
                               'right' => 10,
                               'bottom' => 10));
 
-    $pipeline =& PipelineFactory::create_default_pipeline('utf-8', 'test.pdf');
+    $pipeline =&  (new PipelineFactory())->create_default_pipeline('utf-8', 'test.pdf');
     $pipeline->_setupScales($media);
-    $pipeline->_cssState = array(new CSSState(CSS::get()));
+    $pipeline->_cssState = array(new CSSState((new CSS())->get()));
 
     $boxes = $pipeline->reflow_margin_boxes(1, $media);
 
@@ -41,15 +41,15 @@ class TestCSSParseMarginBoxes extends GenericTest {
 
   function testCSSParseMarginBoxesTopLeftSize() {
     parse_config_file('../html2ps.config');
-    $media =& Media::predefined('A4');
+    $media =& (new Media())->predefined('A4');
     $media->set_margins(array('left' => 10,
                               'top' => 10,
                               'right' => 10,
                               'bottom' => 10));
 
-    $pipeline =& PipelineFactory::create_default_pipeline('utf-8', 'test.pdf');
+    $pipeline =& (new PipelineFactory())->create_default_pipeline('utf-8', 'test.pdf');
     $pipeline->_prepare($media);
-    $pipeline->_cssState = array(new CSSState(CSS::get()));
+    $pipeline->_cssState = array(new CSSState((new CSS())->get()));
     parse_css_atpage_rules('@page { @top-left { content: "TEXT"; } }', $pipeline);
 
     $boxes = $pipeline->reflow_margin_boxes(1, $media);

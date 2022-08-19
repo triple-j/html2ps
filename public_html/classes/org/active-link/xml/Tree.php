@@ -42,7 +42,7 @@ class Tree {
 	  *	@method		Tree
 	  *	@returns	none
 	  */
-	function Tree() {
+	function __construct() {
 		$this->nodes = array();
 	}
 

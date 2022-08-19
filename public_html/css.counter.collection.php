@@ -3,7 +3,7 @@
 class CSSCounterCollection {
   var $_counters;
 
-  function CSSCounterCollection() {
+  function __construct() {
     $this->_counters = array();
   }
 
@@ -15,7 +15,7 @@ class CSSCounterCollection {
     if (!isset($this->_counters[$name])) {
       $null = null;
       return $null;
-    };
+    }
 
     return $this->_counters[$name];
   }

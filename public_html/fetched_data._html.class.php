@@ -9,7 +9,7 @@ class FetchedDataHTML extends FetchedData {
       return strtolower($matches[2]);
     } else {
       return null;
-    };
+    }
   }
 }
 ?>

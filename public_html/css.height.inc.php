@@ -6,9 +6,9 @@ require_once(HTML2PS_DIR.'value.height.php');
 class CSSHeight extends CSSPropertyHandler {
   var $_autoValue;
 
-  function CSSHeight() { 
-    $this->CSSPropertyHandler(true, false); 
-    $this->_autoValue = ValueHeight::fromString('auto');
+  function __construct() {
+    CSSPropertyHandler::__construct(true, false);
+    $this->_autoValue = (new ValueHeight())->fromString('auto');
   }
 
   /**
@@ -29,18 +29,18 @@ class CSSHeight extends CSSPropertyHandler {
   }
 
   function parse($value) { 
-    return ValueHeight::fromString($value);
+    return (new ValueHeight())->fromString($value);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_HEIGHT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'height';
   }
 }
  
-CSS::register_css_property(new CSSHeight);
+(new CSS())->register_css_property(new CSSHeight);
 
 ?>

@@ -7,14 +7,14 @@ function process_cell(&$sample_html, $offset) {
                        array("table" => "process_table"),
                        "/td");
   return $r;
-};
+}
 
 function process_header_cell(&$sample_html, $offset) {
   return autoclose_tag($sample_html, $offset, 
                        "(table|td|th|tr|thead|tbody|tfoot|/td|/th|/table|/thead|/tbody|/tfoot|/tr)",
                        array("table" => "process_table"),
                        "/th");
-};
+}
 
 function process_cell_without_row(&$html, $offset) {
   // Insert missing <tr> tag and fall to the 'process_row'
@@ -33,7 +33,7 @@ function process_cell_without_row(&$html, $offset) {
   $r = process_row($html, $offset - strlen($matches[0]) + strlen("<tr>"));
 
   return $r;
-};
+}
 
 function process_row(&$sample_html, $offset) {
   return autoclose_tag_cleanup($sample_html, $offset, 
@@ -41,7 +41,7 @@ function process_row(&$sample_html, $offset) {
                                array("td" => "process_cell",
                                      "th" => "process_header_cell"),
                                "/tr");
-};
+}
 
 
 function process_rowgroup($group, &$sample_html, $offset) {
@@ -96,13 +96,13 @@ function process_table(&$html, $offset) {
                                      "td"       => "process_cell_without_row",
                                      "th"       => "process_cell_without_row"),
                                "/table");
-};
+}
 
 function process_tables(&$sample_html, $offset) {
   return autoclose_tag($sample_html, $offset, 
                        "(table)",
                        array("table" => "process_table"),
                        "");
-};
+}
 
 ?>

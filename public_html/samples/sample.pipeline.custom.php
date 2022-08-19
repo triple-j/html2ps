@@ -1,9 +1,7 @@
 <?php
 
-require_once(dirname(__FILE__).'/../config.inc.php');
-require_once(HTML2PS_DIR.'pipeline.class.php');
-require_once(HTML2PS_DIR.'fetcher.url.class.php');
-parse_config_file(HTML2PS_DIR.'html2ps.config');
+require_once('../pipeline.class.php');
+parse_config_file('../html2ps.config');
 
 $g_config = array(
                   'cssmedia'     => 'screen',
@@ -15,7 +13,7 @@ $g_config = array(
                   'draw_page_border' => false
                   );
 
-$media = Media::predefined('A4');
+$media = (new Media())->predefined('A4');
 $media->set_landscape(false);
 $media->set_margins(array('left'   => 0,
                           'right'  => 0,
@@ -27,7 +25,6 @@ $g_px_scale = mm2pt($media->width() - $media->margins['left'] - $media->margins[
 $g_pt_scale = $g_px_scale * 1.43; 
 
 $pipeline = new Pipeline;
-$pipeline->configure($g_config);
 $pipeline->fetchers[]     = new FetcherURL;
 $pipeline->data_filters[] = new DataFilterHTML2XHTML;
 $pipeline->parser         = new ParserXHTML;
@@ -35,5 +32,6 @@ $pipeline->layout_engine  = new LayoutEngineDefault;
 $pipeline->output_driver  = new OutputDriverFPDF($media);
 $pipeline->destination    = new DestinationFile(null);
 
-$pipeline->process('http://tests.office/html2ps/sample.html', $media); 
+$pipeline->process('http://localhost:81/testing/ww.html', $media); 
 
+?>

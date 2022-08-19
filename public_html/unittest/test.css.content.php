@@ -9,7 +9,7 @@ class TestCSSContent extends GenericTest {
 
     $content =& $element->getCSSProperty(CSS_CONTENT);
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $this->assertEqual($content->render($counters), "&lt;span style=&quot;font-weight: bold;&quot;&gt;My&lt;/span&gt; Page");
   }
 
@@ -19,7 +19,7 @@ class TestCSSContent extends GenericTest {
 
     $this->assertTrue($collection->contains(CSS_CONTENT));
    
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $content =& $collection->getPropertyValue(CSS_CONTENT);
     $this->assertEqual($content->render($counters), "&lt;span style=&quot;font-weight: bold;&quot;&gt;My&lt;/span&gt; Page");
   }
@@ -30,7 +30,7 @@ class TestCSSContent extends GenericTest {
 
     $this->assertTrue($collection->contains(CSS_HTML2PS_HTML_CONTENT));
    
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $content =& $collection->getPropertyValue(CSS_HTML2PS_HTML_CONTENT);
     $this->assertEqual($content->render($counters), "&lt;span style=&quot;font-weight: bold;&quot;&gt;My&lt;/span&gt; Page");
   }
@@ -41,13 +41,13 @@ class TestCSSContent extends GenericTest {
 
     $this->assertTrue($collection->contains(CSS_CONTENT));
    
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
 
-    $page_counter =& new CSSCounter('page');
+    $page_counter= new CSSCounter('page');
     $page_counter->set(10);
     $counters->add($page_counter);
 
-    $sample_counter =& new CSSCounter('sample');
+    $sample_counter= new CSSCounter('sample');
     $sample_counter->set(1);
     $counters->add($sample_counter);
 
@@ -61,13 +61,13 @@ class TestCSSContent extends GenericTest {
 
     $this->assertTrue($collection->contains(CSS_CONTENT));
    
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
 
-    $page_counter =& new CSSCounter('page');
+    $page_counter= new CSSCounter('page');
     $page_counter->set(1);
     $counters->add($page_counter);
 
-    $sample_counter =& new CSSCounter('pages');
+    $sample_counter= new CSSCounter('pages');
     $sample_counter->set(10);
     $counters->add($sample_counter);
 
@@ -81,7 +81,7 @@ class TestCSSContent extends GenericTest {
 
     $this->assertTrue($collection->contains(CSS_CONTENT));
    
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $content =& $collection->getPropertyValue(CSS_CONTENT);
     $this->assertEqual($content->render($counters), "");
   }
@@ -92,7 +92,7 @@ class TestCSSContent extends GenericTest {
 
     $this->assertTrue($collection->contains(CSS_CONTENT));
    
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $content =& $collection->getPropertyValue(CSS_CONTENT);
     $this->assertEqual($content->render($counters), "");
   }
@@ -104,7 +104,7 @@ class TestCSSContent extends GenericTest {
     $this->assertTrue($collection->contains(CSS_CONTENT));
     $this->assertTrue($collection->contains(CSS_HTML2PS_HTML_CONTENT));
    
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
 
     $content =& $collection->getPropertyValue(CSS_CONTENT);
     $this->assertEqual($content->render($counters), "");

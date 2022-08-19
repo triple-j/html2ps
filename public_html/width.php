@@ -5,15 +5,15 @@ require_once(HTML2PS_DIR.'width.constraint.php');
 function merge_width_constraint($wc1, $wc2) {
   if ($wc1->isNull()) { 
     return $wc2; 
-  };
+  }
 
   if ($wc1->isConstant() && !$wc2->isNull()) {
     return $wc2;
-  };
+  }
 
   if ($wc1->isFraction() && $wc2->isFraction()) {
     return $wc2;
-  };
+  }
 
   return $wc1;
 }
@@ -22,8 +22,8 @@ function merge_width_constraint($wc1, $wc2) {
 // parent have 'fit' width and depends on the current constraint itself
 
 class WCNone extends WidthConstraint {
-  function WCNone() {
-    $this->WidthConstraint();
+  function __construct() {
+      WidthConstraint::__construct();
   }
 
   function applicable(&$box) { return false; }
@@ -32,7 +32,7 @@ class WCNone extends WidthConstraint {
   function apply_inverse($w, $pw) { return $pw; }
 
   function &_copy() { 
-    $copy =& new WCNone();
+    $copy= new WCNone();
     return $copy;
   }
 
@@ -45,8 +45,8 @@ class WCNone extends WidthConstraint {
 class WCConstant extends WidthConstraint {
   var $width;
 
-  function WCConstant($width) {
-    $this->WidthConstraint();
+  function __construct($width) {
+    WidthConstraint::__construct();
     $this->width = $width;
   }
 
@@ -63,7 +63,7 @@ class WCConstant extends WidthConstraint {
   }
 
   function &_copy() { 
-    $copy =& new WCConstant($this->width); 
+    $copy= new WCConstant($this->width); 
     return $copy;
   }
 
@@ -80,13 +80,13 @@ class WCFraction extends WidthConstraint {
   var $fraction;
 
   function applicable(&$box) {
-    if (is_null($box->parent)) { return false; };
-    $parent_wc = $box->parent->get_css_property(CSS_WIDTH);
+    if (is_null($box->parent)) { return false; }
+    $parent_wc = $box->parent->getCSSProperty(CSS_WIDTH);
     return $box->isCell() || $parent_wc->applicable($box->parent);
   }
 
-  function WCFraction($fraction) { 
-    $this->WidthConstraint();
+  function __construct($fraction) {
+      WidthConstraint::__construct();
     $this->fraction = $fraction;
   } 
 
@@ -95,15 +95,15 @@ class WCFraction extends WidthConstraint {
       return $pw * $this->fraction;
     } else {
       return $w;
-    };
+    }
   }
 
   function apply_inverse($w, $pw) { 
-    if ($this->fraction > 0) { return $w / $this->fraction; } else { return 0; }; 
+    if ($this->fraction > 0) { return $w / $this->fraction; } else { return 0; }
   }
 
   function &_copy() { 
-    $copy =& new WCFraction($this->fraction); 
+    $copy= new WCFraction($this->fraction); 
     return $copy;
   }
 

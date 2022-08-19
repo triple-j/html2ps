@@ -48,7 +48,7 @@ class DocHTML {
 	  *	Constructor, runs when new object instance is created, sets default values
 	  *	@method		DocHTML
 	  */
-	function DocHTML() {
+	function __construct() {
 		$this->CSSStringDefault = "
 		body {background-color: white;}
 		a {font-family: monospace;}
@@ -99,7 +99,7 @@ class DocHTML {
 			$headXML->setTagContent($objClass->getInfo("name"), "head/title");
 			$headXML->setTagContent("", "head/meta");
 			$headXML->setTagAttribute("http-equiv", "content-type", "head/meta");
-			$headXML->setTagAttribute("content", "text/html; charset=ISO-8859-1", "head/meta");
+			$headXML->setTagAttribute("content", "text/html; charset=UTF-8", "head/meta");
 			$headXML->setTagContent($this->CSSStringDefault, "head/style");
 			$headXML->setTagAttribute("type", "text/css", "head/style");
 			// ---------------------- BODY ---------------------- //
@@ -160,7 +160,7 @@ class DocHTML {
 				$spanXMLName->setTagContent($methodName);
 				$spanXMLArgs = new XMLBranch("span");
 				$tagContentArgs = " ( ";
-				if(is_array($method->params) && count($method->params) > 0) {
+				if(is_array($method->params) && count((array) $method->params) > 0) {
 					$paramCount = 0;
 					foreach($method->params as $key => $value) {
 						if($paramCount > 0)
@@ -198,7 +198,7 @@ class DocHTML {
 						$bodyXML->addXMLBranch($pXML);
 					}
 				}
-				if(is_array($method->params) && count($method->params) > 0) {
+				if(is_array($method->params) && count((array) $method->params) > 0) {
 					$pParamXML = new XMLBranch("p");
 					//$pParamXML->setTagAttribute("class", "param");
 					$paramTitleXML = new XMLBranch("span");

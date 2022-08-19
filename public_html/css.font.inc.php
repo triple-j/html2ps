@@ -36,8 +36,8 @@ function detect_font_value_type($value) {
 class CSSFont extends CSSPropertyHandler {
   var $_defaultValue;
 
-  function CSSFont() {
-    $this->CSSPropertyHandler(true, true);
+  function __construct() {
+    CSSPropertyHandler::__construct(true, true);
 
     $this->_defaultValue = null;
   }
@@ -46,21 +46,21 @@ class CSSFont extends CSSPropertyHandler {
     if (is_null($this->_defaultValue)) {
       $this->_defaultValue = new ValueFont;
 
-      $size_handler = CSS::get_handler(CSS_FONT_SIZE);
+      $size_handler = (new CSS())->get_handler(CSS_FONT_SIZE);
       $default_size = $size_handler->default_value();
       
       $this->_defaultValue->size   = $default_size->copy();
-      $this->_defaultValue->weight = CSSFontWeight::default_value();
-      $this->_defaultValue->style  = CSSFontStyle::default_value();
-      $this->_defaultValue->family = CSSFontFamily::default_value();
-      $this->_defaultValue->line_height = CSS::getDefaultValue(CSS_LINE_HEIGHT);
-    };
+      $this->_defaultValue->weight = (new CSSFontWeight())->default_value();
+      $this->_defaultValue->style  = (new CSSFontStyle())->default_value();
+      $this->_defaultValue->family = (new CSSFontFamily())->default_value();
+      $this->_defaultValue->line_height = (new CSS())->getDefaultValue(CSS_LINE_HEIGHT);
+    }
 
     return $this->_defaultValue;
   }
   
   function parse($value) {   
-    $font = CSS::getDefaultValue(CSS_FONT);
+    $font = (new CSS())->getDefaultValue(CSS_FONT);
 
     if ($value === 'inherit') {
       $font->style       = CSS_PROPERTY_INHERIT;
@@ -70,7 +70,7 @@ class CSSFont extends CSSPropertyHandler {
       $font->line_height = CSS_PROPERTY_INHERIT;
 
       return $font;
-    };
+    }
 
 
     // according to CSS 2.1 standard,
@@ -98,7 +98,7 @@ class CSSFont extends CSSPropertyHandler {
     $family_running = false;
     $family_double_quote = false;;
 
-    for ($i=0, $num_subvalues = count($subvalues); $i < $num_subvalues; $i++) {
+    for ($i=0, $num_subvalues = count((array) $subvalues); $i < $num_subvalues; $i++) {
       $current_value = $subvalues[$i];
 
       if ($family_running) {
@@ -126,7 +126,7 @@ class CSSFont extends CSSPropertyHandler {
         $family_start = $i;
         $family_double_quote = true;
       }
-    };
+    }
 
     // Now process subvalues one-by-one. 
     foreach ($subvalues as $subvalue) {
@@ -135,52 +135,52 @@ class CSSFont extends CSSPropertyHandler {
 
       switch ($subvalue_type) {
       case FONT_VALUE_STYLE:
-        $font->style = CSSFontStyle::parse($subvalue);
+        $font->style = (new CSSFontStyle())->parse($subvalue);
         break;
       case FONT_VALUE_WEIGHT:
-        $font->weight = CSSFontWeight::parse($subvalue);
+        $font->weight = (new CSSFontWeight())->parse($subvalue);
         break;
       case FONT_VALUE_SIZE:
         $size_subvalues = explode('/', $subvalue);
         $font->size = CSSFontSize::parse($size_subvalues[0]);
         if (isset($size_subvalues[1])) {
-          $handler =& CSS::get_handler(CSS_LINE_HEIGHT);
+          $handler =& (new CSS())->get_handler(CSS_LINE_HEIGHT);
           $font->line_height = $handler->parse($size_subvalues[1]);
-        };
+        }
         break;
       case FONT_VALUE_FAMILY:
-        $font->family = CSSFontFamily::parse($subvalue);
+        $font->family = (new CSSFontFamily())->parse($subvalue);
         break;
-      };
-    };
+      }
+    }
 
     return $font;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_FONT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'font';
   }
 
   function clearDefaultFlags(&$state) {
     parent::clearDefaultFlags($state);
-    $state->set_propertyDefaultFlag(CSS_FONT_SIZE, false);
-    $state->set_propertyDefaultFlag(CSS_FONT_STYLE, false);
-    $state->set_propertyDefaultFlag(CSS_FONT_WEIGHT, false);
-    $state->set_propertyDefaultFlag(CSS_FONT_FAMILY, false);
-    $state->set_propertyDefaultFlag(CSS_LINE_HEIGHT, false);
+    $state->setPropertyDefaultFlag(CSS_FONT_SIZE, false);
+    $state->setPropertyDefaultFlag(CSS_FONT_STYLE, false);
+    $state->setPropertyDefaultFlag(CSS_FONT_WEIGHT, false);
+    $state->setPropertyDefaultFlag(CSS_FONT_FAMILY, false);
+    $state->setPropertyDefaultFlag(CSS_LINE_HEIGHT, false);
   }
 }
 
 $font = new CSSFont;
-CSS::register_css_property($font);
-CSS::register_css_property(new CSSFontSize($font,   'size'));
-CSS::register_css_property(new CSSFontStyle($font,  'style'));
-CSS::register_css_property(new CSSFontWeight($font, 'weight'));
-CSS::register_css_property(new CSSFontFamily($font, 'family'));
-CSS::register_css_property(new CSSLineHeight($font, 'line_height'));
+(new CSS())->register_css_property($font);
+(new CSS())->register_css_property(new CSSFontSize($font,   'size'));
+(new CSS())->register_css_property(new CSSFontStyle($font,  'style'));
+(new CSS())->register_css_property(new CSSFontWeight($font, 'weight'));
+(new CSS())->register_css_property(new CSSFontFamily($font, 'family'));
+(new CSS())->register_css_property(new CSSLineHeight($font, 'line_height'));
 
 ?>

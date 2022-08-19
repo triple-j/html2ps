@@ -8,28 +8,6 @@
 
 <p><a href="index.html">Back to table of contents</a></p> 
 
-<h2 id="media">Media parameters</h2>
-<p>
-CSS 3 paged media module provides a means of controlling media size and margins. 
-html2ps understangs 'size' and 'margin' properties when they're used in @page context; thus,
-you can set page size and margins in your CSS file, overriding defaults. For example:
-<pre>
-@page {
-  size: 100mm 200mm;
-  margin: 10mm;
-}
-</pre>
-or
-<pre>
-@page {
-  size: A4 landscape;
-  margin: 5% 10mm;
-}
-</pre>
-</p>
-<p><a href="http://www.w3.org/TR/css3-page/#page-size">More complete information on 'size' and 'margin' value formats</a> is available on w3c.org.</p>
-
-
 <h2 id="marginboxes">Margin boxes</h2>
 <p>
 html2ps supports margin boxes in accordance to CSS 3. For example, you may render a header
@@ -52,7 +30,7 @@ is processed by HTML parser. Thus, you may use HTML tags in this property value.
 <pre>
 @page {
   @top-left {
-    -html2ps-html-content: &quot;&amp;lt;span style=&amp;quot;font-weight: bold;&amp;quot;&amp;gt;My&amp;lt;/span&amp;gt; Page&quot;;
+    -html2ps-html-content: &quot;&lt;span style=&quot;font-weight: bold;&quot;&gt;My&lt;/span&gt; Page&quot;;
   }
   @top-right {
     content: &quot;Page &quot; counter(page) &quot; of &quot; counter(pages);
@@ -77,6 +55,7 @@ Note that you may set text formatting using usual CSS propeties in margin box co
 <p>
 For further information please refer to
 <a href="http://www.w3.org/TR/css3-page/#margin-boxes">CSS 3 Paged Media Module</a>.
+Note that html2ps at the moment does not support setting page size and margins via CSS.
 </p>
 
 <h2 id="footnotes">Footnotes</h2>

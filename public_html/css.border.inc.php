@@ -36,19 +36,19 @@ define('BORDER_VALUE_STYLE',3);
 class CSSBorder extends CSSPropertyHandler {
   var $_defaultValue;
 
-  function CSSBorder() {
-    $this->CSSPropertyHandler(false, false);
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
 
-    $this->_defaultValue = BorderPDF::create(array('top'    => array('width' => Value::fromString('2px'), 
+    $this->_defaultValue = (new BorderPDF())->create(array('top'    => array('width' => (new Value())->fromString('2px'),
                                                                      'color' => array(0,0,0), 
                                                                      'style' => BS_NONE),
-                                                   'right'  => array('width' => Value::fromString('2px'), 
+                                                   'right'  => array('width' => (new Value())->fromString('2px'),
                                                                      'color' => array(0,0,0), 
                                                                      'style' => BS_NONE),
-                                                   'bottom' => array('width' => Value::fromString('2px'), 
+                                                   'bottom' => array('width' => (new Value())->fromString('2px'),
                                                                      'color' => array(0,0,0), 
                                                                      'style' => BS_NONE),
-                                                   'left'   => array('width' => Value::fromString('2px'), 
+                                                   'left'   => array('width' => (new Value())->fromString('2px'),
                                                                      'color' => array(0,0,0), 
                                                                      'style' => BS_NONE)));
   }
@@ -60,7 +60,7 @@ class CSSBorder extends CSSPropertyHandler {
   function parse($value) {
     if ($value == 'inherit') {
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
     // Remove spaces between color values in rgb() color definition; this will allow us to tread 
     // this declaration as a single value
@@ -71,81 +71,81 @@ class CSSBorder extends CSSPropertyHandler {
 
     $subvalues = explode(" ", $value);
 
-    $border = CSS::getDefaultValue(CSS_BORDER);
+    $border = (new CSS())->getDefaultValue(CSS_BORDER);
 
     foreach ($subvalues as $subvalue) {
       $subvalue = trim(strtolower($subvalue));
 
-      switch (CSSBorder::detect_border_value_type($subvalue)) {
+      switch ((new CSSBorder())->detect_border_value_type($subvalue)) {
       case BORDER_VALUE_COLOR:
-        $color_handler = CSS::get_handler(CSS_BORDER_COLOR);
+        $color_handler = (new CSS())->get_handler(CSS_BORDER_COLOR);
         $border_color = $color_handler->parse($subvalue);
-        $color_handler->set_value($border, $border_color);
+        $color_handler->setValue($border, $border_color);
         break;
       case BORDER_VALUE_WIDTH:
-        $width_handler = CSS::get_handler(CSS_BORDER_WIDTH);
+        $width_handler = (new CSS())->get_handler(CSS_BORDER_WIDTH);
         $border_width = $width_handler->parse($subvalue);
-        $width_handler->set_value($border, $border_width);
+        $width_handler->setValue($border, $border_width);
         break;
       case BORDER_VALUE_STYLE:
-        $style_handler = CSS::get_handler(CSS_BORDER_STYLE);
+        $style_handler = (new CSS())->get_handler(CSS_BORDER_STYLE);
         $border_style = $style_handler->parse($subvalue);
-        $style_handler->set_value($border, $border_style);
+        $style_handler->setValue($border, $border_style);
         break;
-      };
-    };
+      }
+    }
 
     return $border;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_BORDER;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'border';
   }
 
   function detect_border_value_type($value) {
     $color = _parse_color_declaration($value, $success);
-    if ($success) { return BORDER_VALUE_COLOR; };
+    if ($success) { return BORDER_VALUE_COLOR; }
 
-//     if (preg_match("/\b(transparent|black|silver|gray|white|maroon|red|purple|fuchsia|green|lime|olive|yellow|navy|blue|teal|aqua|rgb(.*?))\b/i",$value)) { return BORDER_VALUE_COLOR; };
+//     if (preg_match("/\b(transparent|black|silver|gray|white|maroon|red|purple|fuchsia|green|lime|olive|yellow|navy|blue|teal|aqua|rgb(.*?))\b/i",$value)) { return BORDER_VALUE_COLOR; }
 //     // We must detect hecadecimal values separately, as #-sign will not match the \b metacharacter at the beginning of previous regexp
-//     if (preg_match("/#([[:xdigit:]]{3}|[[:xdigit:]]{6})\b/i",$value)) { return BORDER_VALUE_COLOR; };
+//     if (preg_match("/#([[:xdigit:]]{3}|[[:xdigit:]]{6})\b/i",$value)) { return BORDER_VALUE_COLOR; }
   
     // Note that unit name is in general not required, so that we can meet rule like "border: 0" in CSS!
-    if (preg_match("/\b(thin|medium|thick|[+-]?\d+(.\d*)?(em|ex|px|in|cm|mm|pt|pc)?)\b/i",$value)) { return BORDER_VALUE_WIDTH; };
-    if (preg_match("/\b(none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset)\b/",$value)) { return BORDER_VALUE_STYLE; };
+    if (preg_match("/\b(thin|medium|thick|[+-]?\d+(.\d*)?(em|ex|px|in|cm|mm|pt|pc)?)\b/i",$value)) { return BORDER_VALUE_WIDTH; }
+    if (preg_match("/\b(none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset)\b/",$value)) { return BORDER_VALUE_STYLE; }
     return;
   }
 }
 
 $border = new CSSBorder();
-CSS::register_css_property($border);
+(new CSS())->register_css_property($border);
 
-CSS::register_css_property(new CSSBorderColor($border));
-CSS::register_css_property(new CSSBorderWidth($border));
-CSS::register_css_property(new CSSBorderStyle($border));
+(new CSS())->register_css_property(new CSSBorderColor($border));
+(new CSS())->register_css_property(new CSSBorderWidth($border));
+(new CSS())->register_css_property(new CSSBorderStyle($border));
 
-CSS::register_css_property(new CSSBorderTop($border, 'top'));
-CSS::register_css_property(new CSSBorderRight($border, 'right'));
-CSS::register_css_property(new CSSBorderBottom($border, 'bottom'));
-CSS::register_css_property(new CSSBorderLeft($border, 'left'));
+(new CSS())->register_css_property(new CSSBorderTop($border, 'top'));
+(new CSS())->register_css_property(new CSSBorderRight($border, 'right'));
+(new CSS())->register_css_property(new CSSBorderBottom($border, 'bottom'));
+(new CSS())->register_css_property(new CSSBorderLeft($border, 'left'));
 
-CSS::register_css_property(new CSSBorderLeftColor($border));
-CSS::register_css_property(new CSSBorderTopColor($border));
-CSS::register_css_property(new CSSBorderRightColor($border));
-CSS::register_css_property(new CSSBorderBottomColor($border));
+(new CSS())->register_css_property(new CSSBorderLeftColor($border));
+(new CSS())->register_css_property(new CSSBorderTopColor($border));
+(new CSS())->register_css_property(new CSSBorderRightColor($border));
+(new CSS())->register_css_property(new CSSBorderBottomColor($border));
 
-CSS::register_css_property(new CSSBorderLeftStyle($border));
-CSS::register_css_property(new CSSBorderTopStyle($border));
-CSS::register_css_property(new CSSBorderRightStyle($border));
-CSS::register_css_property(new CSSBorderBottomStyle($border));
+(new CSS())->register_css_property(new CSSBorderLeftStyle($border));
+(new CSS())->register_css_property(new CSSBorderTopStyle($border));
+(new CSS())->register_css_property(new CSSBorderRightStyle($border));
+(new CSS())->register_css_property(new CSSBorderBottomStyle($border));
 
-CSS::register_css_property(new CSSBorderLeftWidth($border));
-CSS::register_css_property(new CSSBorderTopWidth($border));
-CSS::register_css_property(new CSSBorderRightWidth($border));
-CSS::register_css_property(new CSSBorderBottomWidth($border));
+(new CSS())->register_css_property(new CSSBorderLeftWidth($border));
+(new CSS())->register_css_property(new CSSBorderTopWidth($border));
+(new CSS())->register_css_property(new CSSBorderRightWidth($border));
+(new CSS())->register_css_property(new CSSBorderBottomWidth($border));
 
 ?>

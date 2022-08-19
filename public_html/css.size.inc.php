@@ -1,8 +1,8 @@
 <?php
 
 class CSSSize extends CSSPropertyHandler {
-  function CSSSize() { 
-    $this->CSSPropertyHandler(false, false); 
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
   }
 
   function default_value() { 
@@ -14,23 +14,23 @@ class CSSSize extends CSSPropertyHandler {
   function parse($value) {
     if ($value == '') {
       return null;
-    };
+    }
 
     // First attempt to create media with predefined name
     if (preg_match('/^(\w+)(?:\s+(portrait|landscape))?$/', $value, $matches)) {
       $name = $matches[1];
       $landscape = isset($matches[2]) && $matches[2] == 'landscape';
 
-      $media =& Media::predefined($name);
+      $media =& (new Media())->predefined($name);
 
       if (is_null($media)) {
         return null;
-      };
+      }
 
       return array('size' => array('width' => $media->get_width(),
                                    'height' => $media->get_height()),
                    'landscape' => $landscape);
-    };
+    }
 
     // Second, attempt to create media with predefined size
     $parts = preg_split('/\s+/', $value);
@@ -43,7 +43,7 @@ class CSSSize extends CSSPropertyHandler {
     if ($width == 0 ||
         $height == 0) {
       return null;
-    };
+    }
 
     return array('size' => array('width' => $width / mm2pt(1) / pt2pt(1),
                                  'height' => $height / mm2pt(1) / pt2pt(1)),
@@ -59,6 +59,6 @@ class CSSSize extends CSSPropertyHandler {
   }
 }
 
-CSS::register_css_property(new CSSSize());
+(new CSS())->register_css_property(new CSSSize());
 
 ?>

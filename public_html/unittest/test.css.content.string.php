@@ -5,7 +5,7 @@ class TestCSSContentString extends GenericTest {
     $content =& ValueContent::parse('"Sample\
  Content"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "Sample Content");
@@ -16,7 +16,7 @@ class TestCSSContentString extends GenericTest {
 \
  Content"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "Sample Content");
@@ -25,7 +25,7 @@ class TestCSSContentString extends GenericTest {
   function testCSSContentStringEscape6DigitsSpace() {
     $content =& ValueContent::parse('"Sample\00000A Content"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "Sample\nContent");
@@ -34,7 +34,7 @@ class TestCSSContentString extends GenericTest {
   function testCSSContentStringEscape6DigitsSpaces() {
     $content =& ValueContent::parse('"Sample\00000A   Content"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "Sample\n  Content");
@@ -43,7 +43,7 @@ class TestCSSContentString extends GenericTest {
   function testCSSContentStringEscape6DigitsNoSpace() {
     $content =& ValueContent::parse('"Sample\00000ALine"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "Sample\nLine");
@@ -52,7 +52,7 @@ class TestCSSContentString extends GenericTest {
   function testCSSContentStringEscape6DigitsNoSpaceHexadecimal() {
     $content =& ValueContent::parse('"Sample\00000AContent"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "Sample\nContent");
@@ -61,7 +61,7 @@ class TestCSSContentString extends GenericTest {
   function testCSSContentStringEscapeSpace() {
     $content =& ValueContent::parse('"Sample\A Content"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "Sample\nContent");
@@ -70,7 +70,7 @@ class TestCSSContentString extends GenericTest {
   function testCSSContentStringEscapeSpaces() {
     $content =& ValueContent::parse('"Sample\A   Content"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "Sample\n  Content");
@@ -79,7 +79,7 @@ class TestCSSContentString extends GenericTest {
   function testCSSContentStringEscapeNoSpace() {
     $content =& ValueContent::parse('"Sample\ALine"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "Sample\nLine");
@@ -88,7 +88,7 @@ class TestCSSContentString extends GenericTest {
   function testCSSContentStringEscapeNoSpaceHex() {
     $content =& ValueContent::parse('"Sample\4Content"');
 
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $rendered = $content->render($counters);
 
     $this->assertEqual($rendered, "SampleLontent");

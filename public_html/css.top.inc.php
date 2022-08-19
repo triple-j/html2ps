@@ -4,9 +4,9 @@
 require_once(HTML2PS_DIR.'value.top.php');
 
 class CSSTop extends CSSPropertyHandler {
-  function CSSTop() { 
-    $this->CSSPropertyHandler(false, false); 
-    $this->_autoValue = ValueTop::fromString('auto');
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
+    $this->_autoValue = (new ValueTop())->fromString('auto');
   }
 
   function _getAutoValue() {
@@ -17,19 +17,19 @@ class CSSTop extends CSSPropertyHandler {
     return $this->_getAutoValue();
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_TOP;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'top';
   }
 
   function parse($value) { 
-    return ValueTop::fromString($value);
+    return (new ValueTop())->fromString($value);
   }
 }
 
-CSS::register_css_property(new CSSTop);
+(new CSS())->register_css_property(new CSSTop);
 
 ?>

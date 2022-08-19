@@ -42,7 +42,7 @@ SMALL<br/>
     /**
      * Calculate page heights
      */
-    $locations = PageBreakLocator::_getBreakLocations($tree);
+    $locations = (new PageBreakLocator())->_getBreakLocations($tree);
     $this->assertEqual(count($locations), 6);
   }
 }

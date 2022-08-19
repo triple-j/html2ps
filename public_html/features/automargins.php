@@ -4,7 +4,7 @@ class FeatureAutomargins {
   var $_top_margin;
   var $_bottom_margin;
 
-  function FeatureAutomargins() {
+  function __construct() {
     $this->_top_margin = 0;
     $this->_bottom_margin = 0;
   }
