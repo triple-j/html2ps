@@ -32,11 +32,8 @@ class CSSPropertyHandler {
    * CSSPropertyHandler::get() call.
    */
   function &get(&$state) { 
-    static $property_code = null;
-    if (is_null($property_code)) {
-      $property_code = $this->getPropertyCode();
-    }
-
+    $property_code = $this->getPropertyCode();
+    
     if (!isset($state[$property_code])) {
       $null = null;
       return $null;
@@ -89,11 +86,8 @@ class CSSPropertyHandler {
   }
 
   function replace_array($value, &$state) {
-    static $property_code = null;
-    if (is_null($property_code)) {
-      $property_code = $this->getPropertyCode();
-    }
-
+    $property_code = $this->getPropertyCode();
+    
     $state[$property_code] = $value;
   }
 }
