@@ -34,7 +34,7 @@ function guess_lengths($lengths_src, $total) {
   $values  = array();
   foreach ($lengths as $length) { 
     $values[] = 0; 
-  };
+  }
 
   /**
    * First pass: fixed-width sizes (%Length). There's two types of 
@@ -70,8 +70,8 @@ function guess_lengths($lengths_src, $total) {
        * Pixel value
        */
       $values[$i] = px2pt($length_src);
-    };
-  };
+    }
+  }
 
   // Second pass: relative-width columns
   $rest = $total - array_sum($values);
@@ -80,8 +80,8 @@ function guess_lengths($lengths_src, $total) {
   foreach ($lengths as $length_src) { 
     if (substr($length_src,strlen($length_src)-1,1) == "*") { 
       $parts += max(1,substr($length_src,0,strlen($length)-1));
-    };
-  };
+    }
+  }
 
   if ($parts > 0) {
     $part_size = $rest / $parts;
@@ -91,19 +91,19 @@ function guess_lengths($lengths_src, $total) {
 
       if (substr($length,strlen($length)-1,1) == "*") { 
         $values[$i] = $part_size * max(1,substr($length,0,strlen($length)-1));
-      };
-    };
-  };
+      }
+    }
+  }
 
   // Fix over/underconstrained framesets
   $width = array_sum($values);
 
   if ($width > 0) {
     $koeff = $total / $width;
-    for($i = 0; $i < count($values); $i++) {
+    for($i = 0; $i < count((array) $values); $i++) {
       $values[$i] *= $koeff;
-    };
-  };
+    }
+  }
 
   return $values;
 }

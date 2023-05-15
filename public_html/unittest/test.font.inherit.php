@@ -21,8 +21,8 @@ NORMAL
 </html>
 ');
 
-    $outer_div = $tree->get_element_by_id('outer');
-    $inner_div = $tree->get_element_by_id('inner');
+    $outer_div = $tree->getElementById('outer');
+    $inner_div = $tree->getElementById('inner');
 
     $body_font_size  = $tree->getCSSProperty(CSS_FONT_SIZE);
     $outer_font_size = $outer_div->getCSSProperty(CSS_FONT_SIZE);
@@ -53,8 +53,8 @@ NORMAL
 </body>
 </html>
 ');
-    $outer_div = $tree->get_element_by_id('outer');
-    $inner_div = $tree->get_element_by_id('inner');
+    $outer_div = $tree->getElementById('outer');
+    $inner_div = $tree->getElementById('inner');
 
     $body_font_size  = $tree->getCSSProperty(CSS_FONT_SIZE);
     $outer_font_size = $outer_div->getCSSProperty(CSS_FONT_SIZE);

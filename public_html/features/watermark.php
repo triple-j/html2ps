@@ -3,7 +3,7 @@
 class FeatureWatermark {
   var $_text;
 
-  function FeatureWatermark() {
+  function __construct() {
     $this->set_text('');
   }
 

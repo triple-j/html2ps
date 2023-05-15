@@ -20,7 +20,7 @@ body   { font-size: 10pt; line-height: 1; padding: 0; margin: 0; }
 </html>
 ', $media);
 
-    $locations = PageBreakLocator::_getBreakLocations($tree);
+    $locations = (new PageBreakLocator())->_getBreakLocations($tree);
     $this->assertEqual(count($locations),
                        4);
   }
@@ -43,7 +43,7 @@ table  { line-height: 1; }
 </html>
 ', $media);
 
-    $locations = PageBreakLocator::_getBreakLocations($tree);
+    $locations = (new PageBreakLocator())->_getBreakLocations($tree);
 
     $table = $tree->get_element_by_id('table');
     $cell  = $tree->get_element_by_id('cell');

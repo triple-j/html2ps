@@ -19,8 +19,8 @@ class BoxNoteCall extends GenericInlineBox {
     $this->_note_call_box->offset($dx, $dy);
   }
 
-  function BoxNoteCall(&$content, &$pipeline) {
-    $this->GenericInlineBox();
+  function __construct(&$content, &$pipeline) {
+    GenericInlineBox::__construct();
 
     $this->_note_content =& $content;
 
@@ -31,45 +31,45 @@ class BoxNoteCall extends GenericInlineBox {
      * Prepare ::note-call box
      */
 
-    $this->_note_call_box = InlineBox::create_from_text(CSSListStyleType::format_number(LST_DECIMAL, 99), 
+    $this->_note_call_box = (new InlineBox())->create_from_text((new CSSListStyleType())->format_number(LST_DECIMAL, 99),
                                                         WHITESPACE_NORMAL, 
                                                         $pipeline);
 
     $this->_note_call_box->copy_style($content);
     $this->_note_call_box->content[0]->copy_style($content);
 
-    $font = $this->_note_call_box->content[0]->get_css_property(CSS_FONT);
+    $font = $this->_note_call_box->content[0]->getCSSProperty(CSS_FONT);
     $font = $font->copy();
     $font->size->scale(0.75);
     $this->_note_call_box->content[0]->setCSSProperty(CSS_FONT, $font);
 
     $this->_note_call_box->content[0]->setCSSProperty(CSS_VERTICAL_ALIGN, VA_SUPER);
-    $this->_note_call_box->content[0]->setCSSProperty(CSS_LINE_HEIGHT, CSS::getDefaultValue(CSS_LINE_HEIGHT));
+    $this->_note_call_box->content[0]->setCSSProperty(CSS_LINE_HEIGHT, (new CSS())->getDefaultValue(CSS_LINE_HEIGHT));
 
     /**
      * Prepare ::marker box
      */
 
-    $this->_note_marker_box = InlineBox::create_from_text(CSSListStyleType::format_number(LST_DECIMAL, 99), 
+    $this->_note_marker_box = (new InlineBox())->create_from_text((new CSSListStyleType())->format_number(LST_DECIMAL, 99),
                                                           WHITESPACE_NORMAL,
                                                           $pipeline);
 
     $this->_note_marker_box->copy_style($content);
     $this->_note_marker_box->content[0]->copy_style($content);
 
-    $font = $this->_note_marker_box->content[0]->get_css_property(CSS_FONT);
+    $font = $this->_note_marker_box->content[0]->getCSSProperty(CSS_FONT);
     $font = $font->copy();
     $font->size->scale(0.5);
     $this->_note_marker_box->content[0]->setCSSProperty(CSS_FONT, $font);
 
-    $margin = $this->_note_marker_box->content[0]->get_css_property(CSS_MARGIN);
+    $margin = $this->_note_marker_box->content[0]->getCSSProperty(CSS_MARGIN);
     $margin = $margin->copy();
-    $margin->right = Value::fromData(FOOTNOTE_MARKER_MARGIN, UNIT_PT);
+    $margin->right = (new Value())->fromData(FOOTNOTE_MARKER_MARGIN, UNIT_PT);
     $this->_note_marker_box->content[0]->setCSSProperty(CSS_MARGIN, $margin);
 
 
     $this->_note_marker_box->content[0]->setCSSProperty(CSS_VERTICAL_ALIGN, VA_SUPER);
-    $this->_note_marker_box->content[0]->setCSSProperty(CSS_LINE_HEIGHT, CSS::getDefaultValue(CSS_LINE_HEIGHT));
+    $this->_note_marker_box->content[0]->setCSSProperty(CSS_LINE_HEIGHT, (new CSS())->getDefaultValue(CSS_LINE_HEIGHT));
   }
 
   function &create(&$content, &$pipeline) {
@@ -78,13 +78,13 @@ class BoxNoteCall extends GenericInlineBox {
     return $box;
   }
 
-  function reflow(&$parent, &$context) {
+  function reflow(&$parent, &$context, $boxes = null) {
     $parent->append_line($this->_note_call_box);
 
     $body = $parent;        
     while ($body->parent) { 
       $body = $body->parent;
-    };                      
+    }
     
     /**
      * Reflow note content
@@ -146,7 +146,7 @@ class BoxNoteCall extends GenericInlineBox {
       $footnote_height = 
         $this->_note_content->get_full_height() + 
         FOOTNOTE_GAP;
-    };
+    }
 
     return $footnote_height;
   }
@@ -155,7 +155,7 @@ class BoxNoteCall extends GenericInlineBox {
     $footnote_height = $this->_getFootnoteHeight($driver);
     if (!$driver->willContain($this, $footnote_height)) {
       return true;
-    };
+    }
 
     $driver->setFootnoteAreaHeight($driver->getFootnoteAreaHeight() + $footnote_height);
     $driver->setFootnoteCount($driver->getFootnoteCount() + 1);
@@ -168,7 +168,7 @@ class BoxNoteCall extends GenericInlineBox {
     /**
      * Render reference number
      */
-    $this->_note_call_box->content[0]->words[0] = CSSListStyleType::format_number(LST_DECIMAL, 
+    $this->_note_call_box->content[0]->words[0] = (new CSSListStyleType())->format_number(LST_DECIMAL,
                                                                                   $this->_note_number);
     $this->_note_call_box->show_fixed($driver);
 
@@ -179,7 +179,7 @@ class BoxNoteCall extends GenericInlineBox {
     /**
      * Render note reference number
      */
-    $this->_note_marker_box->content[0]->words[0] = CSSListStyleType::format_number(LST_DECIMAL, 
+    $this->_note_marker_box->content[0]->words[0] = (new CSSListStyleType())->format_number(LST_DECIMAL,
                                                                                     $this->_note_number);
     $this->_note_marker_box->moveto($x, $y);
     $this->_note_marker_box->show_fixed($driver);

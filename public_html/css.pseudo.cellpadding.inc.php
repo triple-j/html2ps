@@ -2,27 +2,27 @@
 // $Header: /cvsroot/html2ps/css.pseudo.cellpadding.inc.php,v 1.6 2006/09/07 18:38:14 Konstantin Exp $
 
 class CSSCellPadding extends CSSPropertyHandler {
-  function CSSCellPadding() { 
-    $this->CSSPropertyHandler(true, false); 
+  function __construct() {
+    CSSPropertyHandler::__construct(true, false);
   }
 
   function default_value() { 
-    return Value::fromData(1, UNIT_PX);
+    return (new Value())->fromData(1, UNIT_PX);
   }
 
   function parse($value) { 
-    return Value::fromString($value);
+    return (new Value())->fromString($value);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_HTML2PS_CELLPADDING;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return '-html2ps-cellpadding';
   }
 }
 
-CSS::register_css_property(new CSSCellPadding);
+(new CSS())->register_css_property(new CSSCellPadding);
 
 ?>

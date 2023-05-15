@@ -1,27 +1,27 @@
 <?php
 
 class CSSPseudoLinkDestination extends CSSPropertyHandler {
-  function CSSPseudoLinkDestination() { 
-    $this->CSSPropertyHandler(false, false); 
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
   }
 
   function default_value() { 
-    return null; 
+    return ""; 
   }
 
   function parse($value) { 
     return $value;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_HTML2PS_LINK_DESTINATION;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return '-html2ps-link-destination';
   }
 }
 
-CSS::register_css_property(new CSSPseudoLinkDestination);
+(new CSS())->register_css_property(new CSSPseudoLinkDestination);
 
 ?>

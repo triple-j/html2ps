@@ -9,7 +9,7 @@ class FontFactory {
     return $this->error_message;
   }
 
-  function FontFactory() {
+  function __construct() {
     $this->fonts = array();
   }
 
@@ -34,10 +34,10 @@ class FontFactory {
       if (is_null($font)) { 
         $dummy = null;
         return $dummy; 
-      };
+      }
 
       $this->fonts[$typeface][$encoding] = $font;
-    };
+    }
 
     return $this->fonts[$typeface][$encoding];
   }
@@ -50,10 +50,10 @@ class FontFactory {
       if (is_null($font)) { 
         $dummy = null;
         return $dummy; 
-      };
+      }
 
       $this->fonts[$name][$encoding] = $font;
-    };
+    }
 
     return $this->fonts[$name][$encoding];
   }

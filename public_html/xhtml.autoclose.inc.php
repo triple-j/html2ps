@@ -11,7 +11,7 @@ function autoclose_tag(&$sample_html, $offset, $tags, $nested, $close) {
     $tag_start = $offset + strlen($matches[1]);
     $tag_end   = $tag_start + strlen($matches[2]);
 
-    if ($tag == $close) { return $tag_end; };
+    if ($tag == $close) { return $tag_end; }
     
     // REQ: PHP 4.0.5
     if (isset($nested[$tag])) {
@@ -21,8 +21,8 @@ function autoclose_tag(&$sample_html, $offset, $tags, $nested, $close) {
 
       $sample_html = substr_replace($sample_html, $to_be_inserted, $tag_start ,0);
       return $tag_start + strlen($to_be_inserted);
-    };
-  };
+    }
+  }
   
   return $offset;
 }
@@ -37,7 +37,7 @@ function skip_to(&$html, $offset, $tag) {
 
   if (preg_match("#^(.*?)<\s*({$tag})#is", $suffix, $matches)) {
     $suffix = substr($suffix, strlen($matches[1]));
-  };
+  }
 
   $html = $prefix . $suffix;
 }
@@ -53,7 +53,7 @@ function autoclose_tag_cleanup(&$sample_html, $offset, $tags_raw, $nested, $clos
     $tag_start = $offset + strlen($matches[1]);
     $tag_end   = $tag_start + strlen($matches[2]);
 
-    if ($tag == $close) { return $tag_end; };
+    if ($tag == $close) { return $tag_end; }
     
     // REQ: PHP 4.0.5
     if (isset($nested[$tag])) {
@@ -63,10 +63,10 @@ function autoclose_tag_cleanup(&$sample_html, $offset, $tags_raw, $nested, $clos
 
       $sample_html = substr_replace($sample_html, $to_be_inserted, $tag_start ,0);
       return $tag_start + strlen($to_be_inserted);
-    };
+    }
 
     skip_to($sample_html, $offset, $tags_raw);
-  };
+  }
   
   return $offset;
 }

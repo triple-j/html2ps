@@ -1,7 +1,7 @@
 <?php
 
 class StrategyTableLayoutFixed {
-  function StrategyTableLayoutFixed() {
+  function __construct() {
   }
 
   function apply($table, &$context) {
@@ -10,7 +10,7 @@ class StrategyTableLayoutFixed {
     for ($i = 0, $size = $table->cols_count(); $i < $size; $i++) {
       $cwc =& $table->get_cwc($i);
       $widths[] = $cwc->apply(0, $table->parent->get_width());
-    };
+    }
     return $widths;
   }
 }

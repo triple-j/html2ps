@@ -5,15 +5,15 @@ require_once(HTML2PS_DIR.'css.min-width.inc.php');
 require_once(HTML2PS_DIR.'css.property.sub.class.php');
 
 class CSSCompositeWidth extends CSSPropertyHandler {
-  function CSSCompositeWidth() {
-    $this->CSSPropertyHandler(false, false); 
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_HTML2PS_COMPOSITE_WIDTH;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return '-html2ps-composite-width';
   }
 
@@ -23,17 +23,17 @@ class CSSCompositeWidth extends CSSPropertyHandler {
 }
 
 class CSSWidth extends CSSSubProperty {
-  function CSSWidth($owner) { 
-    $this->CSSSubProperty($owner);
+  function __construct($owner) {
+    CSSSubProperty::__construct($owner);
   }
 
-  function set_value(&$owner_value, &$value) {
+  function setValue(&$owner_value, &$value) {
     $min = $owner_value->_min_width;
     $owner_value = $value->copy();
     $owner_value->_min_width = $min;
   }
 
-  function &get_value(&$owner_value) {
+  function &getValue(&$owner_value) {
     return $owner_value;
   }
 
@@ -44,17 +44,17 @@ class CSSWidth extends CSSSubProperty {
   function parse($value) { 
     if ($value === 'inherit') {
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
     // Check if user specified empty value
-    if ($value === '') { return new WCNone; };
+    if ($value === "") { return new WCNone; }
 
     // Check if this value is 'auto' - default value of this property
     if ($value === 'auto') {
       return new WCNone;
-    };
+    }
 
-    if (substr($value,strlen($value)-1,1) == '%') {
+    if (substr($value,strlen($value)-1,1) == "%") {
       // Percentage 
       return new WCFraction(((float)$value)/100);
     } else {
@@ -63,18 +63,18 @@ class CSSWidth extends CSSSubProperty {
     }
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_WIDTH;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'width';
   }
 }
 
 $width = new CSSCompositeWidth;
-CSS::register_css_property($width);
-CSS::register_css_property(new CSSWidth($width));
-CSS::register_css_property(new CSSMinWidth($width, '_min_width'));
+(new CSS())->register_css_property($width);
+(new CSS())->register_css_property(new CSSWidth($width));
+(new CSS())->register_css_property(new CSSMinWidth($width, '_min_width'));
 
 ?>

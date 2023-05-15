@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/css.utils.inc.php,v 1.30 2007/04/07 11:16:34 Konstantin Exp $
+// $Header: /cvsroot/html2ps/css.utils.inc.php,v 1.29 2007/01/24 18:55:52 Konstantin Exp $
 
 // TODO: make an OO-style selectors interface instead of switches
 
@@ -20,7 +20,7 @@ function css_find_pseudoelement($selector) {
       $pe = css_find_pseudoelement($subselector);
       if (!is_null($pe)) { 
         return $pe; 
-      };
+      }
     }
     return null;
   default:
@@ -33,10 +33,10 @@ function _fix_tag_display($default_display, &$state, &$pipeline) {
   // Here we will use the $default_display stored above
   // Note that "display: none" should _never_ be changed
   //
-  $handler =& CSS::get_handler(CSS_DISPLAY);
+  $handler =& (new CSS())->get_handler(CSS_DISPLAY);
   if ($handler->get($state->getState()) === "none") {
     return;
-  };
+  }
 
   switch ($default_display) {
   case 'table-cell':
@@ -46,17 +46,17 @@ function _fix_tag_display($default_display, &$state, &$pipeline) {
     
   case '-button':
     // INPUT buttons will always have 'display: -button' (in latter case if display = 'block', we'll use a wrapper box)
-    $css_state =& $pipeline->get_current_css_state();
+    $css_state =& $pipeline->getCurrentCSSState();
     if ($handler->get($css_state->getState()) === 'block') {
       $need_block_wrapper = true;
-    };
+    }
     $handler->css('-button', $pipeline);
     break;
-  };
+  }
 }
 
 function is_percentage($value) { 
-  return $value{strlen($value)-1} == "%"; 
+  return $value[strlen($value)-1] == "%"; 
 }
 
 /**
@@ -112,30 +112,27 @@ function is_percentage($value) {
  * either be escaped or doubled.
  */
 function css_process_escapes($value) {
-  $value = preg_replace_callback('/\\\\([\da-f]{1,6})( |[^][\da-f])/i',
+  $value = preg_replace_callback('/\\\\([\da-f]{1,6}) /i',
                                  'css_process_escapes_callback',
                                  $value);
 
-  $value = preg_replace_callback('/\\\\([\da-f]{6})( ?)/i', 
+  $value = preg_replace_callback('/\\\\([\da-f]{6})/i', 
                                  'css_process_escapes_callback',
                                  $value);
+
   return $value;
 }
 
 function css_process_escapes_callback($matches) {
-  if ($matches[2] == ' ') {
-    return hex_to_utf8($matches[1]);
-  } else {
-    return hex_to_utf8($matches[1]).$matches[2];
-  };
+  return hex_to_utf8($matches[1]);
 }
 
 function css_remove_value_quotes($value) {
-  if (strlen($value) == 0) { return $value; };
+  if (strlen($value) == 0) { return $value; }
 
-  if ($value{0} === "'" || $value{0} === "\"") {
+  if ($value[0] === "'" || $value[0] === "\"") {
     $value = substr($value, 1, strlen($value)-2);
-  };
+  }
   return $value;
 }
 

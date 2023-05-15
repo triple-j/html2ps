@@ -23,10 +23,10 @@ LINE5
 </html>
 ');
 
-    $div = $tree->get_element_by_id('first');
+    $div = $tree->getElementById('first');
     $this->assertEqual($div->getCSSProperty(CSS_ORPHANS), 0);
 
-    $div = $tree->get_element_by_id('second');
+    $div = $tree->getElementById('second');
     $this->assertEqual($div->getCSSProperty(CSS_ORPHANS), 0);
   }
 }

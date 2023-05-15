@@ -34,7 +34,7 @@ class TestLeftPercentage extends GenericTest {
       $div = $tree->get_element_by_id(sprintf('div%d', $i));
       $this->assertEqual($wrapper->get_left() + $wrapper->get_width() / 5 * $i,
                          $div->get_left());
-    };
+    }
   }
 
   function TestLeftPercentage2() {
@@ -70,7 +70,7 @@ class TestLeftPercentage extends GenericTest {
       $div = $tree->get_element_by_id($div_id);
       $this->assertEqual($wrapper->get_left() + $wrapper->get_width() / 5 * $i,
                          $div->get_left());
-    };
+    }
   }
 
   function TestLeftPercentage3() {
@@ -111,7 +111,7 @@ class TestLeftPercentage extends GenericTest {
       $div = $tree->get_element_by_id($div_id);
       $this->assertEqual($wrapper->get_left() + $wrapper->get_width() / 5 * $i,
                          $div->get_left());
-    };
+    }
   }
 }
 

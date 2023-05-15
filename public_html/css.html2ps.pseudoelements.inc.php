@@ -6,8 +6,8 @@ define('CSS_HTML2PS_PSEUDOELEMENTS_BEFORE',1);
 define('CSS_HTML2PS_PSEUDOELEMENTS_AFTER' ,2);
 
 class CSSHTML2PSPseudoelements extends CSSPropertyHandler {
-  function CSSHTML2PSPseudoelements() { 
-    $this->CSSPropertyHandler(false, false); 
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
   }
 
   function default_value() { 
@@ -18,15 +18,15 @@ class CSSHTML2PSPseudoelements extends CSSPropertyHandler {
     return $value;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_HTML2PS_PSEUDOELEMENTS;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return '-html2ps-pseudoelements';
   }
 }
 
-CSS::register_css_property(new CSSHTML2PSPseudoelements);
+(new CSS())->register_css_property(new CSSHTML2PSPseudoelements);
 
 ?>

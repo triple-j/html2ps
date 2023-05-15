@@ -4,23 +4,22 @@
 class ListItemBox extends BlockBox {
   var $size;
 
-  function &create(&$root, &$pipeline) {
+  static function &create(&$root, &$pipeline) {
     $box = new ListItemBox($root, $pipeline);
-    $box->readCSS($pipeline->get_current_css_state());
+    $box->readCSS($pipeline->getCurrentCSSState());
 
     /**
      * Create text box containing item number
      */
-    $css_state =& $pipeline->get_current_css_state();
+    $css_state =& $pipeline->getCurrentCSSState();
     $css_state->pushState();
-    //    $css_state->set_property(CSS_COLOR, CSSColor::parse('transparent'));
+    $css_state->setProperty(CSS_COLOR, CSSColor::parse('transparent'));
 
-    $list_style = $css_state->get_property(CSS_LIST_STYLE);
-    $box->str_number_box = TextBox::create(CSSListStyleType::format_number($list_style->type,
-                                                                           $css_state->get_property(CSS_HTML2PS_LIST_COUNTER)).". ", 
+    $list_style = $css_state->getProperty(CSS_LIST_STYLE);
+    $box->str_number_box = (new TextBox())->create((new CSSListStyleType())->format_number($list_style->type,
+                                                                           $css_state->getProperty(CSS_HTML2PS_LIST_COUNTER)).". ", 
                                             'iso-8859-1', 
                                             $pipeline);
-    $box->str_number_box->readCSS($pipeline->get_current_css_state());
     $box->str_number_box->baseline = $box->str_number_box->default_baseline;
 
     $css_state->popState();
@@ -43,12 +42,12 @@ class ListItemBox extends BlockBox {
     // '-list-counter'
 
     // increase counter value
-    $value = $state->get_property(CSS_HTML2PS_LIST_COUNTER) + 1;
-    $state->set_property(CSS_HTML2PS_LIST_COUNTER, $value);
-    $state->set_property_on_level(CSS_HTML2PS_LIST_COUNTER, CSS_PROPERTY_LEVEL_PARENT, $value);
+    $value = $state->getProperty(CSS_HTML2PS_LIST_COUNTER) + 1;
+    $state->setProperty(CSS_HTML2PS_LIST_COUNTER, $value);
+    $state->setPropertyOnLevel(CSS_HTML2PS_LIST_COUNTER, CSS_PROPERTY_LEVEL_PARENT, $value);
 
     // open the marker image if specified
-    $list_style = $this->get_css_property(CSS_LIST_STYLE);
+    $list_style = $this->getCSSProperty(CSS_LIST_STYLE);
 
     if (!$list_style->image->is_default()) {
       $this->marker_image = new ImgBox($list_style->image->_image);
@@ -58,23 +57,23 @@ class ListItemBox extends BlockBox {
       $this->marker_image->_setupSize();
     } else {
       $this->marker_image = null;
-    };
+    }
   }
 
-  function ListItemBox(&$root, &$pipeline) {
+  function __construct(&$root, &$pipeline) {
     // Call parent constructor
-    $this->BlockBox($root);
+    BlockBox::__construct($root);
   }
 
-  function reflow(&$parent, &$context) {
-    $list_style = $this->get_css_property(CSS_LIST_STYLE);
+  function reflow(&$parent, &$context, $boxes = null) {
+    $list_style = $this->getCSSProperty(CSS_LIST_STYLE);
 
     // If list-style-position is inside, we'll need to move marker box inside the 
     // list-item box and offset all content by its size;
     if ($list_style->position === LSP_INSIDE) {
       // Add marker box width to text-indent value
       $this->_additional_text_indent = $this->get_marker_box_width();
-    };
+    }
 
     // Procees with normal block box flow algorithm
     BlockBox::reflow($parent, $context);
@@ -83,7 +82,7 @@ class ListItemBox extends BlockBox {
   function reflow_text(&$driver) {
     if (is_null($this->str_number_box->reflow_text($driver))) {
       return null;
-    };
+    }
 
     return GenericContainerBox::reflow_text($driver);
   }
@@ -92,7 +91,7 @@ class ListItemBox extends BlockBox {
     // draw generic block box
     if (is_null(BlockBox::show($viewport))) {
       return null;
-    };
+    }
 
     // Draw marker 
     /**
@@ -105,16 +104,16 @@ class ListItemBox extends BlockBox {
     if (is_null($child)) {
       $x = $this->get_left(); 
 
-      $list_style = $this->get_css_property(CSS_LIST_STYLE);
+      $list_style = $this->getCSSProperty(CSS_LIST_STYLE);
 
       // If list-style-position is inside, we'll need to move marker box inside the 
       // list-item box and offset all content by its size;
       if ($list_style->position === LSP_INSIDE) {
         $x += $this->get_marker_box_width();
-      };
+      }
     } else {
       $x = $child->get_left();
-    };
+    }
 
     // Determine the base Y coordinate of marker box
     $element = $this->get_first_data();
@@ -128,7 +127,7 @@ class ListItemBox extends BlockBox {
     if (!is_null($this->marker_image)) {
       $this->mb_image($viewport, $x, $y);
     } else {
-      $list_style = $this->get_css_property(CSS_LIST_STYLE);
+      $list_style = $this->getCSSProperty(CSS_LIST_STYLE);
 
       switch ($list_style->type) {
       case LST_NONE:
@@ -147,13 +146,13 @@ class ListItemBox extends BlockBox {
         $this->mb_string($viewport, $x, $y);
         break;
       }
-    };
+    }
 
     return true;
   }
 
   function get_marker_box_width() {
-    $list_style = $this->get_css_property(CSS_LIST_STYLE);
+    $list_style = $this->getCSSProperty(CSS_LIST_STYLE);
     
     switch ($list_style->type) {
     case LST_NONE:
@@ -163,12 +162,12 @@ class ListItemBox extends BlockBox {
     case LST_CIRCLE:
     case LST_SQUARE:
       //  simple graphic marker
-      $font = $this->get_css_property(CSS_FONT);
+      $font = $this->getCSSProperty(CSS_FONT);
       return $font->size->getPoints();
     default:
       // string marker. Return the width of the marker text
       return $this->str_number_box->get_full_width();
-    };
+    }
   }
 
   function mb_string(&$viewport, $x, $y) {
@@ -179,37 +178,37 @@ class ListItemBox extends BlockBox {
   }
 
   function mb_disc(&$viewport, $x, $y) {
-    $color = $this->get_css_property(CSS_COLOR);
+    $color = $this->getCSSProperty(CSS_COLOR);
     $color->apply($viewport);
 
-    $font = $this->get_css_property(CSS_FONT);
+    $font = $this->getCSSProperty(CSS_FONT);
     
     $viewport->circle( $x - $font->size->getPoints()*0.5, $y + $font->size->getPoints()*0.4*HEIGHT_KOEFF, $font->size->getPoints() * BULLET_SIZE_KOEFF);
     $viewport->fill();
   }
   
   function mb_circle(&$viewport, $x, $y) {
-    $color = $this->get_css_property(CSS_COLOR);
+    $color = $this->getCSSProperty(CSS_COLOR);
     $color->apply($viewport);
 
     $viewport->setlinewidth(0.1);
 
-    $font = $this->get_css_property(CSS_FONT);
+    $font = $this->getCSSProperty(CSS_FONT);
     $viewport->circle( $x - $font->size->getPoints()*0.5, $y + $font->size->getPoints()*0.4*HEIGHT_KOEFF, $font->size->getPoints() * BULLET_SIZE_KOEFF);
     $viewport->stroke();
   }
 
   function mb_square(&$viewport, $x, $y) {
-    $color = $this->get_css_property(CSS_COLOR);
+    $color = $this->getCSSProperty(CSS_COLOR);
     $color->apply($viewport);
 
-    $font = $this->get_css_property(CSS_FONT);
+    $font = $this->getCSSProperty(CSS_FONT);
     $viewport->rect($x - $font->size->getPoints()*0.512, $y + $font->size->getPoints()*0.3*HEIGHT_KOEFF, $font->size->getPoints() * 0.25, $font->size->getPoints() * 0.25);
     $viewport->fill();
   }
 
   function mb_image(&$viewport, $x, $y) {
-    $font = $this->get_css_property(CSS_FONT);
+    $font = $this->getCSSProperty(CSS_FONT);
 
     $imagebox =& $this->marker_image;
     $imagebox->moveto($x - $font->size->getPoints()*0.5 - $imagebox->get_width()/2, 

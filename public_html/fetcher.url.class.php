@@ -2,8 +2,7 @@
 
 require_once(HTML2PS_DIR.'fetcher._interface.class.php');
 
-define('HTTP_OK', 200);
-define('HTTP_NOT_FOUND', 404);
+define('HTTP_OK',200);
 
 /**
  * @TODO send authorization headers only if they have been required by the server;
@@ -42,8 +41,6 @@ class FetcherUrl extends Fetcher {
   function get_data($data_id) {
     $this->redirects = 0;
 
-    $data_id = $this->_simplify_path($data_id);
-
     if ($this->fetch($data_id)) {
       if ($this->code != HTTP_OK) {
 
@@ -56,14 +53,10 @@ class FetcherUrl extends Fetcher {
         $this->error_message .= ob_get_contents();
         ob_end_clean();
 
-        if ($this->code == HTTP_NOT_FOUND) {
-          trigger_error("Not found $data_id", E_USER_NOTICE);
-        } else {
-          trigger_error("Cannot open $data_id, HTTP result code is: ".$this->code, E_USER_WARNING);
-        }
+        error_log("Cannot open $data_id, HTTP result code is: ".$this->code);
 
         return null;
-      };
+      }
 
       return new FetchedDataURL($this->content,
                                 explode("\r\n",$this->headers),
@@ -77,12 +70,12 @@ class FetcherUrl extends Fetcher {
       $this->error_message .= ob_get_contents();
       ob_end_clean();
 
-      trigger_error(sprintf("Cannot open %s, too many redirects",
-                        $data_id) , E_USER_WARNING);
+      error_log(sprintf("Cannot open %s, too many redirects",
+                        $data_id));
 
       return null;
     } else {
-      $_server_response = $this->headers;
+      $_server_response    = $this->headers;
       $_url = htmlspecialchars($data_id);
 
       ob_start();
@@ -90,8 +83,8 @@ class FetcherUrl extends Fetcher {
       $this->error_message .= ob_get_contents();
       ob_end_clean();
 
-      trigger_error(sprintf("Cannot open %s",
-                        $data_id), E_USER_WARNING);
+      error_log(sprintf("Cannot open %s",
+                        $data_id));
 
       return null;
     }
@@ -103,7 +96,7 @@ class FetcherUrl extends Fetcher {
 
   // FetcherURL - constructor
 
-  function FetcherURL() {
+  function __construct() {
     $this->_connections = array();
 
     $this->error_message = "";
@@ -133,7 +126,7 @@ class FetcherUrl extends Fetcher {
     // Connect to the target host
     if ($this->protocol == "https") {
       return $this->_connect_ssl();
-    };
+    }
 
     $fp = @fsockopen($this->host,$this->port,$errno,$errstr,HTML2PS_CONNECTION_TIMEOUT);
 
@@ -146,7 +139,7 @@ class FetcherUrl extends Fetcher {
       error_log($message);
       $this->error_message = $message;
       return null;
-    };
+    }
 
     return $fp;
   }
@@ -166,7 +159,7 @@ class FetcherUrl extends Fetcher {
       error_log($message);
       $this->error_message .= $message;
       return null;
-    };
+    }
 
     $fp = @fsockopen("ssl://$this->host", $this->port, $errno, $errstr, 5);
 
@@ -179,7 +172,7 @@ class FetcherUrl extends Fetcher {
       error_log($message);
       $this->error_message = $message;
       return null;
-    };
+    }
 
     return $fp;
   }
@@ -195,58 +188,20 @@ class FetcherUrl extends Fetcher {
       $result = $matches[1];
     } else {
       $result = "200";
-    };
+    }
 
     return $result;
   }
 
   function _fix_location($location) {
-    if (substr($location, 0, 7) == "http://") { return $location; };
-    if (substr($location, 0, 8) == "https://") { return $location; };
+    if (substr($location, 0, 7) == "http://") { return $location; }
+    if (substr($location, 0, 8) == "https://") { return $location; }
 
-    if ($location{0} == "/") {
+    if ($location[0] == "/") {
       return $this->protocol."://".$this->host.$location;
-    };
-
-    return $this->protocol."://".$this->host.$this->path.$location;
-  }
-
-  /**
-  * we need to simplify url, removing two dots form path part and related directory. Not all 
-  * web server allow this structure, so it will be correctly to parse this at our side
-  * 
-  * @param $path - url path expected, during big code base, from some part urls is passed.
-  */
-  function _simplify_path($path) {
-    $simplified_path = $path;
-    $parsed_path = parse_url($path);
-    $prepared_path = $parsed_path['path'];
-
-    // verify if we need to simplify
-    if (strpos($prepared_path, '..') !== false) {
-      $path_parts = explode('/', $prepared_path);
-
-      // array will contain part without two dots and related directories
-      $simplified_parts = array();
-      while(($current_part = array_shift($path_parts)) !== NULL) {
-        if ($current_part == '..') {
-          array_pop($simplified_parts);
-        } else {
-          array_push($simplified_parts, $current_part);
-        }
-      }
-
-      // try to construct url
-      $simplified_path = (isset($parsed_path['scheme']) ? $parsed_path['scheme'].'://' : '');
-      $simplified_path .= (isset($parsed_path['user']) ? $parsed_path['user'].':' : '');
-      $simplified_path .= (isset($parsed_path['password']) ? $parsed_path['password'].'@' : '');
-      $simplified_path .= (isset($parsed_path['host']) ? $parsed_path['host'].'/' : '');
-      $simplified_path .= trim(implode('/', $simplified_parts), '/');
-      $simplified_path .= (isset($parsed_path['query']) ? '?'.$parsed_path['query'] : '');
-      $simplified_path .= (isset($parsed_path['fragment']) ? '#'.$parsed_path['fragment'] : '');
     }
 
-    return $simplified_path;
+    return $this->protocol."://".$this->host.$this->path.$location;
   }
 
   function fetch($url) {
@@ -272,11 +227,11 @@ class FetcherUrl extends Fetcher {
     if ($parts == false) {
       error_log(sprintf("The URL '%s' could not be parsed", $this->url));
 
-      $this->content = '';
+      $this->content = "";
       $this->code = HTTP_OK;
       return true;
-    };
-   
+    }
+    
     /**
      * Setup default values
      */
@@ -288,17 +243,15 @@ class FetcherUrl extends Fetcher {
     $this->path = "/";
     $this->query = "";
 
-    if (isset($parts['scheme']))   { $this->protocol  = $parts['scheme'];    };
-    if (isset($parts['host']))     { $this->host      = $parts['host'];      };
-    if (isset($parts['user']))     { $this->user      = $parts['user'];      };
-    if (isset($parts['pass']))     { $this->pass      = $parts['pass'];      };
-    if (isset($parts['port']))     { $this->port      = $parts['port'];      };
-    if (isset($parts['path']))     { $this->path      = $parts['path'];      } else { $this->path = "/"; };
-    if (isset($parts['query']))    { $this->path     .= '?'.$parts['query']; };
+    if (isset($parts['scheme']))   { $this->protocol  = $parts['scheme'];    }
+    if (isset($parts['host']))     { $this->host      = $parts['host'];      }
+    if (isset($parts['user']))     { $this->user      = $parts['user'];      }
+    if (isset($parts['pass']))     { $this->pass      = $parts['pass'];      }
+    if (isset($parts['port']))     { $this->port      = $parts['port'];      }
+    if (isset($parts['path']))     { $this->path      = $parts['path'];      } else { $this->path = "/"; }
+    if (isset($parts['query']))    { $this->path     .= '?'.$parts['query']; }
 
-    $this->path = $this->_simplify_path($this->path);
-
-    switch (strtolower($this->protocol)) {
+    switch ($this->protocol) {
     case 'http':
       return $this->fetch_http();
     case 'https':
@@ -317,7 +270,7 @@ class FetcherUrl extends Fetcher {
   function fetch_http() {
     $res = $this->_head();
 
-    if (is_null($res)) { return null; };
+    if (is_null($res)) { return null; }
     $this->code = $this->_extract_code($res);
 
     return $this->_process_code($res);
@@ -333,7 +286,7 @@ class FetcherUrl extends Fetcher {
 
     $res = $this->_head();
 
-    if (is_null($res)) { return null; };
+    if (is_null($res)) { return null; }
     $this->code = $this->_extract_code($res);
 
     return $this->_process_code($res);
@@ -342,14 +295,14 @@ class FetcherUrl extends Fetcher {
   function fetch_file() {
     if (PHP_OS == "WINNT") {
       $path = substr($this->url, 7);
-      if ($path{0} == "/") { $path = substr($path, 1); };
+      if ($path[0] == "/") { $path = substr($path, 1); }
     } else {
       $path = substr($this->url, 7);
-    };
+    }
 
-    $normalized_path = realpath(urldecode($path));
-    $normalized_path_part = substr($normalized_path, 0, strlen(FILE_PROTOCOL_RESTRICT));
-    if ($normalized_path_part !== FILE_PROTOCOL_RESTRICT) {
+    $normalized_path = realpath($path);
+
+    if (substr($normalized_path, 0, strlen(FILE_PROTOCOL_RESTRICT)) !== FILE_PROTOCOL_RESTRICT) {
       error_log(sprintf("Access denied to file '%s'", $normalized_path));
 
       $this->content = "";
@@ -365,7 +318,7 @@ class FetcherUrl extends Fetcher {
 
   function _get() {
     $socket = $this->_connect();
-    if (is_null($socket)) { return null; };
+    if (is_null($socket)) { return null; }
 
     // Build the HEAD request header (we're saying we're just a browser as some pages don't like non-standard user-agents)
     $header  = "GET ".$this->path." HTTP/1.1\r\n";
@@ -382,7 +335,7 @@ class FetcherUrl extends Fetcher {
     $res = "";
 
     // The PHP-recommended construction
-    //    while (!feof($fp)) { $res .= fread($fp, 4096); };
+    //    while (!feof($fp)) { $res .= fread($fp, 4096); }
     // hangs indefinitely on www.searchscout.com, for example.
     // seems that they do not close conection on their side or somewhat similar;
 
@@ -399,7 +352,7 @@ class FetcherUrl extends Fetcher {
   function _head() {
     $socket = $this->_connect();
 
-    if (is_null($socket)) { return null; };
+    if (is_null($socket)) { return null; }
 
     // Build the HEAD request header (we're saying we're just a browser as some pages don't like non-standard user-agents)
     $header  = "HEAD ".$this->path." HTTP/1.1\r\n";
@@ -420,7 +373,7 @@ class FetcherUrl extends Fetcher {
     $res = "";
 
     // The PHP-recommended construction
-    //    while (!feof($fp)) { $res .= fread($fp, 4096); };
+    //    while (!feof($fp)) { $res .= fread($fp, 4096); }
     // hangs indefinitely on www.searchscout.com, for example.
     // seems that they do not close conection on their side or somewhat similar;
 
@@ -439,7 +392,7 @@ class FetcherUrl extends Fetcher {
     case '200': // OK
       if (preg_match('/(.*?)\r\n\r\n(.*)/s',$res,$matches)) {
         $this->headers = $matches[1];
-      };
+      }
 
       /**
        * @todo add error processing here
@@ -453,12 +406,12 @@ class FetcherUrl extends Fetcher {
       break;
     case '301': // Moved Permanently
       $this->redirects++;
-      if ($this->redirects > MAX_REDIRECTS) { return false; };
+      if ($this->redirects > MAX_REDIRECTS) { return false; }
       preg_match('/Location: ([\S]+)/i',$res,$matches);
       return $this->fetch($this->_fix_location($matches[1]));
     case '302': // Found
       $this->redirects++;
-      if ($this->redirects > MAX_REDIRECTS) { return false; };
+      if ($this->redirects > MAX_REDIRECTS) { return false; }
       preg_match('/Location: ([\S]+)/i',$res,$matches);
       error_log('Redirected to:'.$matches[1]);
 
@@ -472,7 +425,7 @@ class FetcherUrl extends Fetcher {
       if (!preg_match('/(.*?)\r\n\r\n(.*)/s',$res,$matches)) {
         error_log("Unrecognized HTTP response");
         return false;
-      };
+      }
       $this->headers = $matches[1];
       $this->content = @file_get_contents($this->url);
       return true;
@@ -480,28 +433,28 @@ class FetcherUrl extends Fetcher {
       // Try to get URL information using GET request (if we didn't tried it before)
       if (!$used_get) {
         $res = $this->_get();
-        if (is_null($res)) { return null; };
+        if (is_null($res)) { return null; }
         $this->code = $this->_extract_code($res);
         return $this->_process_code($res, true);
       } else {
         if (!preg_match('/(.*?)\r\n\r\n(.*)/s',$res,$matches)) {
           error_log("Unrecognized HTTP response");
           return false;
-        };
+        }
         $this->headers = $matches[1];
         $this->content = @file_get_contents($this->url);
         return true;
-      };
+      }
     default:
       error_log("Unrecognized HTTP result code:".$this->code);
       return false;
-    };
+    }
   }
 
   function _header_basic_authorization() {
     if (!is_null($this->user) && $this->user != "") {
       return sprintf("Authorization: Basic %s\r\n", base64_encode($this->user.":".$this->pass));
-    };
+    }
   }
 }
 ?>

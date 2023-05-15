@@ -16,8 +16,8 @@
  */
 
 class CSSTextDecoration extends CSSPropertyHandler {
-  function CSSTextDecoration() { 
-    $this->CSSPropertyHandler(true, true); 
+  function __construct() {
+    CSSPropertyHandler::__construct(true, true);
   }
 
   function default_value() { 
@@ -29,24 +29,24 @@ class CSSTextDecoration extends CSSPropertyHandler {
   function parse($value) {
     if ($value === 'inherit') {
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
     $parsed = $this->default_value();
-    if (strstr($value,"overline")     !== false) { $parsed['O'] = true; };
-    if (strstr($value,"underline")    !== false) { $parsed['U'] = true; };
-    if (strstr($value,"line-through") !== false) { $parsed['T'] = true; };
+    if (strstr($value,"overline")     !== false) { $parsed['O'] = true; }
+    if (strstr($value,"underline")    !== false) { $parsed['U'] = true; }
+    if (strstr($value,"line-through") !== false) { $parsed['T'] = true; }
     return $parsed;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_TEXT_DECORATION;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'text-decoration';
   }
 }
 
-CSS::register_css_property(new CSSTextDecoration);
+(new CSS())->register_css_property(new CSSTextDecoration);
 
 ?>

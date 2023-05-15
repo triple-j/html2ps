@@ -1,7 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/css.content.inc.php,v 1.8 2007/03/15 18:37:30 Konstantin Exp $
-
-require_once(HTML2PS_DIR.'value.content.php');
+// $Header: /cvsroot/html2ps/css.content.inc.php,v 1.7 2006/09/07 18:38:13 Konstantin Exp $
 
 /**
  * Handles 'content' CSS property (
@@ -59,38 +57,36 @@ require_once(HTML2PS_DIR.'value.content.php');
  *    other elements than the subject of the selector.
  */
 class CSSContent extends CSSPropertyHandler {
-  function CSSContent() { 
-    $this->CSSPropertyHandler(false, false); 
-  }
+  function __construct() { CSSPropertyHandler::__construct(false, false); }
 
-  function &default_value() { 
-    $data =& new ValueContent();
-    return $data;
-  }
+  function default_value() { return ''; }
 
   // CSS 2.1 p 12.2: 
   // Value: [ <string> | <uri> | <counter> | attr(X) | open-quote | close-quote | no-open-quote | no-close-quote ]+ | inherit
   //
   // TODO: process values other than <string>
   //
-  function &parse($value) {
+  function parse($value) {
     if ($value == 'inherit') {
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
-    $value_obj =& ValueContent::parse($value);
-    return $value_obj;
+    if ($value == 'normal') {
+      return '';
+    }
+
+    return $value;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_CONTENT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'content';
   }
 }
 
-CSS::register_css_property(new CSSContent);
+(new CSS())->register_css_property(new CSSContent);
 
 ?>

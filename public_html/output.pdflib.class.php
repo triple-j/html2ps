@@ -1,9 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/output.pdflib.class.php,v 1.18 2007/05/17 13:55:13 Konstantin Exp $
-
-define('PDFLIB_STATUS_INITIALIZED', 0);
-define('PDFLIB_STATUS_DOCUMENT_STARTED', 1);
-define('PDFLIB_STATUS_PAGE_STARTED', 2);
+// $Header: /cvsroot/html2ps/output.pdflib.class.php,v 1.14 2007/02/18 09:55:11 Konstantin Exp $
 
 class OutputDriverPdflib extends OutputDriverGenericPDF {
   var $pdf;
@@ -19,8 +15,6 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
   var $_radiogroups;
   var $_watermark;
 
-  var $_status;
-
   // Converts common encoding names to their PDFLIB equivalents 
   // (for example, PDFLIB does not understand iso-8859-1 encoding name,
   // but have its equivalent names winansi..)
@@ -28,7 +22,8 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
    function encoding($encoding) {
     $encoding = trim(strtolower($encoding));
 
-    $translations = array('iso-8859-1'   => 'winansi',
+    $translations = array(
+                          'iso-8859-1'   => 'winansi',
                           'iso-8859-2'   => 'iso8859-2',
                           'iso-8859-3'   => 'iso8859-3',
                           'iso-8859-4'   => 'iso8859-4',
@@ -45,9 +40,10 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
                           'windows-1250' => 'cp1250',
                           'windows-1251' => 'cp1251',
                           'windows-1252' => 'cp1252',
-                          'symbol'       => 'symbol');
+                          'symbol'       => 'symbol'
+                          );
 
-    if (isset($translations[$encoding])) { return $translations[$encoding]; };
+    if (isset($translations[$encoding])) { return $translations[$encoding]; }
     return $encoding;
   }
 
@@ -74,6 +70,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
   }
 
   function close() {
+    $this->_show_watermark();
     pdf_end_page($this->pdf);
     pdf_close($this->pdf); 
     pdf_delete($this->pdf);
@@ -102,9 +99,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
 
   function findfont($name, $encoding) { 
     // PDFLIB is limited by 'builtin' encoding for "Symbol" font
-    if ($name == 'Symbol') { 
-      $encoding = 'builtin'; 
-    };
+    if ($name == 'Symbol') { $encoding = 'builtin'; }
 
     global $g_font_resolver_pdf;
     $embed = $g_font_resolver_pdf->embed[$name];
@@ -125,7 +120,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
 
   function image($image, $x, $y, $scale) {
     $tmpname = tempnam(WRITER_TEMPDIR,WRITER_FILE_PREFIX);
-    imagepng($image->get_handle(), $tmpname);
+    imagepng($image, $tmpname);
     $pim = pdf_open_image_file($this->pdf, "png", $tmpname, "", 0);
     pdf_place_image($this->pdf, $pim, $x, $y, $scale);
     pdf_close_image($this->pdf, $pim);
@@ -134,7 +129,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
 
   function image_scaled($image, $x, $y, $scale_x, $scale_y) {
     $tmpname = tempnam(WRITER_TEMPDIR,WRITER_FILE_PREFIX);
-    imagepng($image->get_handle(), $tmpname);
+    imagepng($image, $tmpname);
 
     $pim = pdf_open_image_file($this->pdf, "png", $tmpname, "", 0);
 
@@ -150,7 +145,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
 
   function image_ry($image, $x, $y, $height, $bottom, $ox, $oy, $scale) {
     $tmpname = tempnam(WRITER_TEMPDIR,WRITER_FILE_PREFIX);
-    imagepng($image->get_handle(), $tmpname);
+    imagepng($image, $tmpname);
     $pim = pdf_open_image_file($this->pdf, "png", $tmpname, "", 0);
 
     // Fill part to the bottom
@@ -158,14 +153,14 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
     while ($cy+$height > $bottom) {
       pdf_place_image($this->pdf, $pim, $x, $cy, $scale);
       $cy -= $height;
-    };
+    }
 
     // Fill part to the top
     $cy = $y;
     while ($cy-$height < $y + $oy) {
       pdf_place_image($this->pdf, $pim, $x, $cy, $scale);
       $cy += $height;
-    };
+    }
 
     pdf_close_image($this->pdf, $pim);
     unlink($tmpname);
@@ -173,7 +168,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
 
   function image_rx($image, $x, $y, $width, $right, $ox, $oy, $scale) {
     $tmpname = tempnam(WRITER_TEMPDIR,WRITER_FILE_PREFIX);
-    imagepng($image->get_handle(), $tmpname);
+    imagepng($image, $tmpname);
     $pim = pdf_open_image_file($this->pdf, "png", $tmpname, "", 0);
 
     // Fill part to the right 
@@ -181,14 +176,14 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
     while ($cx < $right) {
       pdf_place_image($this->pdf, $pim, $cx, $y, $scale);
       $cx += $width;
-    };
+    }
 
     // Fill part to the left
     $cx = $x;
     while ($cx+$width >= $x - $ox) {
       pdf_place_image($this->pdf, $pim, $cx-$width, $y, $scale);
       $cx -= $width;
-    };
+    }
 
     pdf_close_image($this->pdf, $pim);
     unlink($tmpname);
@@ -196,7 +191,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
 
   function image_rx_ry($image, $x, $y, $width, $height, $right, $bottom, $ox, $oy, $scale) {
     $tmpname = tempnam(WRITER_TEMPDIR,WRITER_FILE_PREFIX);
-    imagepng($image->get_handle(), $tmpname);
+    imagepng($image, $tmpname);
     $pim = pdf_open_image_file($this->pdf, "png", $tmpname, "", 0);
 
     // Fill bottom-right quadrant
@@ -206,7 +201,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
       while ($cx < $right) {
         pdf_place_image($this->pdf, $pim, $cx, $cy, $scale);
         $cx += $width;
-      };
+      }
       $cy -= $height;
     }
 
@@ -217,7 +212,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
       while ($cx+$width > $x - $ox) {
         pdf_place_image($this->pdf, $pim, $cx, $cy, $scale);
         $cx -= $width;
-      };
+      }
       $cy -= $height;
     }
 
@@ -228,7 +223,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
       while ($cx < $right) {
         pdf_place_image($this->pdf, $pim, $cx, $cy, $scale);
         $cx += $width;
-      };
+      }
       $cy += $height;
     }
 
@@ -239,7 +234,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
       while ($cx+$width > $x - $ox) {
         pdf_place_image($this->pdf, $pim, $cx, $cy, $scale);
         $cx -= $width;
-      };
+      }
       $cy += $height;
     }
 
@@ -257,9 +252,11 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
 
   // OutputDriver interface functions
   function next_page($height) {
-    if ($this->_status == PDFLIB_STATUS_PAGE_STARTED) {
-      pdf_end_page($this->pdf);
-    };
+    $this->_show_watermark();
+
+    $this->current_page ++;
+
+    pdf_end_page($this->pdf);
     pdf_begin_page($this->pdf, mm2pt($this->media->width()), mm2pt($this->media->height()));
     
     // Calculate coordinate of the next page bottom edge
@@ -273,36 +270,15 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
     pdf_translate($this->pdf, 0, -$this->offset);
 
     parent::next_page($height);
-
-    $this->_status = PDFLIB_STATUS_PAGE_STARTED;
   }
 
-  function OutputDriverPdflib($version) {
-    $this->OutputDriverGenericPDF();
+  function __construct($version) {
+    OutputDriverGenericPDF::__construct();
     $this->set_pdf_version($version);
 
     $this->_currentfont = null;
     $this->_radiogroups = array();
     $this->_field_names = array();
-
-    $this->_status = PDFLIB_STATUS_INITIALIZED;
-  }
-
-  function prepare() {
-    parent::prepare();
-
-    // Generate custom encoding vector mappings
-    $manager_encoding = ManagerEncoding::get();
-    for ($i = 1, $size = $manager_encoding->get_custom_vector_index(); $i <= $size; $i++) {
-      $encoding_name = $manager_encoding->get_custom_encoding_name($i);
-      $filename = $this->generate_cpg($encoding_name, 
-                                      true);
-      pdf_set_parameter($this->pdf, 
-                        'Encoding',
-                        sprintf('%s=%s',
-                                $encoding_name, 
-                                $filename));
-    };
   }
 
   function reset(&$media) {
@@ -312,10 +288,12 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
     if (!extension_loaded('pdf')) {
 
       // Try to use "dl" to dynamically load PDFLIB
-      $result = dl(PDFLIB_DL_PATH);
+        if (function_exists('dl')) {
+            $result = dl(PDFLIB_DL_PATH);
+        }
 
       if (!$result) {
-        readfile(HTML2PS_DIR.'templates/missing_pdflib.html');
+        readfile(HTML2PS_DIR.'/templates/missing_pdflib.html');
         error_log("No PDFLIB extension found");
         die("HTML2PS Error");
       }
@@ -333,7 +311,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
      */
     if (defined("PDFLIB_LICENSE")) {
       pdf_set_parameter($this->pdf, "license", PDFLIB_LICENSE);
-    };
+    }
 
     pdf_open_file($this->pdf, $this->get_filename());
 
@@ -343,7 +321,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
     // Set path to the PDFLIB UPR file containig information about fonts and encodings
     if (defined("PDFLIB_UPR_PATH")) {
       pdf_set_parameter($this->pdf, "resourcefile", PDFLIB_UPR_PATH); 
-    };
+    }
 
     // Setup encodings not bundled with PDFLIB
     $filename = $this->generate_cpg('koi8-r');
@@ -359,7 +337,7 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
     // No borders around links in the generated PDF
     pdf_set_border_style($this->pdf, "solid", 0);
 
-    $this->_status = PDFLIB_STATUS_DOCUMENT_STARTED;
+    pdf_begin_page($this->pdf, mm2pt($this->media->width()), mm2pt($this->media->height()));
   }
 
   function rect($x, $y, $w, $h) { 
@@ -411,9 +389,15 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
     return pdf_stringwidth($this->pdf, $string, $this->findfont($name, $encoding), $size); 
   }
 
+  function set_watermark($watermark) {
+    $this->_watermark = trim($watermark);
+  }
+
   /* private routines */
 
-  function _show_watermark($watermark) {
+  function _show_watermark() {
+    if (is_null($this->_watermark) || $this->_watermark == "") { return; }
+
     $font = $this->findfont('Helvetica', 'iso-8859-1');
     pdf_setfont($this->pdf, $font, 100);
     
@@ -423,27 +407,21 @@ class OutputDriverPdflib extends OutputDriverGenericPDF {
     pdf_set_value($this->pdf, "textrendering", 1);
     pdf_translate($this->pdf, $x, $y);
     pdf_rotate($this->pdf, 60);
-    pdf_show_xy($this->pdf, $watermark, -pdf_stringwidth($this->pdf, $watermark, $font, 100)/2, -50);
+    pdf_show_xy($this->pdf, $this->_watermark, -pdf_stringwidth($this->pdf, $this->_watermark, $font, 100)/2, -50);
   }
 
-  function generate_cpg($encoding, $force = false) {
-    if (!$force) {
-      $filename = CACHE_DIR.$encoding.'.cpg';
-    } else {
-      $filename = CACHE_DIR.uniqid('', false).'.cpg';
-    };
-
+  function generate_cpg($encoding) {
+    $filename = CACHE_DIR.$encoding.'.cpg';
     if (file_exists($filename)) {
       return $filename;
-    };
+    }
 
     $output = fopen($filename, 'w');
-    $manager_encoding =& ManagerEncoding::get();
-    $vector = $manager_encoding->get_encoding_vector($encoding);
-
+    $manager_encoding =& (new ManagerEncoding())->get();
+    $vector = $manager_encoding->getEncodingVector($encoding);
     foreach ($vector as $code => $utf) {
       fwrite($output, sprintf("0x%04X 0x%02X\n", $utf, ord($code)));
-    };
+    }
     fclose($output);
 
     return $filename;

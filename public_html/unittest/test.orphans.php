@@ -30,16 +30,16 @@ LINE5
     /**
      * Calculate page heights
      */
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
-    $first_div  = $tree->get_element_by_id('first');
-    $second_div = $tree->get_element_by_id('second');
+    $first_div  = $tree->getElementById('first');
+    $second_div = $tree->getElementById('second');
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("Two pages expected, got %s", 
-                               count($page_heights)));
+                               count((array) $page_heights)));
 
     $this->assertEqual($second_div->getCSSProperty(CSS_ORPHANS), 0);
 
@@ -77,16 +77,16 @@ LINE5
     /**
      * Calculate page heights
      */
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
-    $first_div  = $tree->get_element_by_id('first');
-    $second_div = $tree->get_element_by_id('second');
+    $first_div  = $tree->getElementById('first');
+    $second_div = $tree->getElementById('second');
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("Two pages expected, got %s", 
-                               count($page_heights)));
+                               count((array) $page_heights)));
 
     $this->assertEqual($second_div->getCSSProperty(CSS_ORPHANS), 2);
 
@@ -124,16 +124,16 @@ LINE5
     /**
      * Calculate page heights
      */
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
-    $first_div  = $tree->get_element_by_id('first');
-    $second_div = $tree->get_element_by_id('second');
+    $first_div  = $tree->getElementById('first');
+    $second_div = $tree->getElementById('second');
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("Two pages expected, got %s", 
-                               count($page_heights)));
+                               count((array) $page_heights)));
 
     $this->assertEqual($second_div->getCSSProperty(CSS_ORPHANS), 3);
 

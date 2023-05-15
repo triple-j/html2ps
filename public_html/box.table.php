@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/box.table.php,v 1.59 2007/04/01 12:11:24 Konstantin Exp $
+// $Header: /cvsroot/html2ps/box.table.php,v 1.58 2007/01/24 18:55:45 Konstantin Exp $
 
 class CellSpan {
   var $row;
@@ -14,8 +14,8 @@ class TableBox extends GenericContainerBox {
   var $cwc;
   var $_cached_min_widths;
 
-  function TableBox() {
-    $this->GenericContainerBox();
+  function __construct() {
+    GenericContainerBox::__construct();
 
     // List of column width constraints
     $this->cwc = array();
@@ -52,16 +52,16 @@ class TableBox extends GenericContainerBox {
   function append_line(&$e) {}
 
   function &create(&$root, &$pipeline) {
-    $box =& new TableBox();   
-    $box->readCSS($pipeline->get_current_css_state());
+    $box= new TableBox();   
+    $box->readCSS($pipeline->getCurrentCSSState());
 
     // This row should not inherit any table specific properties!
     // 'overflow' for example
     //
-    $css_state =& $pipeline->get_current_css_state();
+    $css_state =& $pipeline->getCurrentCSSState();
     $css_state->pushDefaultState();
 
-    $row =& new TableRowBox($root);
+    $row= new TableRowBox($root);
     $row->readCSS($css_state);
 
     $box->add_child($row);
@@ -69,10 +69,10 @@ class TableBox extends GenericContainerBox {
     $css_state->popState();
 
     // Setup cellspacing / cellpadding values
-    if ($box->get_css_property(CSS_BORDER_COLLAPSE) == BORDER_COLLAPSE) {
-      $handler =& CSS::get_handler(CSS_PADDING);
+    if ($box->getCSSProperty(CSS_BORDER_COLLAPSE) == BORDER_COLLAPSE) {
+      $handler =& (new CSS())->get_handler(CSS_PADDING);
       $box->setCSSProperty(CSS_PADDING, $handler->default_value());
-    };
+    }
 
     // Set text-align to 'left'; all browsers I've ever seen prevent inheriting of
     // 'text-align' property by the tables.
@@ -84,7 +84,7 @@ class TableBox extends GenericContainerBox {
     // <tr><td>TEST
     // </table>
     // </div>
-    $handler =& CSS::get_handler(CSS_TEXT_ALIGN);
+    $handler =& (new CSS())->get_handler(CSS_TEXT_ALIGN);
     $handler->css('left', $pipeline);
 
     // Parse table contents
@@ -99,11 +99,11 @@ class TableBox extends GenericContainerBox {
         } else {
           $child_box =& create_pdf_box($child, $pipeline);
           $box->add_child($child_box);
-        };
-      };
+        }
+      }
       
       $child = $child->next_sibling();
-    };
+    }
 
     $box->normalize($pipeline);
     $box->normalize_cwc();
@@ -134,8 +134,8 @@ class TableBox extends GenericContainerBox {
         $this->cwc[$index] = new WCFraction(((int)$value) / 100);
       } else {
         $this->cwc[$index] = new WCConstant(px2pt((int)$value));
-      };
-    };
+      }
+    }
   }
 
   // Traverse the COLGROUP node and save the column-specific information 
@@ -154,9 +154,9 @@ class TableBox extends GenericContainerBox {
       if ($child->tagname() === 'col') {
         $this->parse_col($child, $index);
         $index ++;
-      };
+      }
       $child = $child->next_sibling();
-    };
+    }
 
     return $index;
   }
@@ -186,7 +186,7 @@ class TableBox extends GenericContainerBox {
     $this->rhc = array();
     for ($i=0, $size = count($this->content); $i < $size; $i++) {
       $this->rhc[$i] = new HCConstraint(null, null, null);
-    };
+    }
 
     // Scan all cells
     for ($i=0, $num_rows = count($this->content); $i < $num_rows; $i++) {
@@ -204,8 +204,8 @@ class TableBox extends GenericContainerBox {
         // Now reset the cell width constraint; cell width should be affected by ceolumn constraint only
         $hc = new HCConstraint(null, null, null);
         $cell->put_height_constraint($hc);
-      };
-    };
+      }
+    }
   }
 
   // Normalize column width constraints
@@ -220,7 +220,7 @@ class TableBox extends GenericContainerBox {
       //
       if (!isset($this->cwc[$i])) {
         $this->cwc[$i] = new WCNone;
-      };
+      }
     }
 
     // For each column (we should have table already normalized - so lengths of all rows are equal)
@@ -234,7 +234,7 @@ class TableBox extends GenericContainerBox {
         if ($cell->colspan > 1) { continue; }
 
         // Put current cell width constraint as a columns with constraint
-        $this->cwc[$i] = merge_width_constraint($this->cwc[$i], $cell->get_css_property(CSS_WIDTH));
+        $this->cwc[$i] = merge_width_constraint($this->cwc[$i], $cell->getCSSProperty(CSS_WIDTH));
 
         // Now reset the cell width constraint; cell width should be affected by ceolumn constraint only
         $cell->setCSSProperty(CSS_WIDTH, new WCNone);
@@ -252,8 +252,8 @@ class TableBox extends GenericContainerBox {
       if ($wc->isFraction()) {
         $wc->fraction = min($rest, $wc->fraction);
         $rest -= $wc->fraction;
-      };
-    };
+      }
+    }
 
     /**
      * Now, let's process cells spanninig several columns.
@@ -276,10 +276,10 @@ class TableBox extends GenericContainerBox {
        * Note that there should be '>='; '==' is not enough, as sometimes cell is declared to span 
        * more columns than there are in the table
        */
-      $cell_wc = $cell->get_css_property(CSS_WIDTH);
+      $cell_wc = $cell->getCSSProperty(CSS_WIDTH);
       if (!$cell->is_fake() &&
           $cell_wc->isFraction() &&
-          $cell->colspan >= count($this->content[$j])) {
+          $cell->colspan >= (is_object($this->content[$j]) ? 1 : 0)) {
         
         /**
          * Clear the constraint; anyway, it should be replaced with 100% in this case, as
@@ -288,8 +288,8 @@ class TableBox extends GenericContainerBox {
 
         $wc = new WCNone;
         $cell->setCSSProperty(CSS_WIDTH, $wc);
-      };
-    };
+      }
+    }
   }
 
   /**
@@ -304,15 +304,15 @@ class TableBox extends GenericContainerBox {
       $row =& $this->content[$i];
       if (count($row->content) == 0) {
         $this->content[$i]->add_fake_cell_before(0, $pipeline);
-      };
-    };
+      }
+    }
 
     /**
      * first, normalize colspans 
      */
     for ($i=0; $i<count($this->content); $i++) {
       $this->content[$i]->normalize($pipeline);
-    };
+    }
 
     /**
      * second, normalize rowspans
@@ -362,11 +362,11 @@ class TableBox extends GenericContainerBox {
               //
               for ($cs = 0; $cs < $row->content[$i_col]->colspan; $cs++) {
                 $this->content[$k]->add_fake_cell_before($i_col, $pipeline);
-              };
-            };
-          };
-        };
-      };
+              }
+            }
+          }
+        }
+      }
 
       $i_col ++;
     } while ($flag);
@@ -398,7 +398,7 @@ class TableBox extends GenericContainerBox {
         if (count($this->content[count($this->content)-1]->content) == 0) {
           array_pop($this->content);
         }
-      };
+      }
 
       // Just add passed row 
       $this->content[] =& $item;
@@ -407,7 +407,7 @@ class TableBox extends GenericContainerBox {
       for ($i=0, $size = count($item->content); $i < $size; $i++) {
         $this->add_child($item->content[$i]);
       }
-    };
+    }
   }
 
   // Table-specific functions
@@ -437,15 +437,15 @@ class TableBox extends GenericContainerBox {
       $baseline = $this->content[$span->row]->get_row_baseline();
 
       // apply vertical-align
-      $vertical_align = $cell->get_css_property(CSS_VERTICAL_ALIGN);
+      $vertical_align = $cell->getCSSProperty(CSS_VERTICAL_ALIGN);
 
-      $va_fun = CSSVerticalAlign::value2pdf($vertical_align);
+      $va_fun = (new CSSVerticalAlign())->value2pdf($vertical_align);
       $va_fun->apply_cell($cell, array_sum($row_heights), $baseline);       
       
       if (array_sum($row_heights) > $cell->get_full_height()) {
         // Make cell fill all available vertical space
         $cell->put_full_height(array_sum($row_heights));
-      };
+      }
     }
   }
 
@@ -454,7 +454,7 @@ class TableBox extends GenericContainerBox {
 
     for ($i=0; $i<count($this->content); $i++) {
       $spans = array_merge($spans, $this->content[$i]->get_rowspans($i));
-    };
+    }
 
     return $spans;
   }
@@ -495,7 +495,7 @@ class TableBox extends GenericContainerBox {
 
       $hc = $this->get_rhc($i);
       $cheights[] = $hc->apply($heights[$i], $this->content[$i], null);
-    };
+    }
 
     // Collapse "constrained" heights of percentage-constrained rows, if they're
     // taking more that available space
@@ -504,18 +504,18 @@ class TableBox extends GenericContainerBox {
     $h = $height;
     $ch = 0;
     for ($i=0; $i<count($heights); $i++) {
-      if ($flags[$i]) { $h -= $cheights[$i]; } else { $ch += $cheights[$i]; };
-    };
+      if ($flags[$i]) { $h -= $cheights[$i]; } else { $ch += $cheights[$i]; }
+    }
     // (*) see note in the function description
     if ($ch > 0) {
       $scale = $h / $ch;
       
       if ($scale < 1) {
         for ($i=0; $i<count($heights); $i++) {
-          if (!$flags[$i]) { $cheights[$i] *= $scale; };
-        };
-      };
-    };
+          if (!$flags[$i]) { $cheights[$i] *= $scale; }
+        }
+      }
+    }
 
     // Expand non-constrained rows, if there's free space still
 
@@ -523,18 +523,18 @@ class TableBox extends GenericContainerBox {
     $h = $height;
     $ch = 0;
     for ($i=0; $i<count($cheights); $i++) {
-      if (!$flags[$i]) { $h -= $cheights[$i]; } else { $ch += $cheights[$i]; };
-    };
+      if (!$flags[$i]) { $h -= $cheights[$i]; } else { $ch += $cheights[$i]; }
+    }
     // (*) see note in the function description
     if ($ch > 0) {
       $scale = $h / $ch;
       
       if ($scale < 1) {
         for ($i=0; $i<count($heights); $i++) {
-          if ($flags[$i]) { $cheights[$i] *= $scale; };
-        };
-      };
-    };
+          if ($flags[$i]) { $cheights[$i] *= $scale; }
+        }
+      }
+    }
 
     // Expand percentage-constrained rows, if there's free space still
     
@@ -542,23 +542,23 @@ class TableBox extends GenericContainerBox {
     $h = $height;
     $ch = 0;
     for ($i=0; $i<count($cheights); $i++) {
-      if ($flags[$i]) { $h -= $cheights[$i]; } else { $ch += $cheights[$i]; };
-    };
+      if ($flags[$i]) { $h -= $cheights[$i]; } else { $ch += $cheights[$i]; }
+    }
     // (*) see note in the function description
     if ($ch > 0) {
       $scale = $h / $ch;
       
       if ($scale < 1) {
         for ($i=0; $i<count($heights); $i++) {
-          if (!$flags[$i]) { $cheights[$i] *= $scale; };
-        };
-      };
-    };
+          if (!$flags[$i]) { $cheights[$i] *= $scale; }
+        }
+      }
+    }
 
     // Get the actual row height
     for ($i=0; $i<count($heights); $i++) {
       $heights[$i] = max($heights[$i], $cheights[$i]);
-    };
+    }
 
     return $heights;
   }
@@ -566,7 +566,7 @@ class TableBox extends GenericContainerBox {
   function table_resize_rows(&$heights) {
     $row_top = $this->get_top();
 
-    $size = count($heights);
+    $size = is_countable($heights) ? count($heights) : 0;
     for ($i=0; $i<$size; $i++) {
       $this->content[$i]->table_resize_row($heights[$i], $row_top);
       $row_top -= $heights[$i];
@@ -605,8 +605,8 @@ class TableBox extends GenericContainerBox {
   //       // Cell baseline is the baseline of its first line box inside this cell
   //       if (count($row->content[$i]->content) > 0) {
   //         $baseline = max($baseline, $row->content[$i]->content[0]->baseline);
-  //       };
-  //     };
+  //       }
+  //     }
   //     return $baseline;
   //   }
 
@@ -654,7 +654,7 @@ class TableBox extends GenericContainerBox {
     $width = array_sum($widths);
     $base_width = $width;
 
-    $wc = $this->get_css_property(CSS_WIDTH);
+    $wc = $this->getCSSProperty(CSS_WIDTH);
     if (!$wc->isNull()) {
       // Check if constrained table width should be expanded to fit the table contents
       //
@@ -670,18 +670,14 @@ class TableBox extends GenericContainerBox {
         $width = max($width, 
                      min($cwc->apply_inverse($widths[$i], $base_width),
                          $this->parent->get_available_width($context) - $this->_get_hor_extra()));
-      };
-    };
+      }
+    }
 
     return $width + $this->_get_hor_extra();    
   }
 
-  function get_min_width_natural(&$context) {
-    return $this->get_min_width($context);
-  }
-
-  function get_max_width(&$context) {
-    $wc = $this->get_css_property(CSS_WIDTH);
+  function get_max_width(&$context, $limit = 10000000) {
+    $wc = $this->getCSSProperty(CSS_WIDTH);
 
     if ($wc->isConstant()) {
       return $wc->apply(0, $this->parent->get_available_width($context));
@@ -704,19 +700,19 @@ class TableBox extends GenericContainerBox {
         $width = max($width, 
                      min($cwc->apply_inverse($widths[$i], $base_width),
                          $this->parent->get_available_width($context) - $this->_get_hor_extra()));
-      };
+      }
 
       return $width + $this->_get_hor_extra();
     }
   }
 
-  function get_max_width_natural(&$context) {
+  function get_max_width_natural(&$context, $limit = 10000000) {
     return $this->get_max_width($context);
   }
 
   function get_width() {
-    $wc  = $this->get_css_property(CSS_WIDTH);
-    $pwc = $this->parent->get_css_property(CSS_WIDTH);
+    $wc  = $this->getCSSProperty(CSS_WIDTH);
+    $pwc = $this->parent->getCSSProperty(CSS_WIDTH);
 
     if (!$this->parent->isCell() || 
         !$pwc->isNull() ||
@@ -724,7 +720,7 @@ class TableBox extends GenericContainerBox {
       $width = $wc->apply($this->width, $this->parent->width);
     } else {
       $width = $this->width;
-    };
+    }
 
     // Note that table 'padding' property for is handled differently 
     // by different browsers; for example, IE 6 ignores it completely,
@@ -736,18 +732,18 @@ class TableBox extends GenericContainerBox {
   }
 
   function table_column_widths(&$context) {
-    $table_layout = $this->get_css_property(CSS_TABLE_LAYOUT);
+    $table_layout = $this->getCSSProperty(CSS_TABLE_LAYOUT);
     switch ($table_layout) {
     case TABLE_LAYOUT_FIXED:
 //       require_once(HTML2PS_DIR.'strategy.table.layout.fixed.php');
-//       $strategy =& new StrategyTableLayoutFixed();
+//       $strategy= new StrategyTableLayoutFixed();
 //       break;
     case TABLE_LAYOUT_AUTO:
     default:
       require_once(HTML2PS_DIR.'strategy.table.layout.auto.php');
-      $strategy =& new StrategyTableLayoutAuto();
+      $strategy= new StrategyTableLayoutAuto();
       break;
-    };
+    }
     
     return $strategy->apply($this, $context);
   }
@@ -768,14 +764,11 @@ class TableBox extends GenericContainerBox {
       // if table width is not constrained, we should not do this, as current value 
       // of $table->get_width is maximal width (parent width), not the actual 
       // width of the table
-      $wc = $this->get_css_property(CSS_WIDTH);
+      $wc = $this->getCSSProperty(CSS_WIDTH);
       if (!$wc->isNull()) {
-        $cell_wc = $cell->get_css_property(CSS_WIDTH);
+        $cell_wc = $cell->getCSSProperty(CSS_WIDTH);
         $cell_width = $cell_wc->apply($cell_width, $this->get_width());
-
-        // On the other side, constrained with cannot be less than cell minimal width
-        $cell_width = max($cell_width, $cell->get_min_width($context));
-      };
+      }
 
       // now select the pre-calculated widths of columns covered by this cell
       // select the list of resizable columns covered by this cell
@@ -794,19 +787,19 @@ class TableBox extends GenericContainerBox {
         for ($i=0; $i<count($spanned_widths); $i++) {
           $spanned_widths[$i] = EPSILON;
           $spanned_resizable[$i] = true;
-        };
-      };
+        }
+      }
 
       // The same problem may arise when all colspanned columns are not resizable; in this case we'll force all
       // of them to be resized
       $any_resizable = false;
       for ($i=0; $i<count($spanned_widths); $i++) {
         $any_resizable |= $spanned_resizable[$i];
-      };
+      }
       if (!$any_resizable) {
         for ($i=0; $i<count($spanned_widths); $i++) {
           $spanned_resizable[$i] = true;
-        };
+        }
       }
 
       // Expand resizable columns
@@ -815,7 +808,7 @@ class TableBox extends GenericContainerBox {
 
       // Store modified widths
       array_splice($widths, $colspan->column, $colspan->size, $spanned_widths);
-    };
+    }
 
     return $widths;
   }
@@ -825,7 +818,7 @@ class TableBox extends GenericContainerBox {
 
     for ($i=0; $i<count($this->content[0]->content); $i++) {
       $widths[] = 0;
-    };
+    }
 
     for ($i=0; $i<count($this->content); $i++) {
       // Calculate column widths for a current row
@@ -845,7 +838,7 @@ class TableBox extends GenericContainerBox {
       //
       if (!is_a($cwc,"wcfraction")) {
         $widths[$i] = $cwc->apply($widths[$i], $this->get_width());
-      };
+      }
     }
 
     // TODO: colspans
@@ -859,20 +852,20 @@ class TableBox extends GenericContainerBox {
   function get_table_columns_min_widths(&$context) {
     if (!is_null($this->_cached_min_widths)) { 
       return $this->_cached_min_widths;
-    };
+    }
 
     $widths = array();
 
     for ($i=0; $i<count($this->content[0]->content); $i++) {
       $widths[] = 0;
-    };
+    }
     
     $content_size = count($this->content);
     for ($i=0; $i<$content_size; $i++) {
       // Calculate column widths for a current row
       $roww = $this->content[$i]->get_table_columns_min_widths($context);
 
-      $row_size = count($roww);
+      $row_size = is_countable($roww) ? count($roww) : 0;
       for ($j=0; $j<$row_size; $j++) {
         $widths[$j] = max($roww[$j], $widths[$j]);
       }
@@ -887,7 +880,7 @@ class TableBox extends GenericContainerBox {
 
     for ($i=0; $i<count($this->content); $i++) {
       $colspans = array_merge($colspans, $this->content[$i]->get_colspans($i));
-    };
+    }
 
     return $colspans;
   }
@@ -895,13 +888,13 @@ class TableBox extends GenericContainerBox {
   function check_constrained_colspan($col) {
     for ($i=0; $i<$this->rows_count(); $i++) {
       $cell =& $this->cell($i, $col);
-      $cell_wc = $cell->get_css_property(CSS_WIDTH);
+      $cell_wc = $cell->getCSSProperty(CSS_WIDTH);
 
       if ($cell->colspan > 1 && 
           !$cell_wc->isNull()) { 
         return true; 
-      };
-    };
+      }
+    }
     return false;
   }
 
@@ -937,7 +930,7 @@ class TableBox extends GenericContainerBox {
           $diff[$i] = $minwc[$i] - $minw[$i];
         } else {
           $diff[$i] = 0;
-        };
+        }
       }
       
       // If no difference is found, we can collapse no columns
@@ -960,8 +953,8 @@ class TableBox extends GenericContainerBox {
   }
 
   // Flow-control
-  function reflow(&$parent, &$context) {
-    if ($this->get_css_property(CSS_FLOAT) === FLOAT_NONE) {
+  function reflow(&$parent, &$context, $boxes = null) {
+    if ($this->getCSSProperty(CSS_FLOAT) === FLOAT_NONE) {
       $status = $this->reflow_static_normal($parent, $context);
     } else {
       $status = $this->reflow_static_float($parent, $context);
@@ -979,7 +972,7 @@ class TableBox extends GenericContainerBox {
     // Calculate width value if it had been set as a percentage
     $this->_calc_percentage_width($parent, $context);
 
-    $wc = $this->get_css_property(CSS_WIDTH);
+    $wc = $this->getCSSProperty(CSS_WIDTH);
     if (!$wc->isNull()) {
       $col_width = $this->get_table_columns_min_widths($context);
       $maxw      = $this->get_table_columns_max_widths($context);
@@ -987,10 +980,10 @@ class TableBox extends GenericContainerBox {
 
       if (array_sum($col_width) > $this->get_width()) {
         $wc = new WCConstant(array_sum($col_width));
-      };
-    };
+      }
+    }
 
-    $position_strategy =& new StrategyPositionAbsolute();
+    $position_strategy= new StrategyPositionAbsolute();
     $position_strategy->apply($this);
 
     $this->reflow_content($context);
@@ -1009,7 +1002,7 @@ class TableBox extends GenericContainerBox {
     // Calculate width value if it had been set as a percentage
     $this->_calc_percentage_width($parent, $context);
 
-    $wc = $this->get_css_property(CSS_WIDTH);
+    $wc = $this->getCSSProperty(CSS_WIDTH);
     if (!$wc->isNull()) {
       $col_width = $this->get_table_columns_min_widths($context);
       $maxw      = $this->get_table_columns_max_widths($context);
@@ -1017,8 +1010,8 @@ class TableBox extends GenericContainerBox {
 
       if (array_sum($col_width) > $this->get_width()) {
         $wc = new WCConstant(array_sum($col_width));
-      };
-    };
+      }
+    }
 
     // As table width can be deterimined by its contents, we may calculate auto values 
     // only AFTER the contents have been reflown; thus, we'll offset the table 
@@ -1043,8 +1036,8 @@ class TableBox extends GenericContainerBox {
 
     // Determine upper-left _content_ corner position of current box 
     // Also see note above regarding margins
-    $border = $this->get_css_property(CSS_BORDER);
-    $padding = $this->get_css_property(CSS_PADDING);
+    $border = $this->getCSSProperty(CSS_BORDER);
+    $padding = $this->getCSSProperty(CSS_PADDING);
 
     $this->put_left($parent->_current_x + 
                     $border->left->get_width() + 
@@ -1063,7 +1056,7 @@ class TableBox extends GenericContainerBox {
     $this->reflow_content($context);
   
     // Update the collapsed margin value with current box bottom margin
-    $margin = $this->get_css_property(CSS_MARGIN);
+    $margin = $this->getCSSProperty(CSS_MARGIN);
 
     $context->pop_collapsed_margin();
     $context->pop_collapsed_margin();
@@ -1093,7 +1086,7 @@ class TableBox extends GenericContainerBox {
         (is_null($hc->constant)) &&
         (is_null($hc->min)) &&
         (is_null($hc->max));
-    };
+    }
 
     return $flags;
   }
@@ -1112,7 +1105,7 @@ class TableBox extends GenericContainerBox {
         (!is_null($hc->constant) ? !$hc->constant[1] : true) &&
         (!is_null($hc->min)      ? !$hc->min[1]      : true) &&
         (!is_null($hc->max)      ? !$hc->max[1]      : true);
-    };
+    }
 
     return $flags;
   }
@@ -1124,7 +1117,7 @@ class TableBox extends GenericContainerBox {
       $hc = $this->get_rhc($i);
 
       $flags[$i] = $hc->is_null();
-    };
+    }
 
     return $flags;
   }
@@ -1140,7 +1133,7 @@ class TableBox extends GenericContainerBox {
     for ($i=0; $i<$this->cols_count(); $i++) {
       $wc = $this->get_cwc($i);
       $flags[$i] = is_a($wc,"wcnone");
-    };
+    }
 
     return $flags;
   }
@@ -1151,7 +1144,7 @@ class TableBox extends GenericContainerBox {
     for ($i=0; $i<$this->cols_count(); $i++) {
       $wc = $this->get_cwc($i);
       $flags[$i] = !is_a($wc,"WCConstant");
-    };
+    }
 
     return $flags;
   }
@@ -1163,9 +1156,9 @@ class TableBox extends GenericContainerBox {
         if (!$cell->content[$j]->is_null() &&
             !is_a($cell->content[$j], "GenericImgBox")) {
           return false;
-        };
-      };
-    };
+        }
+      }
+    }
     return true;
   }
 
@@ -1174,7 +1167,7 @@ class TableBox extends GenericContainerBox {
 
     for ($i=0; $i<$this->cols_count(); $i++) {
       $flags[$i] = !$this->check_if_column_image_constrained($i);
-    };
+    }
 
     return $flags;
   }
@@ -1190,7 +1183,7 @@ class TableBox extends GenericContainerBox {
     for ($i=0; $i<count($this->content); $i++) {
       $hc = $this->get_rhc($i);
       $flags[$i] = is_null($hc->constant);
-    };
+    }
 
     return $flags;
   }
@@ -1218,7 +1211,7 @@ class TableBox extends GenericContainerBox {
     //
     //     if ($this->get_width() < $real_width) {
     //       // $this->put_width_constraint(new WCConstant($real_width));
-    //     };
+    //     }
 
     // Flow cells horizontally in each table row
     for ($i=0; $i<count($this->content); $i++) {
@@ -1249,11 +1242,11 @@ class TableBox extends GenericContainerBox {
           // TODO: check for rowspans
 
           // Flow cell
-          $this->content[$i]->content[$j]->reflow($this, $context);
+          @$this->content[$i]->content[$j]->reflow($this, $context);
 
           // Offset current X value by the cell width
           $this->_current_x += $cw;
-        };
+        }
 
         // Current cell have been processed or skipped
         $span = max(0, $span-1);
@@ -1296,7 +1289,7 @@ class TableBox extends GenericContainerBox {
         $new_heights = expand_to_with_flags($cell_height, 
                                             $cell_row_heights, 
                                             $flags);
-      };
+      }
 
       // Update the rows heights
       array_splice($heights, 
@@ -1325,22 +1318,13 @@ class TableBox extends GenericContainerBox {
       $heights = expand_to_with_flags($table_height, 
                                       $heights, 
                                       $flags);
-    };
+    }
 
     // Now we calculated row heights, time to actually resize them    
     $this->table_resize_rows($heights);
 
     // Update size of cells spanning several rows
     $this->table_fit_rowspans($heights);
-
-    // Expand total table height, if needed
-    $total_height = array_sum($heights);
-    if ($total_height > $this->get_height()) {
-      $hc = new HCConstraint(array($total_height, false),
-                             array($total_height, false), 
-                             array($total_height, false));
-      $this->put_height_constraint($hc);
-    };
   }
 
   function isBlockLevel() {

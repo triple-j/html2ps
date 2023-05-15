@@ -1,27 +1,28 @@
 <?php
-// $Header: /cvsroot/html2ps/css.background.inc.php,v 1.23 2007/03/15 18:37:30 Konstantin Exp $
+// $Header: /cvsroot/html2ps/css.background.inc.php,v 1.22 2006/11/11 13:43:52 Konstantin Exp $
 
 require_once(HTML2PS_DIR.'value.background.php');
 
 class CSSBackground extends CSSPropertyHandler {
   var $default_value;
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_BACKGROUND;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'background';
   }
 
-  function CSSBackground() {
-    $this->default_value = new Background(CSSBackgroundColor::default_value(),
-                                          CSSBackgroundImage::default_value(),
-                                          CSSBackgroundRepeat::default_value(),
-                                          CSSBackgroundPosition::default_value(),
-                                          CSSBackgroundAttachment::default_value());
+  function __construct() {
+    $this->default_value = new Background(
+        (new CSSBackgroundColor())->default_value(),
+        (new CSSBackgroundImage())->default_value(),
+        (new CSSBackgroundRepeat())->default_value(),
+        (new CSSBackgroundPosition())->default_value()
+    );
 
-    $this->CSSPropertyHandler(true, false);
+    CSSPropertyHandler::__construct(true, false);
   }
 
   function inherit($state, &$new_state) { 
@@ -42,11 +43,10 @@ class CSSBackground extends CSSPropertyHandler {
       return CSS_PROPERTY_INHERIT;
     }
 
-    $background = new Background(CSSBackgroundColor::parse($value),
-                                 CSSBackgroundImage::parse($value, $pipeline),
-                                 CSSBackgroundRepeat::parse($value),
-                                 CSSBackgroundPosition::parse($value),
-                                 CSSBackgroundAttachment::parse($value));
+    $background = new Background((new CSSBackgroundColor())->parse($value),
+                                 (new CSSBackgroundImage())->parse($value, $pipeline),
+                                 (new CSSBackgroundRepeat())->parse($value),
+                                 (new CSSBackgroundPosition())->parse($value));
 
     return $background;
   }
@@ -54,11 +54,10 @@ class CSSBackground extends CSSPropertyHandler {
 
 $bg = new CSSBackground;
 
-CSS::register_css_property($bg);
-CSS::register_css_property(new CSSBackgroundColor($bg, '_color'));
-CSS::register_css_property(new CSSBackgroundImage($bg, '_image'));
-CSS::register_css_property(new CSSBackgroundRepeat($bg, '_repeat'));
-CSS::register_css_property(new CSSBackgroundPosition($bg, '_position'));
-CSS::register_css_property(new CSSBackgroundAttachment($bg, '_attachment'));
+(new CSS())->register_css_property($bg);
+(new CSS())->register_css_property(new CSSBackgroundColor($bg, '_color'));
+(new CSS())->register_css_property(new CSSBackgroundImage($bg, '_image'));
+(new CSS())->register_css_property(new CSSBackgroundRepeat($bg, '_repeat'));
+(new CSS())->register_css_property(new CSSBackgroundPosition($bg, '_position'));
 
 ?>

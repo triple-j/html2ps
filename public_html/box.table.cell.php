@@ -9,28 +9,12 @@ class TableCellBox extends GenericContainerBox {
   var $_suppress_first;
   var $_suppress_last;
 
-  function TableCellBox() {
-    // Call parent constructor
-    $this->GenericContainerBox();
-
-    $this->_suppress_first = false;
-    $this->_suppress_last  = false;
-    
-    $this->colspan = 1;
-    $this->rowspan = 1;
-
-    // This value will be overwritten in table 'normalize_parent' method
-    //
-    $this->column  = 0;
-    $this->row     = 0;
-  }
-
   function get_min_width(&$context) {   
     if (isset($this->_cache[CACHE_MIN_WIDTH])) {
       return $this->_cache[CACHE_MIN_WIDTH];
-    };
+    }
 
-    $content_size = count($this->content);
+    $content_size = count((array) $this->content);
 
     /**
      * If box does not have any context, its minimal width is determined by extra horizontal space:
@@ -40,13 +24,13 @@ class TableCellBox extends GenericContainerBox {
       $min_width = $this->_get_hor_extra();
       $this->_cache[CACHE_MIN_WIDTH] = $min_width;
       return $min_width;
-    };
+    }
 
     /**
      * If we're in 'nowrap' mode, minimal and maximal width will be equal
      */
-    $white_space = $this->get_css_property(CSS_WHITE_SPACE);
-    $pseudo_nowrap = $this->get_css_property(CSS_HTML2PS_NOWRAP);
+    $white_space = $this->getCSSProperty(CSS_WHITE_SPACE);
+    $pseudo_nowrap = $this->getCSSProperty(CSS_HTML2PS_NOWRAP);
     if ($white_space   == WHITESPACE_NOWRAP || 
         $pseudo_nowrap == NOWRAP_NOWRAP) { 
       $min_width = $this->get_min_nowrap_width($context);
@@ -61,28 +45,28 @@ class TableCellBox extends GenericContainerBox {
     while ($start_index < $content_size && 
            $this->content[$start_index]->out_of_flow()) {
       $start_index++; 
-    };
+    }
     
     if ($start_index < $content_size) {
-      $ti = $this->get_css_property(CSS_TEXT_INDENT);
+      $ti = $this->getCSSProperty(CSS_TEXT_INDENT);
       $minw = 
         $ti->calculate($this) + 
         $this->content[$start_index]->get_min_width($context);
     } else {
       $minw = 0;
-    };
+    }
 
     for ($i=$start_index; $i<$content_size; $i++) {
       $item =& $this->content[$i];
       if (!$item->out_of_flow()) {
         $minw = max($minw, $item->get_min_width_natural($context));
-      };
+      }
     }
 
     /**
      * Apply width constraint to min width. Return maximal value
      */
-    $wc = $this->get_css_property(CSS_WIDTH);
+    $wc = $this->getCSSProperty(CSS_WIDTH);
     $min_width = max($minw, 
                      $wc->apply($minw, $this->parent->get_width())) + $this->_get_hor_extra();
     $this->_cache[CACHE_MIN_WIDTH] = $min_width;
@@ -110,30 +94,30 @@ class TableCellBox extends GenericContainerBox {
   }
 
   function &create(&$root, &$pipeline) {
-    $css_state = $pipeline->get_current_css_state();
+    $css_state = $pipeline->getCurrentCSSState();
 
-    $box =& new TableCellBox();
+    $box= new TableCellBox();
     $box->readCSS($css_state);
 
     // Use cellspacing / cellpadding values from the containing table
-    $cellspacing = $box->get_css_property(CSS_HTML2PS_CELLSPACING);
-    $cellpadding = $box->get_css_property(CSS_HTML2PS_CELLPADDING);
+    $cellspacing = $box->getCSSProperty(CSS_HTML2PS_CELLSPACING);
+    $cellpadding = $box->getCSSProperty(CSS_HTML2PS_CELLPADDING);
 
     // FIXME: I'll need to resolve that issue with COLLAPSING border model. Now borders
     // are rendered separated
 
     // if not border set explicitly, inherit value set via border attribute of TABLE tag
-    $border_handler = CSS::get_handler(CSS_BORDER);
-    if ($border_handler->is_default($box->get_css_property(CSS_BORDER))) {
-      $table_border = $box->get_css_property(CSS_HTML2PS_TABLE_BORDER);
+    $border_handler = (new CSS())->get_handler(CSS_BORDER);
+    if ($border_handler->is_default($box->getCSSProperty(CSS_BORDER))) {
+      $table_border = $box->getCSSProperty(CSS_HTML2PS_TABLE_BORDER);
       $box->setCSSProperty(CSS_BORDER, $table_border);
-    };
+    }
 
-    $margin =& CSS::get_handler(CSS_MARGIN);
+    $margin =& (new CSS())->get_handler(CSS_MARGIN);
     $box->setCSSProperty(CSS_MARGIN, $margin->default_value());
       
-    $h_padding =& CSS::get_handler(CSS_PADDING);
-    $padding = $box->get_css_property(CSS_PADDING);
+    $h_padding =& (new CSS())->get_handler(CSS_PADDING);
+    $padding = $box->getCSSProperty(CSS_PADDING);
 
     if ($h_padding->is_default($padding)) {
       $padding->left->_units       = $cellpadding;
@@ -160,10 +144,10 @@ class TableCellBox extends GenericContainerBox {
       $padding->units2pt(0);
 
       $box->setCSSProperty(CSS_PADDING, $padding);
-    };
+    }
        
-    if ($box->get_css_property(CSS_BORDER_COLLAPSE) != BORDER_COLLAPSE) {
-      $margin_value = $box->get_css_property(CSS_MARGIN);
+    if ($box->getCSSProperty(CSS_BORDER_COLLAPSE) != BORDER_COLLAPSE) {
+      $margin_value = $box->getCSSProperty(CSS_MARGIN);
       if ($margin->is_default($margin_value)) {
         $length = $cellspacing->copy();
         $length->scale(0.5);
@@ -193,7 +177,7 @@ class TableCellBox extends GenericContainerBox {
 
         $box->setCSSProperty(CSS_MARGIN, $margin_value);
       }
-    };
+    }
 
     // Save colspan and rowspan information
     $box->colspan = max(1,(int)$root->get_attribute('colspan'));
@@ -204,7 +188,7 @@ class TableCellBox extends GenericContainerBox {
     // 'vertical-align' CSS value is not inherited from the table cells
     $css_state->pushState();
 
-    $handler =& CSS::get_handler(CSS_VERTICAL_ALIGN);
+    $handler =& (new CSS())->get_handler(CSS_VERTICAL_ALIGN);
     $handler->replace($handler->default_value(),
                       $css_state);
 
@@ -220,33 +204,49 @@ class TableCellBox extends GenericContainerBox {
       if ($child) {
         while ($child && $child->node_type() != XML_ELEMENT_NODE) {
           $child = $child->next_sibling();
-        };
+        }
       
         if ($child) {
           if (array_search(strtolower($child->tagname()), array("h1","h2","h3","h4","h5","h6","p"))) {
             $box->_suppress_first = true;
           }
-        };
-      };
+        }
+      }
 
       $child = $root->last_child();
       if ($child) {
         while ($child && $child->node_type() != XML_ELEMENT_NODE) {
           $child = $child->previous_sibling();
-        };
+        }
         
         if ($child) {
           if (array_search(strtolower($child->tagname()), array("h1","h2","h3","h4","h5","h6","p"))) {
             $box->_suppress_last = true;
           }
-        };
-      };
-    };
+        }
+      }
+    }
 
     // pop the default vertical-align value
     $css_state->popState();
 
     return $box;
+  }
+
+  function __construct() {
+    // Call parent constructor
+    GenericContainerBox::__construct();
+
+    $this->_suppress_first = false;
+    $this->_suppress_last  = false;
+    
+    $this->colspan = 1;
+    $this->rowspan = 1;
+
+    // This value will be overwritten in table 'normalize_parent' method
+    //
+    $this->column  = 0;
+    $this->row     = 0;
   }
 
   // Inherited from GenericFormattedBox
@@ -260,11 +260,11 @@ class TableCellBox extends GenericContainerBox {
   }
 
   // Flow-control
-  function reflow(&$parent, &$context) {
+  function reflow(&$parent, &$context, $boxes = null) {
     GenericFormattedBox::reflow($parent, $context);
 
     global $g_config;
-    $size = count($this->content);
+    $size = is_countable($this->content) ? count((array) $this->content) : 0;
     if ($g_config['mode'] == "quirks" && $size > 0) {
       // QUIRKS MODE:
       // H1-H6 and P elements should have their top/bottom margin suppressed if they occur as the first/last table cell child 
@@ -272,24 +272,24 @@ class TableCellBox extends GenericContainerBox {
       //
       
       $first =& $this->get_first();
-      if (!is_null($first) && $this->_suppress_first && $first->isBlockLevel()) {
+      if (!is_null($first) && $this->_suppress_first && $first->isBlockLevel() && !is_null($first->margin)) {
         $first->margin->top->value = 0;
         $first->margin->top->percentage = null;
-      };
+      }
 
       $last =& $this->get_last();
-      if (!is_null($last) && $this->_suppress_last && $last->isBlockLevel()) {
+      if (!is_null($last) && $this->_suppress_last && $last->isBlockLevel() && !is_null($last->margin)) {
         $last->margin->bottom->value = 0;
         $last->margin->bottom->percentage = null;
-      };
-    };
+      }
+    }
 
     // Determine upper-left _content_ corner position of current box 
     $this->put_left($parent->_current_x + $this->get_extra_left());
 
     // NOTE: Table cell margin is used as a cell-spacing value
-    $border = $this->get_css_property(CSS_BORDER);
-    $padding = $this->get_css_property(CSS_PADDING);
+    $border = $this->getCSSProperty(CSS_BORDER);
+    $padding = $this->getCSSProperty(CSS_PADDING);
     $this->put_top($parent->_current_y - 
                    $border->top->get_width() - 
                    $padding->top->value);
@@ -311,7 +311,7 @@ class TableCellBox extends GenericContainerBox {
       
     if (!is_null($float_bottom)) {
       $this->extend_height($float_bottom);
-    };
+    }
 
     // Restore old context
     $context->pop_container_uid();

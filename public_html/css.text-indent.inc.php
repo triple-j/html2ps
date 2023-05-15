@@ -4,8 +4,8 @@
 require_once(HTML2PS_DIR.'value.text-indent.class.php');
 
 class CSSTextIndent extends CSSPropertyHandler {
-  function CSSTextIndent() { 
-    $this->CSSPropertyHandler(true, true); 
+  function __construct() {
+    CSSPropertyHandler::__construct(true, true);
   }
 
   function default_value() { 
@@ -15,24 +15,24 @@ class CSSTextIndent extends CSSPropertyHandler {
   function parse($value) {
     if ($value === 'inherit') {
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
     if (is_percentage($value)) { 
       return new TextIndentValuePDF(array((int)$value, true));
     } else {
       return new TextIndentValuePDF(array($value, false));
-    };
+    }
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_TEXT_INDENT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'text-indent';
   }
 }
 
-CSS::register_css_property(new CSSTextIndent());
+(new CSS())->register_css_property(new CSSTextIndent());
 
 ?>

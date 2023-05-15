@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/css.rules.inc.php,v 1.10 2007/03/23 18:33:34 Konstantin Exp $
+// $Header: /cvsroot/html2ps/css.rules.inc.php,v 1.8 2006/09/07 18:38:14 Konstantin Exp $
 
 class CSSRule {
   var $selector;
@@ -12,15 +12,24 @@ class CSSRule {
 
   function apply(&$root, &$state, &$pipeline) {
     $pipeline->push_base_url($this->baseurl);
-    $this->body->apply($state);
+
+    $properties = $this->body->getPropertiesRaw();
+    foreach ($properties as $property) {
+      $key   = $property->getCode();
+      $value = $property->getValue();
+      
+      $handler =& (new CSS())->get_handler($key);
+      $handler->replace($value, $state);
+    }
+
     $pipeline->pop_base_url();
   }
 
-  function add_property($property) {
-    $this->body->add_property($property);
+  function addProperty($property) {
+    $this->body->addProperty($property);
   }
 
-  function CSSRule($rule, &$pipeline) {
+  function __construct($rule, &$pipeline) {
     $this->selector = $rule[0];
     $this->body     = $rule[1]->copy();
     $this->baseurl  = $rule[2];
@@ -30,12 +39,12 @@ class CSSRule {
     $this->pseudoelement = css_find_pseudoelement($this->selector);
   }
 
-  function set_property($key, $value, &$pipeline) {
-    $this->body->set_property_value($key, $value);
+  function setProperty($key, $value, &$pipeline) {
+    $this->body->setPropertyValue($key, $value);
   }
 
-  function &get_property($key) {
-    return $this->body->get_property_value($key);
+  function getProperty($key) {
+    return $this->body->getPropertyValue($key);
   }
 
   function get_order() { return $this->order; }
@@ -48,15 +57,15 @@ class CSSRule {
   }
 }
 
-function rule_get_selector(&$rule) { return $rule[0]; };
+function rule_get_selector(&$rule) { return $rule[0]; }
 
 function cmp_rules($r1, $r2) {
   $a = css_selector_specificity($r1[0]);
   $b = css_selector_specificity($r2[0]);
 
   for ($i=0; $i<=2; $i++) {
-    if ($a[$i] != $b[$i]) { return ($a[$i] < $b[$i]) ? -1 : 1; };
-  };
+    if ($a[$i] != $b[$i]) { return ($a[$i] < $b[$i]) ? -1 : 1; }
+  }
 
   // If specificity of selectors is equal, use rules natural order in stylesheet
 
@@ -68,8 +77,8 @@ function cmp_rule_objs($r1, $r2) {
   $b = $r2->get_specificity();
 
   for ($i=0; $i<=2; $i++) {
-    if ($a[$i] != $b[$i]) { return ($a[$i] < $b[$i]) ? -1 : 1; };
-  };
+    if ($a[$i] != $b[$i]) { return ($a[$i] < $b[$i]) ? -1 : 1; }
+  }
 
   // If specificity of selectors is equal, use rules natural order in stylesheet
 

@@ -3,8 +3,8 @@
 
 class TableSectionBox extends GenericContainerBox {
   function &create(&$root, &$pipeline) {
-    $state =& $pipeline->get_current_css_state();
-    $box =& new TableSectionBox();
+    $state =& $pipeline->getCurrentCSSState();
+    $box= new TableSectionBox();
     $box->readCSS($state);
 
     // Automatically create at least one table row
@@ -18,13 +18,13 @@ class TableSectionBox extends GenericContainerBox {
       $child_box =& create_pdf_box($child, $pipeline);
       $box->add_child($child_box);
       $child = $child->next_sibling();
-    };
+    }
 
     return $box;
   }
   
-  function TableSectionBox() {
-    $this->GenericContainerBox();
+  function __construct() {
+    GenericContainerBox::__construct();
   }
 
   // Overrides default 'add_child' in GenericFormattedBox
@@ -41,11 +41,11 @@ class TableSectionBox extends GenericContainerBox {
         if (count($this->content[count($this->content)-1]->content) == 0) {
           array_pop($this->content);
         }
-      };
+      }
       
       // Just add passed row 
       $this->content[] =& $item;
-    };
+    }
   }
 
   function isTableSection() {

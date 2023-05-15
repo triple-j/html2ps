@@ -2,7 +2,7 @@
 
 class TestCSSParseAtRules extends GenericTest {
   function testCSSParseAtRulesSimple() {
-    $pipeline =& PipelineFactory::create_default_pipeline('utf-8', 'test.pdf');
+    $pipeline =& (new PipelineFactory())->create_default_pipeline('utf-8', 'test.pdf');
     $new_css_content =& parse_css_atpage_rules('body { background-color: green; } @page { background-color: red; } #test { border: none; }', $pipeline);
 
     $this->assertEqual($new_css_content, 'body { background-color: green; } #test { border: none; }');
@@ -15,7 +15,7 @@ class TestCSSParseAtRules extends GenericTest {
   }
 
   function testCSSParseAtRulesNested() {
-    $pipeline =& PipelineFactory::create_default_pipeline('utf-8', 'test.pdf');
+    $pipeline =& (new PipelineFactory())->create_default_pipeline('utf-8', 'test.pdf');
     $new_css_content =& parse_css_atpage_rules('body { background-color: green; } @page { @top-left { background-color: lime; } } #test { border: none; }', $pipeline);
 
     $this->assertEqual($new_css_content, 'body { background-color: green; } #test { border: none; }');
@@ -28,7 +28,7 @@ class TestCSSParseAtRules extends GenericTest {
   }
 
   function testCSSParseAtRulesNestedContent() {
-    $pipeline =& PipelineFactory::create_default_pipeline('utf-8', 'test.pdf');
+    $pipeline =& (new PipelineFactory())->create_default_pipeline('utf-8', 'test.pdf');
     $new_css_content =& parse_css_atpage_rules('body { background-color: green; } @page { @top-left { content: "TEXT"; } } #test { border: none; }', $pipeline);
 
     $this->assertEqual($new_css_content, 'body { background-color: green; } #test { border: none; }');

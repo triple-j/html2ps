@@ -8,11 +8,11 @@
 //   foreach ($g_utf8_converters as $key => $value) {
 //     if ($value[1] == $psname) {
 //       return $value[0];
-//     };
-//   };
+//     }
+//   }
 
 //   return 0;
-// };
+// }
 
 $GLOBALS['g_encoding_aliases'] = array(
                                        'us-ascii' => 'iso-8859-1',
@@ -42,6 +42,6 @@ $GLOBALS['g_utf8_converters'] = array(
                                       'windows-1251' => array($GLOBALS['g_windows_1251'],"Windows-1251-Encoding"),
                                       'windows-1252' => array($GLOBALS['g_windows_1252'],"Windows-1252-Encoding"),
                                       'symbol'       => array($GLOBALS['g_symbol'],"Symbol-Encoding"),
-                                      'dingbats'     => array($GLOBALS['g_dingbats'],"Dingbats-Encoding")
+                                      'dingbats'     => array($GLOBALS['g_dingbats'],"Dingbats-Encoding"),
                                       );
 ?>

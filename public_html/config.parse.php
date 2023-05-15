@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/config.parse.php,v 1.7 2007/05/07 13:28:39 Konstantin Exp $
+// $Header: /cvsroot/html2ps/config.parse.php,v 1.6 2007/01/03 19:39:29 Konstantin Exp $
 
 require_once(HTML2PS_DIR.'font.resolver.class.php');
 require_once(HTML2PS_DIR.'treebuilder.class.php');
@@ -20,49 +20,25 @@ function parse_encoding_override_node_config_file($root, &$resolver) {
     if ($child->node_type() == XML_ELEMENT_NODE) {
       switch ($child->tagname()) {
       case "normal":
-        if ($root->has_attribute('name')) {
-          $names = explode(',', $root->get_attribute('name'));
-          foreach ($names as $name) {
-            $resolver->add_normal_encoding_override($name,
-                                                    $child->get_attribute('normal'), 
-                                                    $child->get_attribute('italic'),
-                                                    $child->get_attribute('oblique'));
-          };
-        };
-
-        if ($root->has_attribute('mask')) {
-          foreach ($names as $name) {
-            $resolver->add_normal_encoding_override_mask($root->get_attribute('mask'),
-                                                         $child->get_attribute('normal'), 
-                                                         $child->get_attribute('italic'),
-                                                         $child->get_attribute('oblique'));
-          };
-        };
-
+        $names = explode(',',$root->get_attribute('name'));
+        foreach ($names as $name) {
+          $resolver->add_normal_encoding_override($name,
+                                                  $child->get_attribute('normal'), 
+                                                  $child->get_attribute('italic'),
+                                                  $child->get_attribute('oblique'));
+        }
         break;
       case "bold":
-        if ($root->has_attribute('name')) {
-          $names = explode(',', $root->get_attribute('name'));
-          foreach ($names as $name) {
-            $resolver->add_bold_encoding_override($name,
-                                                    $child->get_attribute('normal'), 
-                                                    $child->get_attribute('italic'),
-                                                    $child->get_attribute('oblique'));
-          };
-        };
-
-        if ($root->has_attribute('mask')) {
-          foreach ($names as $name) {
-            $resolver->add_bold_encoding_override_mask($root->get_attribute('mask'),
-                                                       $child->get_attribute('normal'), 
-                                                       $child->get_attribute('italic'),
-                                                       $child->get_attribute('oblique'));
-          };
-        };
-
+        $names = explode(',',$root->get_attribute('name'));
+        foreach ($names as $name) {
+          $resolver->add_bold_encoding_override($name,
+                                                $child->get_attribute('normal'), 
+                                                $child->get_attribute('italic'),
+                                                $child->get_attribute('oblique'));
+        }
         break;
-      };      
-    };
+      }      
+    }
   } while ($child = $child->next_sibling());
 }
 
@@ -72,21 +48,9 @@ function parse_metrics_node_config_file($root, &$resolver) {
 }
 
 function parse_ttf_node_config_file($root, &$resolver) {
-  switch (FONT_EMBEDDING_MODE) {
-  case 'all':
-    $embed_flag = true;
-    break;
-  case 'none':
-    $embed_flag = false;
-    break;
-  case 'config':
-    $embed_flag = (bool)$root->get_attribute('embed');
-    break;
-  }
-
   $resolver->add_ttf_mapping($root->get_attribute('typeface'),
                              $root->get_attribute('file'),
-                             $embed_flag);
+                             (bool)$root->get_attribute('embed'));
 }
 
 function parse_family_encoding_override_node_config_file($family, $root, &$resolver) {
@@ -102,7 +66,7 @@ function parse_family_encoding_override_node_config_file($family, $root, &$resol
                                                          $child->get_attribute('normal'), 
                                                          $child->get_attribute('italic'),
                                                          $child->get_attribute('oblique'));
-        };
+        }
         break;
       case "bold":
         $names = explode(",",$root->get_attribute('name'));
@@ -112,10 +76,10 @@ function parse_family_encoding_override_node_config_file($family, $root, &$resol
                                                        $child->get_attribute('normal'), 
                                                        $child->get_attribute('italic'),
                                                        $child->get_attribute('oblique'));
-        };
+        }
         break;
-      };      
-    };
+      }      
+    }
   } while ($child = $child->next_sibling());
 }
 
@@ -141,8 +105,8 @@ function parse_fonts_family_node_config_file($root, &$resolver) {
       case "encoding-override":
         parse_family_encoding_override_node_config_file($font_family_name, $child, $resolver);
         break;
-      };      
-    };
+      }      
+    }
   } while ($child = $child->next_sibling());
 }
 
@@ -152,7 +116,7 @@ function parse_fonts_node_config_file($root, &$resolver) {
     if ($child->node_type() == XML_ELEMENT_NODE) {
       switch ($child->tagname()) {
       case "alias":
-        $resolver->add_alias(strtolower($child->get_attribute('alias')), $child->get_attribute('family'));
+        $resolver->add_alias($child->get_attribute('alias'), $child->get_attribute('family'));
         break;
       case "family":
         parse_fonts_family_node_config_file($child, $resolver);
@@ -166,22 +130,18 @@ function parse_fonts_node_config_file($root, &$resolver) {
       case "metrics":
         parse_metrics_node_config_file($child, $resolver);
         break;
-      };      
-    };
+      }      
+    }
   } while ($child = $child->next_sibling());
 }
 
 function parse_config_file($filename) {
-  // Save old magic_quotes_runtime value and disable it
-  $mq_runtime = get_magic_quotes_runtime();
-  set_magic_quotes_runtime(0);
-
-  $doc = TreeBuilder::build(file_get_contents($filename));
+  $doc = (new TreeBuilder())->build(file_get_contents($filename));
   $root=$doc->document_element();
 
   $child = $root->first_child();
   do {
-    if ($child->node_type() == XML_ELEMENT_NODE) {
+    if (is_object($child) && $child->node_type() == XML_ELEMENT_NODE) {
       switch ($child->tagname()) {
       case "fonts":
         global $g_font_resolver;
@@ -196,11 +156,8 @@ function parse_config_file($filename) {
                              (float)$child->get_attribute('height'),
                              (float)$child->get_attribute('width'));
         break;
-      };      
-    };
-  } while ($child = $child->next_sibling());
-
-  // Restore old magic_quotes_runtime values
-  set_magic_quotes_runtime($mq_runtime);
+      }      
+    }
+  } while ($child = is_object($child) ? $child->next_sibling() : null);
 }
 ?>

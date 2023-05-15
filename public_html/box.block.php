@@ -21,8 +21,8 @@ class BlockBox extends GenericContainerBox {
   /**
    * Create empty block element
    */
-  function BlockBox() {
-    $this->GenericContainerBox();
+  function __construct() {
+    GenericContainerBox::__construct();
   }
 
   /**
@@ -35,9 +35,9 @@ class BlockBox extends GenericContainerBox {
    *
    * @see GenericContainerBox::create_content()
    */
-  function &create(&$root, &$pipeline) {
+  static function &create(&$root, &$pipeline) {
     $box = new BlockBox();
-    $box->readCSS($pipeline->get_current_css_state());
+    $box->readCSS($pipeline->getCurrentCSSState());
     $box->create_content($root, $pipeline);
     return $box;
   }
@@ -55,9 +55,9 @@ class BlockBox extends GenericContainerBox {
    */
   function &create_from_text($content, &$pipeline) {
     $box = new BlockBox();
-    $box->readCSS($pipeline->get_current_css_state());
-    $box->add_child(InlineBox::create_from_text($content, 
-                                                $box->get_css_property(CSS_WHITE_SPACE),
+    $box->readCSS($pipeline->getCurrentCSSState());
+    $box->add_child((new InlineBox())->create_from_text($content,
+                                                $box->getCSSProperty(CSS_WHITE_SPACE),
                                                 $pipeline));
     return $box;
   }
@@ -79,8 +79,8 @@ class BlockBox extends GenericContainerBox {
    *
    * @todo check whether percentage values should be really ignored during relative positioning
    */
-  function reflow(&$parent, &$context) {
-    switch ($this->get_css_property(CSS_POSITION)) {
+  function reflow(&$parent, &$context, $boxes = null) {
+    switch ($this->getCSSProperty(CSS_POSITION)) {
     case POSITION_STATIC:
       $this->reflow_static($parent, $context);
       return;
@@ -118,7 +118,7 @@ class BlockBox extends GenericContainerBox {
        */
       $this->guess_corner($parent);
       return;
-    };
+    }
   }
 
   /**
@@ -134,10 +134,10 @@ class BlockBox extends GenericContainerBox {
     $parent_node =& $this->get_parent_node();
     parent::reflow($parent_node, $context);
   
-    $width_strategy =& new StrategyWidthAbsolutePositioned();
+    $width_strategy= new StrategyWidthAbsolutePositioned();
     $width_strategy->apply($this, $context);
 
-    $position_strategy =& new StrategyPositionAbsolute();
+    $position_strategy= new StrategyPositionAbsolute();
     $position_strategy->apply($this);
     
     $this->reflow_content($context);
@@ -191,7 +191,7 @@ class BlockBox extends GenericContainerBox {
      * using the containing block width, not "real" parent width
      */
     $containing_block =& $this->_get_containing_block();
-    $wc = $this->get_css_property(CSS_WIDTH);
+    $wc = $this->getCSSProperty(CSS_WIDTH);
     $this->put_full_width($wc->apply($this->get_width(),
                                      $containing_block['right'] - $containing_block['left']));
     $this->setCSSProperty(CSS_WIDTH, new WCNone());
@@ -219,7 +219,7 @@ class BlockBox extends GenericContainerBox {
    * @see GenericContainerBox
    */
   function reflow_static(&$parent, &$context) {   
-    if ($this->get_css_property(CSS_FLOAT) === FLOAT_NONE) {
+    if ($this->getCSSProperty(CSS_FLOAT) === FLOAT_NONE) {
       $this->reflow_static_normal($parent, $context);
     } else {
       $this->reflow_static_float($parent, $context);
@@ -316,8 +316,8 @@ class BlockBox extends GenericContainerBox {
        * of the current box! The top content edge should be offset from that level only of padding and
        * border width.
        */
-      $border  = $this->get_css_property(CSS_BORDER);
-      $padding = $this->get_css_property(CSS_PADDING);
+      $border  = $this->getCSSProperty(CSS_BORDER);
+      $padding = $this->getCSSProperty(CSS_PADDING);
 
       $this->moveto( $parent->get_left() + $this->get_extra_left(),
                      $parent->_current_y - $border->top->get_width()  - $padding->top->value );
@@ -328,7 +328,7 @@ class BlockBox extends GenericContainerBox {
      */
     $this->reflow_content($context);
 
-    if ($this->get_css_property(CSS_OVERFLOW) != OVERFLOW_VISIBLE) {
+    if ($this->getCSSProperty(CSS_OVERFLOW) != OVERFLOW_VISIBLE) {
       $this->fitFloats($context);
     }
 
@@ -347,7 +347,7 @@ class BlockBox extends GenericContainerBox {
       $cm = 0;
     } else {
       $cm = $context->get_collapsed_margin();
-    };
+    }
 
     /**
      * Update the bottom  value, collapsing the latter value with 
@@ -357,7 +357,7 @@ class BlockBox extends GenericContainerBox {
      * first - the value of collapsed bottom margin of the last child AND
      * second - the value of collapsed top margin of current element.
      */
-    $margin = $this->get_css_property(CSS_MARGIN);
+    $margin = $this->getCSSProperty(CSS_MARGIN);
        
     if ($parent) {
       /**
@@ -366,15 +366,15 @@ class BlockBox extends GenericContainerBox {
       $parent->close_line($context);
 
       $parent->_current_y = $this->collapse_margin_bottom($parent, $context);
-    };
+    }
   }
 
   function show(&$driver) {
-    if ($this->get_css_property(CSS_FLOAT)    != FLOAT_NONE || 
-        $this->get_css_property(CSS_POSITION) == POSITION_RELATIVE) {
+    if ($this->getCSSProperty(CSS_FLOAT)    != FLOAT_NONE || 
+        $this->getCSSProperty(CSS_POSITION) == POSITION_RELATIVE) {
       // These boxes will be rendered separately
       return true;
-    };
+    }
 
     return parent::show($driver);
   }
@@ -393,56 +393,56 @@ class BlockBox extends GenericContainerBox {
    * @param OutputDriver $driver The output device driver object
    */
   function show_fixed(&$driver) {
-    $position = $this->get_css_property(CSS_POSITION);
+    $position = $this->getCSSProperty(CSS_POSITION);
 
     if ($position == POSITION_FIXED) {
       /**
        * Calculate the distance between the top page edge and top box content edge
        */
-      $bottom = $this->get_css_property(CSS_BOTTOM);
-      $top    = $this->get_css_property(CSS_TOP);
+      $bottom = $this->getCSSProperty(CSS_BOTTOM);
+      $top    = $this->getCSSProperty(CSS_TOP);
 
       if (!$top->isAuto()) {
         if ($top->isPercentage()) {
           $vertical_offset = $driver->getPageMaxHeight() / 100 * $top->getPercentage();
         } else {
           $vertical_offset = $top->getPoints();
-        };
+        }
 
       } elseif (!$bottom->isAuto()) { 
         if ($bottom->isPercentage()) {
           $vertical_offset = $driver->getPageMaxHeight() * (100 - $bottom->getPercentage())/100 - $this->get_height();
         } else {
           $vertical_offset = $driver->getPageMaxHeight() - $bottom->getPoints() - $this->get_height();
-        };
+        }
 
       } else {
         $vertical_offset = 0;
-      };
+      }
 
       /**
        * Calculate the distance between the right page edge and right box content edge
        */
-      $left  = $this->get_css_property(CSS_LEFT);
-      $right = $this->get_css_property(CSS_RIGHT);
+      $left  = $this->getCSSProperty(CSS_LEFT);
+      $right = $this->getCSSProperty(CSS_RIGHT);
 
       if (!$left->isAuto()) {
         if ($left->isPercentage()) {
           $horizontal_offset = $driver->getPageWidth() / 100 * $left->getPercentage();
         } else {
           $horizontal_offset = $left->getPoints();
-        };
+        }
 
       } elseif (!$right->isAuto()) { 
         if ($right->isPercentage()) {
           $horizontal_offset = $driver->getPageWidth() * (100 - $right->getPercentage())/100 - $this->get_width();
         } else {
           $horizontal_offset = $driver->getPageWidth() - $right->getPoints() - $this->get_width();
-        };
+        }
 
       } else {
         $horizontal_offset = 0;
-      };
+      }
      
       /**
        * Offset current box to the required position on the current page (note that
@@ -450,7 +450,7 @@ class BlockBox extends GenericContainerBox {
        */
       $this->moveto($driver->getPageLeft() + $horizontal_offset,
                     $driver->getPageTop()  - $vertical_offset);
-    };
+    }
 
     /**
      * After box have benn properly positioned, render it as usual.

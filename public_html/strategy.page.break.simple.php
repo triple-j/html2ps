@@ -1,7 +1,7 @@
 <?php
 
 class StrategyPageBreakSimple {
-  function StrategyPageBreakSimple() {
+  function __construct() {
   }
 
   function run(&$pipeline, &$media, &$box) {
@@ -9,7 +9,7 @@ class StrategyPageBreakSimple {
     $page_heights = array();
     for ($i=0; $i<$num_pages; $i++) {
       $page_heights[] = mm2pt($media->real_height());
-    };    
+    }
 
     return $page_heights;
   }

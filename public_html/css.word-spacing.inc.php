@@ -4,10 +4,10 @@
 class CSSWordSpacing extends CSSPropertyHandler {
   var $_default_value;
 
-  function CSSWordSpacing() { 
-    $this->CSSPropertyHandler(false, true); 
+  function __construct() {
+    CSSPropertyHandler::__construct(false, true);
 
-    $this->_default_value = Value::fromString("0");
+    $this->_default_value = (new Value())->fromString("0");
   }
 
   function default_value() { 
@@ -19,24 +19,24 @@ class CSSWordSpacing extends CSSPropertyHandler {
 
     if ($value === 'inherit') {
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
     if ($value === 'normal') { 
       return $this->_default_value; 
-    };
+    }
 
-    return Value::fromString($value);
+    return (new Value())->fromString($value);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_WORD_SPACING;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'word-spacing';
   }
 }
 
-CSS::register_css_property(new CSSWordSpacing);
+(new CSS())->register_css_property(new CSSWordSpacing);
 
 ?>

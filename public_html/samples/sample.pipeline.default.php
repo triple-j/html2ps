@@ -1,8 +1,7 @@
 <?php
 
-require_once(dirname(__FILE__).'/../config.inc.php');
-require_once(HTML2PS_DIR.'pipeline.factory.class.php');
-parse_config_file(HTML2PS_DIR.'html2ps.config');
+require_once('../pipeline.factory.class.php');
+parse_config_file('../html2ps.config');
 
 global $g_config;
 $g_config = array(
@@ -15,7 +14,7 @@ $g_config = array(
                   'draw_page_border' => false
                   );
 
-$media = Media::predefined('A4');
+$media = (new Media())->predefined('A4');
 $media->set_landscape(false);
 $media->set_margins(array('left'   => 0,
                           'right'  => 0,
@@ -29,8 +28,7 @@ $g_px_scale = mm2pt($media->width() - $media->margins['left'] - $media->margins[
 global $g_pt_scale;
 $g_pt_scale = $g_px_scale * 1.43; 
 
-$pipeline = PipelineFactory::create_default_pipeline("","");
-$pipeline->configure($g_config);
+$pipeline =  (new PipelineFactory())->create_default_pipeline("","");
 $pipeline->process('http://localhost:81/testing/ww.html', $media); 
 
 ?>

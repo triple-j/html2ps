@@ -3,15 +3,15 @@
 
 class FrameBox extends GenericContainerBox {
   function &create(&$root, &$pipeline) {
-    $box =& new FrameBox($root, $pipeline);
-    $box->readCSS($pipeline->get_current_css_state());
+    $box= new FrameBox($root, $pipeline);
+    $box->readCSS($pipeline->getCurrentCSSState());
     return $box;
   }
 
-  function reflow(&$parent, &$context) {
+  function reflow(&$parent, &$context, $boxes = null) {
     // If frame contains no boxes (for example, the src link is broken)
     // we just return - no further processing will be done
-    if (count($this->content) == 0) { return; };
+    if (count($this->content) == 0) { return; }
 
     // First box contained in a frame should always fill all its height
     $this->content[0]->put_full_height($this->get_height());
@@ -42,7 +42,7 @@ class FrameBox extends GenericContainerBox {
   function reflow_absolute(&$context) {
     GenericFormattedBox::reflow($this->parent, $context);
 
-    $position_strategy =& new StrategyPositionAbsolute();
+    $position_strategy= new StrategyPositionAbsolute();
     $position_strategy->apply($this);
     
     /**
@@ -67,7 +67,7 @@ class FrameBox extends GenericContainerBox {
      * @todo Update the family of get_..._width function so that they would apply constraint
      * using the containing block width, not "real" parent width
      */
-    $wc = $this->get_css_property(CSS_WIDTH);
+    $wc = $this->getCSSProperty(CSS_WIDTH);
 
     $containing_block =& $this->_get_containing_block();
     $this->put_width($wc->apply($this->get_width(), 
@@ -89,35 +89,35 @@ class FrameBox extends GenericContainerBox {
      * we need to offset it, as we assumed it had zero width and height at
      * the moment we placed it
      */
-    $right = $this->get_css_property(CSS_RIGHT);
-    $left = $this->get_css_property(CSS_LEFT);
+    $right = $this->getCSSProperty(CSS_RIGHT);
+    $left  = $this->getCSSProperty(CSS_LEFT);
     if ($left->isAuto() && !$right->isAuto()) {
       $this->offset(-$this->get_width(), 0);
-    };
+    }
 
-    $bottom = $this->get_css_property(CSS_BOTTOM);
-    $top = $this->get_css_property(CSS_TOP);
+    $bottom = $this->getCSSProperty(CSS_BOTTOM);
+    $top    = $this->getCSSProperty(CSS_TOP);
     if ($top->isAuto() && !$bottom->isAuto()) {
       $this->offset(0, $this->get_height());
-    };
+    }
   }
 
-  function FrameBox(&$root, &$pipeline) {
-    $css_state =& $pipeline->get_current_css_state();
+  function __construct(&$root, &$pipeline) {
+    $css_state =& $pipeline->getCurrentCSSState();
 
     // Inherit 'border' CSS value from parent (FRAMESET tag), if current FRAME 
     // has no FRAMEBORDER attribute, and FRAMESET has one
     $parent = $root->parent();
     if (!$root->has_attribute('frameborder') &&
         $parent->has_attribute('frameborder')) {
-      $parent_border = $css_state->get_propertyOnLevel(CSS_BORDER, CSS_PROPERTY_LEVEL_PARENT);
-      $css_state->set_property(CSS_BORDER, $parent_border->copy());
+      $parent_border = $css_state->getPropertyOnLevel(CSS_BORDER, CSS_PROPERTY_LEVEL_PARENT);
+      $css_state->setProperty(CSS_BORDER, $parent_border->copy());
     }
 
-    $this->GenericContainerBox($root);
+    GenericContainerBox::__construct($root);
 
     // If NO src attribute specified, just return.
-    if (!$root->has_attribute('src')) { return; };
+    if (!$root->has_attribute('src')) { return; }
 
     // Determine the fullly qualified URL of the frame content
     $src  = $root->get_attribute('src');
@@ -127,7 +127,7 @@ class FrameBox extends GenericContainerBox {
     /**
      * If framed page could not be fetched return immediately
      */
-    if (is_null($data)) { return; };
+    if (is_null($data)) { return; }
 
     /**
      * Render only iframes containing HTML only
@@ -136,21 +136,21 @@ class FrameBox extends GenericContainerBox {
      */
     $content_type = $data->get_additional_data('Content-Type');
     $content_type_array = explode(';', $content_type);
-    if ($content_type_array[0] != "text/html") { return; };
+    if ($content_type_array[0] != "text/html") { return; }
 
     $html = $data->get_content();
       
     // Remove control symbols if any
     $html = preg_replace('/[\x00-\x07]/', "", $html);
-    $converter = Converter::create();
+    $converter = (new Converter())->create();
     $html = $converter->to_utf8($html, $data->detect_encoding());
     $html = html2xhtml($html);
-    $tree = TreeBuilder::build($html);
+    $tree = (new TreeBuilder())->build($html);
       
     // Save current stylesheet, as each frame may load its own stylesheets
     //
-    $pipeline->push_css();
-    $css =& $pipeline->get_current_css();
+    $pipeline->pushCSS();
+    $css =& $pipeline->getCurrentCSS();
     $css->scan_styles($tree, $pipeline);
     
     $frame_root = traverse_dom_tree_pdf($tree);   
@@ -159,7 +159,7 @@ class FrameBox extends GenericContainerBox {
     
     // Restore old stylesheet
     //
-    $pipeline->pop_css();
+    $pipeline->popCSS();
 
     $pipeline->pop_base_url();
   }
@@ -170,24 +170,24 @@ class FrameBox extends GenericContainerBox {
    * box had 'position: static'
    */
   function _positionAbsoluteVertically($containing_block) {
-    $bottom = $this->get_css_property(CSS_BOTTOM);
-    $top    = $this->get_css_property(CSS_TOP);
+    $bottom = $this->getCSSProperty(CSS_BOTTOM);
+    $top    = $this->getCSSProperty(CSS_TOP);
 
     if (!$top->isAuto()) {
       if ($top->isPercentage()) {
         $top_value = ($containing_block['top'] - $containing_block['bottom']) / 100 * $top->getPercentage();
       } else {
         $top_value = $top->getPoints();
-      };
+      }
       $this->put_top($containing_block['top'] - $top_value - $this->get_extra_top());
     } elseif (!$bottom->isAuto()) { 
       if ($bottom->isPercentage()) {
         $bottom_value = ($containing_block['top'] - $containing_block['bottom']) / 100 * $bottom->getPercentage();
       } else {
         $bottom_value = $bottom->getPoints();
-      };
+      }
       $this->put_top($containing_block['bottom'] + $bottom_value + $this->get_extra_bottom());
-    };
+    }
   }
 
   /**
@@ -196,24 +196,24 @@ class FrameBox extends GenericContainerBox {
    * method which could be used if this box had 'position: static'
    */
   function _positionAbsoluteHorizontally($containing_block) {
-    $left  = $this->get_css_property(CSS_LEFT);
-    $right = $this->get_css_property(CSS_RIGHT);
+    $left  = $this->getCSSProperty(CSS_LEFT);
+    $right = $this->getCSSProperty(CSS_RIGHT);
 
     if (!$left->isAuto()) { 
       if ($left->isPercentage()) {
         $left_value = ($containing_block['right'] - $containing_block['left']) / 100 * $left->getPercentage();
       } else {
         $left_value = $left->getPoints();
-      };
+      }
       $this->put_left($containing_block['left'] + $left_value + $this->get_extra_left());
     } elseif (!$right->isAuto()) {
       if ($right->isPercentage()) {
         $right_value = ($containing_block['right'] - $containing_block['left']) / 100 * $right->getPercentage();
       } else {
         $right_value = $right->getPoints();
-      };
+      }
       $this->put_left($containing_block['right'] - $right_value - $this->get_extra_right());
-    };
+    }
   }
 }
 
@@ -222,13 +222,13 @@ class FramesetBox extends GenericContainerBox {
   var $cols;
 
   function &create(&$root, &$pipeline) {
-    $box =& new FramesetBox($root, $pipeline);
-    $box->readCSS($pipeline->get_current_css_state());
+    $box= new FramesetBox($root, $pipeline);
+    $box->readCSS($pipeline->getCurrentCSSState());
     return $box;
   }
 
-  function FramesetBox(&$root, $pipeline) {
-    $this->GenericContainerBox($root);
+  function __construct(&$root, $pipeline) {
+    GenericContainerBox::__construct($root);
     $this->create_content($root, $pipeline);
     
     // Now determine the frame layout inside the frameset
@@ -236,7 +236,7 @@ class FramesetBox extends GenericContainerBox {
     $this->cols = $root->has_attribute('cols') ? $root->get_attribute('cols') : "100%";
   }
 
-  function reflow(&$parent, &$context) {
+  function reflow(&$parent, &$context, $boxes = null) {
     $viewport =& $context->get_viewport();
 
     // Frameset always fill all available space in viewport
@@ -273,7 +273,7 @@ class FramesetBox extends GenericContainerBox {
       if (!is_a($frame, "FramesetBox") &&
           !is_a($frame, "FrameBox")) {
         continue;
-      };
+      }
 
       // Guess frame size and position
       $frame->put_left($this->get_left() + array_sum(array_slice($cols, 0, $cur_col)) + $frame->get_extra_left());

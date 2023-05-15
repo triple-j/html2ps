@@ -22,7 +22,7 @@ class Font {
     return $this->error_message; 
   }
 
-  function Font() {}
+  function __construct() {}
 
   function linethrough_position() {
     return $this->bbox[3]*0.25;
@@ -45,8 +45,8 @@ class Font {
 
     $length = strlen($string);
     for ($i=0; $i<$length; $i++) {
-      $width += $this->char_widths[$string{$i}];
-    };
+      $width += $this->char_widths[$string[$i]];
+    }
 
     return $width;
   }
@@ -87,23 +87,23 @@ class FontTrueType extends Font {
      * Read character widths for selected encoding
      */
     $widths = array();
-    $manager = ManagerEncoding::get();
-    $map = $manager->get_encoding_vector($encoding);
+    $manager = (new ManagerEncoding())->get();
+    $map = $manager->getEncodingVector($encoding);
     foreach ($map as $code => $ucs2) {
       $glyphIndex = $subtable->lookup($ucs2);
       if (!is_null($glyphIndex)) {
         $widths[$code] = floor($hmtx->_hMetrics[$glyphIndex]['advanceWidth']*1000/$head->_unitsPerEm);
       } else {
         $widths[$code] = DEFAULT_CHAR_WIDTH;
-      };
-    };
+      }
+    }
 
     // Fill unknown characters with the default char width
     for ($i=0; $i<256; $i++) {
       if (!isset($widths[chr($i)])) {
         $widths[chr($i)] = DEFAULT_CHAR_WIDTH;
-      };
-    };
+      }
+    }
 
     $this->ascender            = floor($hhea->_ascender*1000/$head->_unitsPerEm);
     $this->descender           = floor($hhea->_descender*1000/$head->_unitsPerEm);
@@ -144,7 +144,7 @@ class FontType1 extends Font {
       $error_message = $font->error_message();
       $dummy = null; 
       return $dummy; 
-    };
+    }
 
     return $font;
   }
@@ -162,13 +162,13 @@ class FontType1 extends Font {
       $_typeface = $typeface;
 
       ob_start();
-      include(HTML2PS_DIR.'templates/error._missing_afm.tpl');
+      include(HTML2PS_DIR.'/templates/error._missing_afm.tpl');
       $this->error_message = ob_get_contents();
       ob_end_clean();
 
       error_log(sprintf("Missing font metrics file: %s",$filename));
       return false;
-    };
+    }
 
     while ($line = fgets($file)) {
       if (preg_match("/C\s-?\d+\s;\sWX\s(\d+)\s;\sN\s(\S+)\s;/",$line,$matches)) {
@@ -179,8 +179,8 @@ class FontType1 extends Font {
         if (isset($encoding_data[$glyph_name])) {
           foreach ($encoding_data[$glyph_name] as $c) {
             $this->char_widths[$c] = $glyph_width;
-          };
-        };
+          }
+        }
         
       } elseif (preg_match("/UnderlinePosition ([\d-]+)/",$line,$matches)) {
         // This line is an underline position line
@@ -201,8 +201,8 @@ class FontType1 extends Font {
       } elseif (preg_match("/FontBBox ([\d-]+) ([\d-]+) ([\d-]+) ([\d-]+)/",$line,$matches)) {
         // This line is an font BBox line
         $this->bbox = array($matches[1], $matches[2], $matches[3], $matches[4]);
-      };
-    };
+      }
+    }
 
     fclose($file);
 
@@ -210,8 +210,8 @@ class FontType1 extends Font {
     for ($i=0; $i<256; $i++) {
       if (!isset($this->char_widths[chr($i)])) {
         $this->char_widths[chr($i)] = DEFAULT_CHAR_WIDTH;
-      };
-    };
+      }
+    }
 
     return true;
   }

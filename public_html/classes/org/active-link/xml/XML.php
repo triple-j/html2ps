@@ -50,9 +50,9 @@ class XML extends Tree {
 	  *	@param		optional string argument
 	  *	@returns	none
 	  */
-	function XML($argument = "") {
+	function __construct($argument = "") {
 		$success = false;
-		$this->Tree();
+		Tree::__construct();
 		$this->pathSeparator = "/";
 		$this->tag = new Tag();
 		if(is_string($argument)) {
@@ -139,7 +139,7 @@ class XML extends Tree {
 			$tagPath = $this->tag->getTagName();
 		$tags = explode($this->pathSeparator, $tagPath);
 		if($this->tag->getTagName() == $tags[0]) {
-			if(count($tags) == 1) {
+			if (is_countable($tags) && count($tags) == 1) {
 				$arrKeys = array_keys($this->nodes);
 				for($index = 0; $index < count($arrKeys); $index ++) {
 					if(gettype($this->nodes[$arrKeys[$index]]) == "object" && strtolower(get_class($this->nodes[$arrKeys[$index]])) == "xmlbranch") {
@@ -165,7 +165,7 @@ class XML extends Tree {
 				}
 			}
 		}
-		if(count($branchArray) == 0)
+		if (is_countable($branchArray) && count($branchArray) == 0)
 			$branchArray = false;
 		return $branchArray;
 	}
@@ -182,7 +182,7 @@ class XML extends Tree {
 			$tagPath = $this->tag->getTagName();
 		$tags = explode($this->pathSeparator, $tagPath);
 		if($this->tag->getTagName() == $tags[0]) {
-			if(count($tags) == 1) {
+			if (is_countable($tags) && count($tags) == 1) {
 				$arrKeys = array_keys($this->nodes);
 				for($index = 0; $index < count($arrKeys); $index ++) {
 					if(gettype($this->nodes[$arrKeys[$index]]) == "object" && strtolower(get_class($this->nodes[$arrKeys[$index]])) == "xmlleaf") {
@@ -204,7 +204,7 @@ class XML extends Tree {
 				}
 			}
 		}
-		if(count($leafArray) == 0)
+		if (is_countable($leafArray) && count($leafArray) == 0)
 			$leafArray = false;
 		return $leafArray;
 	}
@@ -436,7 +436,7 @@ class XML extends Tree {
 		$branchesDeleted = 0;
 		$referencedBranches = array();
 		$tags = explode($this->pathSeparator, $tagPath);
-		if(count($tags) > 1) {
+		if (is_countable($tags) && count($tags) > 1) {
 			$parentTagName = array_pop($tags);
 			$parentTagPath = implode($this->pathSeparator, $tags);
 			$referencedBranches = $this->getBranches($parentTagPath, $parentTagName);

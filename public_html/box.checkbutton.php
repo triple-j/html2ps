@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/box.checkbutton.php,v 1.21 2007/05/07 12:15:53 Konstantin Exp $
+// $Header: /cvsroot/html2ps/box.checkbutton.php,v 1.20 2006/10/06 20:10:51 Konstantin Exp $
 
 /**
  * @package HTML2PS
@@ -62,13 +62,12 @@ class CheckBox extends GenericFormattedBox {
     if (trim($value) == "") {
       error_log("Checkbox with empty 'value' attribute");
       $value = sprintf("___Value%s",md5(time().rand()));
-    };
+    }
 
-    $box =& new CheckBox($root->has_attribute('checked'), 
+    $box= new CheckBox($root->has_attribute('checked'), 
                          $root->get_attribute('name'),
                          $value);
-    $box->readCSS($pipeline->get_current_css_state());
-    $box->setup_dimensions();
+    $box->readCSS($pipeline->getCurrentCSSState());
     return $box;
   }
 
@@ -79,8 +78,8 @@ class CheckBox extends GenericFormattedBox {
    * 
    * @see CheckBox::create()
    */
-  function CheckBox($checked, $name, $value) {
-    $this->GenericFormattedBox();
+  function __construct($checked, $name, $value) {
+    GenericFormattedBox::__construct();
 
     $this->_checked = $checked;
     $this->_name    = trim($name);
@@ -111,7 +110,7 @@ class CheckBox extends GenericFormattedBox {
    *
    * @see CheckBox::get_min_width
    */
-  function get_max_width(&$context) { 
+  function get_max_width(&$context, $limit = 10000000) {
     return $this->width; 
   }
 
@@ -125,17 +124,18 @@ class CheckBox extends GenericFormattedBox {
    * 
    * @return Boolean flag indicating the error/success state; 'null' value in case of critical error 
    */
-  function reflow(&$parent, &$context) {  
+  function reflow(&$parent, &$context, $boxes = null) {
     GenericFormattedBox::reflow($parent, $context);
     
     /**
      * Check box size is constant (defined in config.inc.php) and is never affected
-     * neither by CSS nor HTML. Call setup_dimensions once more to restore possible 
-     * changes size
+     * neither by CSS nor HTML.
      * 
      * @see CHECKBOX_SIZE
      */
-    $this->setup_dimensions();
+    $this->default_baseline = units2pt(CHECKBOX_SIZE);
+    $this->height           = units2pt(CHECKBOX_SIZE);
+    $this->width            = units2pt(CHECKBOX_SIZE);
 
     // set default baseline
     $this->baseline = $this->default_baseline;
@@ -222,15 +222,9 @@ class CheckBox extends GenericFormattedBox {
         $driver->lineto($x - $check_size, $y - $check_size);
         $driver->stroke();
       }
-    };
+    }
 
     return true;
-  }
-
-  function setup_dimensions() {
-    $this->default_baseline = units2pt(CHECKBOX_SIZE);
-    $this->height           = units2pt(CHECKBOX_SIZE);
-    $this->width            = units2pt(CHECKBOX_SIZE);
   }
 }
 ?>

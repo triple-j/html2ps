@@ -10,8 +10,8 @@ require_once(HTML2PS_DIR.'value.line-height.class.php');
 class CSSLineHeight extends CSSSubFieldProperty {
   var $_defaultValue;
 
-  function CSSLineHeight(&$owner, $field) {
-    $this->CSSSubFieldProperty($owner, $field);
+  function __construct(&$owner, $field) {
+    CSSSubFieldProperty::__construct($owner, $field);
 
     $this->_defaultValue = new LineHeight_Relative(1.1);
   }
@@ -23,21 +23,21 @@ class CSSLineHeight extends CSSSubFieldProperty {
   function parse($value) {
     if ($value === 'inherit') {
       return CSS_PROPERTY_INHERIT;
-    };
+    }
 
     // <Number>
     // The used value of the property is this number multiplied by the element's font size. 
     // Negative values are illegal. The computed value is the same as the specified value.
     if (preg_match("/^\d+(\.\d+)?$/",$value)) { 
       return new LineHeight_Relative((float)$value);
-    };
+    }
 
     // <percentage>
     // The computed value of the property is this percentage multiplied by the element's 
     // computed font size. Negative values are illegal.  
     if (preg_match("/^\d+%$/",$value)) { 
       return new LineHeight_Relative(((float)$value)/100);
-    };
+    }
 
     // normal
     // Tells user agents to set the used value to a "reasonable" value based on the font of the element. 
@@ -45,7 +45,7 @@ class CSSLineHeight extends CSSSubFieldProperty {
     // The computed value is 'normal'.
     if (trim($value) === "normal") { 
       return $this->default_value();
-    };
+    }
   
     // <length>
     // The specified length is used in the calculation of the line box height. 
@@ -53,11 +53,11 @@ class CSSLineHeight extends CSSSubFieldProperty {
     return new LineHeight_Absolute($value);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_LINE_HEIGHT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'line-height';
   }
 }

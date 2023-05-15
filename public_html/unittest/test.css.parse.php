@@ -21,7 +21,7 @@ class TestCSSParse extends GenericTest {
     $this->assertTrue($collection->contains(CSS_HTML2PS_HTML_CONTENT));   
 
     $content =& $collection->getPropertyValue(CSS_HTML2PS_HTML_CONTENT);
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $this->assertEqual($content->render($counters), "Sample;Text");
   }
 
@@ -31,7 +31,7 @@ class TestCSSParse extends GenericTest {
     $this->assertTrue($collection->contains(CSS_CONTENT));   
 
     $content =& $collection->getPropertyValue(CSS_CONTENT);
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $this->assertEqual($content->render($counters), "TEXT");
   }
 
@@ -42,7 +42,7 @@ class TestCSSParse extends GenericTest {
     $this->assertTrue($collection->contains(CSS_HTML2PS_HTML_CONTENT));
    
     $content =& $collection->getPropertyValue(CSS_HTML2PS_HTML_CONTENT);
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $this->assertEqual($content->render($counters), "Double Quoted StringSingle Quoted String");
   }
 
@@ -58,7 +58,7 @@ class TestCSSParse extends GenericTest {
     $this->assertEqual($collection->getPropertyValue(CSS_FONT_WEIGHT), WEIGHT_BOLD);
 
     $content =& $collection->getPropertyValue(CSS_HTML2PS_HTML_CONTENT);
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $this->assertEqual($content->render($counters), "Sample;Text");
 
     $color = $collection->getPropertyValue(CSS_COLOR);
@@ -81,7 +81,7 @@ color: red;', $null);
     $this->assertEqual($collection->getPropertyValue(CSS_FONT_WEIGHT), WEIGHT_BOLD);
 
     $content =& $collection->getPropertyValue(CSS_HTML2PS_HTML_CONTENT);
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $this->assertEqual($content->render($counters), "Sample;Text");
 
     $color = $collection->getPropertyValue(CSS_COLOR);
@@ -104,7 +104,7 @@ color: red', $null);
     $this->assertEqual($collection->getPropertyValue(CSS_FONT_WEIGHT), WEIGHT_BOLD);
 
     $content =& $collection->getPropertyValue(CSS_HTML2PS_HTML_CONTENT);
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $this->assertEqual($content->render($counters), "Sample;Text");
 
     $color = $collection->getPropertyValue(CSS_COLOR);
@@ -129,7 +129,7 @@ color: red
     $this->assertEqual($collection->getPropertyValue(CSS_FONT_WEIGHT), WEIGHT_BOLD);
 
     $content =& $collection->getPropertyValue(CSS_HTML2PS_HTML_CONTENT);
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $this->assertEqual($content->render($counters), "Sample;Text");
 
     $color = $collection->getPropertyValue(CSS_COLOR);
@@ -154,7 +154,7 @@ color: red;
     $this->assertEqual($collection->getPropertyValue(CSS_FONT_WEIGHT), WEIGHT_BOLD);
 
     $content =& $collection->getPropertyValue(CSS_HTML2PS_HTML_CONTENT);
-    $counters =& new CSSCounterCollection();
+    $counters= new CSSCounterCollection();
     $this->assertEqual($content->render($counters), "Sample;Text");
 
     $color = $collection->getPropertyValue(CSS_COLOR);

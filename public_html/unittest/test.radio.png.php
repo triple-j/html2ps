@@ -3,7 +3,7 @@
 class TestRadioPng extends GenericTest {
   function testRadioPngRender() {
     parse_config_file('../html2ps.config');
-    $media = Media::predefined("A4");
+    $media = (new Media())->predefined("A4");
 
     $pipeline = $this->preparePipeline($media);
     $pipeline->output_driver = new OutputDriverPng();
@@ -25,7 +25,7 @@ class TestRadioPng extends GenericTest {
 
   function testCheckedRadioPngRender() {
     parse_config_file('../html2ps.config');
-    $media = Media::predefined("A4");
+    $media = (new Media())->predefined("A4");
 
     $pipeline = $this->preparePipeline($media);
     $pipeline->output_driver = new OutputDriverPng();

@@ -5,7 +5,7 @@ require_once(HTML2PS_DIR.'value.content.item.php');
 class ValueContent {
   var $_items;
 
-  function ValueContent() {
+  function __construct() {
     $this->set_items(array());
   }
 
@@ -14,11 +14,11 @@ class ValueContent {
   }
 
   function &copy() {
-    $copy =& new ValueContent();
+    $copy= new ValueContent();
 
     foreach ($this->_items as $item) {
       $copy->add_item($item->copy());
-    };
+    }
 
     return $copy;
   }
@@ -28,7 +28,7 @@ class ValueContent {
   }
 
   function &parse($string) {
-    $value =& new ValueContent();
+    $value= new ValueContent();
 
     while ($string !== '') {
       $result = ValueContentItem::parse($string);
@@ -40,10 +40,10 @@ class ValueContent {
 
       if (is_null($item)) {
         break;
-      };
+      }
 
       $value->add_item($item);
-    };
+    }
 
     return $value;
   }
@@ -52,7 +52,7 @@ class ValueContent {
     $content = array();
     foreach ($this->_items as $item) {
       $content[] = $item->render($counters);
-    };
+    }
     return join('', $content);
   }
 

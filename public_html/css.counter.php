@@ -4,7 +4,7 @@ class CSSCounter {
   var $_name;
   var $_value;
   
-  function CSSCounter($name) {
+  function __construct($name) {
     $this->set_name($name);
     $this->reset();
   }

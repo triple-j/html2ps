@@ -11,20 +11,20 @@ class CSSListStylePosition extends CSSSubFieldProperty {
   function parse($value) {
     if (preg_match('/\binside\b/',$value)) {
       return LSP_INSIDE; 
-    };
+    }
 
     if (preg_match('/\boutside\b/',$value)) { 
       return LSP_OUTSIDE; 
-    };
+    }
 
     return null;
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_LIST_STYLE_POSITION;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'list-style-position';
   }
 }

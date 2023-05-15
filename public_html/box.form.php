@@ -11,27 +11,27 @@ class FormBox extends BlockBox {
     global $g_config;
     if ($g_config['renderforms']) {
       $driver->new_form($this->_name);
-    };
+    }
     return parent::show($driver);
   }
 
-  function &create(&$root, &$pipeline) {
+  static function &create(&$root, &$pipeline) {
     if ($root->has_attribute('name')) {
       $name = $root->get_attribute('name');
     } elseif ($root->has_attribute('id')) {
       $name = $root->get_attribute('id');
     } else {
       $name = "";
-    };
+    }
 
     $box = new FormBox($name);
-    $box->readCSS($pipeline->get_current_css_state());
+    $box->readCSS($pipeline->getCurrentCSSState());
     $box->create_content($root, $pipeline);
     return $box;
   }
 
-  function FormBox($name) {
-    $this->BlockBox();
+  function __construct($name) {
+    BlockBox::__construct();
 
     $this->_name = $name;
   }

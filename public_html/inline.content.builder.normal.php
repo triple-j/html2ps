@@ -3,8 +3,8 @@
 require_once(HTML2PS_DIR.'inline.content.builder.php');
 
 class InlineContentBuilderNormal extends InlineContentBuilder {
-  function InlineContentBuilderNormal() {
-    $this->InlineContentBuilder();
+  function __construct() {
+    InlineContentBuilder::__construct();
   }
 
   /**
@@ -20,40 +20,32 @@ class InlineContentBuilderNormal extends InlineContentBuilder {
 
     // Whitespace-only text nodes sill result on only one whitespace box
     if (trim($content) === '') {
-      $whitespace =& WhitespaceBox::create($pipeline);
+      $whitespace =& (new WhitespaceBox())->create('', '', $pipeline);
       $box->add_child($whitespace);
       return;
     }
 
     // Add leading whispace box, if content stars with a space
-    if (preg_match('/ /u', substr($content,0,1))) {
-      $whitespace =& WhitespaceBox::create($pipeline);
+    if (preg_match('/ /u',substr($content,0,1))) {
+      $whitespace =& (new WhitespaceBox())->create('', '', $pipeline);
       $box->add_child($whitespace);
     }
 
     $words = $this->break_into_words($content);
 
-    $size = count($words);
+    $size = count((array) $words);
     $pos = 0;
-
-    // Check if text content has trailing whitespace
-    $last_whitespace = substr($content, strlen($content) - 1, 1) == ' ';
-
+    $last_whitespace = substr(strlen($content)-1, 1);
     foreach ($words as $word) {
       $box->process_word($word, $pipeline);
       $pos++;
 
       $is_last_word = ($pos == $size);
-
-      // Whitespace boxes should be added
-      // 1) between words 
-      // 2) after the last word IF there was a space at the content end
-      if (!$is_last_word || 
-          $last_whitespace) {
-        $whitespace =& WhitespaceBox::create($pipeline);
+      if (!$is_last_word || $last_whitespace) {
+        $whitespace =& (new WhitespaceBox())->create('', '', $pipeline);
         $box->add_child($whitespace);
-      };
-    };
+      }
+    }
   }
 }
 

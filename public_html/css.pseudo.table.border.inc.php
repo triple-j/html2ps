@@ -6,19 +6,19 @@ require_once(HTML2PS_DIR.'value.border.edge.class.php');
 class CSSPseudoTableBorder extends CSSPropertyHandler {
   var $_defaultValue;
 
-  function CSSPseudoTableBorder() {
-    $this->CSSPropertyHandler(true, false);
+  function __construct() {
+    CSSPropertyHandler::__construct(true, false);
 
-    $this->_defaultValue = BorderPDF::create(array('top'    => array('width' => Value::fromString('2px'), 
+    $this->_defaultValue = (new BorderPDF())->create(array('top'    => array('width' => (new Value())->fromString('2px'),
                                                                      'color' => array(0,0,0), 
                                                                      'style' => BS_NONE),
-                                                   'right'  => array('width' => Value::fromString('2px'), 
+                                                   'right'  => array('width' => (new Value())->fromString('2px'),
                                                                      'color' => array(0,0,0), 
                                                                      'style' => BS_NONE),
-                                                   'bottom' => array('width' => Value::fromString('2px'), 
+                                                   'bottom' => array('width' => (new Value())->fromString('2px'),
                                                                      'color' => array(0,0,0), 
                                                                      'style' => BS_NONE),
-                                                   'left'   => array('width' => Value::fromString('2px'), 
+                                                   'left'   => array('width' => (new Value())->fromString('2px'),
                                                                      'color' => array(0,0,0), 
                                                                      'style' => BS_NONE)));
   }
@@ -27,11 +27,11 @@ class CSSPseudoTableBorder extends CSSPropertyHandler {
     return $this->_defaultValue->copy();
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_HTML2PS_TABLE_BORDER;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return '-html2ps-table-border';
   }
 
@@ -52,6 +52,6 @@ class CSSPseudoTableBorder extends CSSPropertyHandler {
   }
 }
 
-CSS::register_css_property(new CSSPseudoTableBorder());
+(new CSS())->register_css_property(new CSSPseudoTableBorder());
 
 ?>

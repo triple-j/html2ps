@@ -3,7 +3,7 @@
 class OutputFilterGZip extends OutputFilter {
   function content_type() {
     return null;
-    //    return ContentType::gz();
+    //    return (new ContentType())->gz();
   }
 
   function process($tmp_filename) {

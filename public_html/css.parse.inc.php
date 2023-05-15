@@ -1,9 +1,8 @@
 <?php
-// $Header: /cvsroot/html2ps/css.parse.inc.php,v 1.28 2007/03/15 18:37:31 Konstantin Exp $
+// $Header: /cvsroot/html2ps/css.parse.inc.php,v 1.26 2007/01/24 18:55:51 Konstantin Exp $
 
 require_once(HTML2PS_DIR.'css.rules.page.inc.php');
 require_once(HTML2PS_DIR.'css.property.collection.php');
-require_once(HTML2PS_DIR.'css.parse.properties.php');
 
 define("SELECTOR_CLASS_REGEXP","[\w\d_-]+");
 define("SELECTOR_ID_REGEXP","[\w\d_-]+");
@@ -137,7 +136,7 @@ function parse_css_selector($raw_selector) {
 
   // pseudoclasses & pseudoelements
   if (preg_match("/^([#\.\s\w_-]*):(\w+)$/", $raw_selector, $matches)) {
-    if ($matches[1] === "") { $matches[1] = "*"; };
+    if ($matches[1] === "") { $matches[1] = "*"; }
 
     switch($matches[2]) {
      case "lowlink":
@@ -148,32 +147,32 @@ function parse_css_selector($raw_selector) {
       return array(SELECTOR_SEQUENCE, array(parse_css_selector($matches[1]), array(SELECTOR_PSEUDOELEMENT_BEFORE)));
      case "after":
       return array(SELECTOR_SEQUENCE, array(parse_css_selector($matches[1]), array(SELECTOR_PSEUDOELEMENT_AFTER)));
-    };
-  };
+    }
+  }
 
   // :lang() pseudoclass
   if (preg_match("/^([#\.\s\w_-]+):lang\((\w+)\)$/", $raw_selector, $matches)) {
     return array(SELECTOR_SEQUENCE, array(parse_css_selector($matches[1]), array(SELECTOR_LANGUAGE, $matches[2])));
-  };
+  }
 
   if (preg_match("/^(\S+)(\.\S+)$/", $raw_selector, $matches)) {
     return array(SELECTOR_SEQUENCE, array(parse_css_selector($matches[1]), parse_css_selector($matches[2])));
-  };
+  }
 
-  switch ($raw_selector{0}) {
+  switch ($raw_selector[0]) {
   case '#':
     return array(SELECTOR_ID,    substr($raw_selector,1));
   case '.':
     return array(SELECTOR_CLASS, substr($raw_selector,1));
-  };
+  }
 
   if (preg_match("/^(\w+)#(".SELECTOR_ID_REGEXP.")$/", $raw_selector, $matches)) {
     return array(SELECTOR_SEQUENCE, array(array(SELECTOR_ID, $matches[2]), array(SELECTOR_TAG, $matches[1])));
-  };
+  }
 
   if ($raw_selector === "*") {
     return array(SELECTOR_ANY);
-  };
+  }
 
   return array(SELECTOR_TAG,$raw_selector);
 }
@@ -196,41 +195,52 @@ function parse_css_selectors($raw_selectors) {
 
     if (!empty($selector_string)) {
       $selectors[] = parse_css_selector($selector_string);
-    };
-  };
+    }
+  }
   
   return $selectors;
 }
 
-// function &parse_css_property($property, &$pipeline) { 
-//   if (preg_match("/^(.*?)\s*:\s*(.*)/",$property, $matches)) {
-//     $name = strtolower(trim($matches[1]));
-//     $code = CSS::name2code($name);
-//     if (is_null($code)) { 
-//       error_log(sprintf("Unsupported CSS property: '%s'", $name));
-//       $null = null;
-//       return $null;
-//     };
 
-//     $collection =& new CSSPropertyCollection();
-//     $collection->add_property(CSSPropertyDeclaration::create($code, trim($matches[2]), $pipeline));
-//     return $collection;
-//   } elseif (preg_match("/@import\s+\"(.*)\";/",$property, $matches)) {
-//     // @import "<url>"
-//     $collection =& css_import(trim($matches[1]), $pipeline);
-//     return $collection;
-//   } elseif (preg_match("/@import\s+url\((.*)\);/",$property, $matches)) {
-//     // @import url()
-//     $collection =& css_import(trim($matches[1]), $pipeline);
-//     return $collection;
-//   } elseif (preg_match("/@import\s+(.*);/",$property, $matches)) {
-//     // @import <url>
-//     $collection =& css_import(trim($matches[1]), $pipeline);
-//     return $collection;
-//   } else {
-//     $collection =& new CSSPropertyCollection();
-//     return $collection;
-//   };
-// }
+function parse_css_property($property, &$pipeline) { 
+  if (preg_match("/^(.*?)\s*:\s*(.*)/",$property, $matches)) {
+    $name = strtolower(trim($matches[1]));
+    $code = (new CSS())->word2code($name);
+    if (is_null($code)) { 
+      error_log(sprintf("Unsupported CSS property: '%s'", $name));
+      return null; 
+    }
+
+    $collection = new CSSPropertyCollection();
+    $collection->addProperty((new CSSPropertyDeclaration())->create($code, trim($matches[2]), $pipeline));
+    return $collection;
+  } elseif (preg_match("/@import\s+\"(.*)\";/",$property, $matches)) {
+    // @import "<url>"
+    css_import(trim($matches[1]), $pipeline);
+  } elseif (preg_match("/@import\s+url\((.*)\);/",$property, $matches)) {
+    // @import url()
+    css_import(trim($matches[1]), $pipeline);
+  } elseif (preg_match("/@import\s+(.*);/",$property, $matches)) {
+    // @import <url>
+    css_import(trim($matches[1]), $pipeline);
+  } else {
+    return new CSSPropertyCollection();
+  }
+}
+
+function parse_css_properties($raw_properties, &$pipeline) {
+  $properties = explode(";",$raw_properties);
+  
+  $property_collection = new CSSPropertyCollection();
+
+  foreach ($properties as $property) {
+    $result = parse_css_property(trim($property), $pipeline);
+    if (!is_null($result)) {
+      $property_collection->merge($result);
+    }
+  }
+  
+  return $property_collection;
+}
 
 ?>

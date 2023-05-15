@@ -53,8 +53,8 @@ class XMLRPCClient extends HTTPClient {
 	  *	@param		string host
 	  *	@param		optional int port
 	  */
-	function XMLRPCClient($host, $port = 80) {
-		$this->HTTPClient($host, $port);
+	function __construct($host, $port = 80) {
+		HTTPClient::__construct($host, $port);
 		$this->setRequestMethod("POST");
 		$this->addRequestHeaderRaw("Content-type: text/xml");
 		$this->xml = new XML("methodCall");

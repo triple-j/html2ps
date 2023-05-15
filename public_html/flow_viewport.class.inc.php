@@ -5,7 +5,7 @@ class FlowViewport {
   var $width;
   var $height;
 
-  function FlowViewport() {
+  function __construct() {
     $this->left = 0;
     $this->top = 0;
     $this->width = 0;
@@ -17,7 +17,7 @@ class FlowViewport {
     $viewport->left   = $box->get_left_padding();
     $viewport->top    = $box->get_top_padding();
     
-    $padding = $box->get_css_property(CSS_PADDING);
+    $padding = $box->getCSSProperty(CSS_PADDING);
     
     $viewport->width  = $box->get_width() + $padding->left->value + $padding->right->value;
     $viewport->height = $box->get_height() + $padding->top->value + $padding->bottom->value;

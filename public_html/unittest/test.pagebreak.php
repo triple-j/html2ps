@@ -5,17 +5,39 @@ class TestPagebreak extends GenericTest {
   function testPagebreakText1() {
     $media = new Media(array('width' => 100, 'height' => 100),
                        array('top'=>0, 'bottom'=>0, 'left'=>0, 'right'=>0));
-    $tree = $this->runPipeline(file_get_contents('test.pagebreak.text.1.html'), $media);
+    $tree = $this->runPipeline('
+<html>
+<head>
+<style type="text/css">
+body   { font-size: 20mm; line-height: 1; width: 4em;  padding: 0; margin: 0; }
+#wrap  { width: 2em; }
+#first { line-height: 1; }
+</style>
+</head>
+<body>
+<div id="first" class="outer">
+LINE1
+LINE2
+LINE3
+LINE4
+</div><!--Page break should be here-->
+<div id="second">
+LINE1
+LINE2
+</div>
+</body>
+</html>
+', $media);
 
     /**
      * Calculate page heights
      */
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
-    $first_div  = $tree->get_element_by_id('first');
-    $second_div = $tree->get_element_by_id('second');
+    $first_div  = $tree->getElementById('first');
+    $second_div = $tree->getElementById('second');
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("Two pages expected, got %s", 
@@ -50,18 +72,59 @@ class TestPagebreak extends GenericTest {
   function testPagebreakText2() {
     $media = new Media(array('width' => 100, 'height' => 300),
                        array('top'=>0, 'bottom'=>0, 'left'=>0, 'right'=>0));
-    $tree = $this->runPipeline(file_get_contents('test.pagebreak.text.2.html'), $media);
+    $tree = $this->runPipeline('
+<html>
+<head>
+<style type="text/css">
+body    { font-size: 20mm; line-height: 1; width: 4em;  padding: 0; margin: 0; }
+#wrap   { width: 2em; }
+#first  { line-height: 1; }
+#second { line-height: 1; page-break-inside: avoid; }
+#third  { line-height: 1; }
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="first">
+LINE1
+LINE2
+LINE3
+LINE4
+LINE5
+LINE6
+LINE7
+LINE8
+LINE9
+LINE10
+LINE11
+LINE12
+LINE13
+</div><!--Page break should be here-->
+<div id="second">
+LINE1
+LINE2
+LINE3
+</div>
+<div id="third">
+LINE1
+LINE2
+LINE3
+</div>
+</div>
+</body>
+</html>
+', $media);
 
     /**
      * Calculate page heights
      */
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
-    $first_div  = $tree->get_element_by_id('first');
-    $second_div = $tree->get_element_by_id('second');
-    $third_div  = $tree->get_element_by_id('third');
+    $first_div  = $tree->getElementById('first');
+    $second_div = $tree->getElementById('second');
+    $third_div  = $tree->getElementById('third');
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("2 pages expected, got %s", 
@@ -84,7 +147,7 @@ class TestPagebreak extends GenericTest {
 <html>
 <head>
 <style type="text/css">
-body    { font-size: 20mm; line-height: 1; width: 4em;  padding: 0; margin: 0; orphans: 0; widows: 0; }
+body    { font-size: 20mm; line-height: 1; width: 4em;  padding: 0; margin: 0; }
 #wrap   { width: 2em; }
 #first  { line-height: 1; page-break-after: avoid; }
 #second { line-height: 1; page-break-inside: avoid; }
@@ -126,13 +189,13 @@ LINE3
     /**
      * Calculate page heights
      */
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
-    $first_div  = $tree->get_element_by_id('first');
-    $second_div = $tree->get_element_by_id('second');
-    $third_div  = $tree->get_element_by_id('third');
+    $first_div  = $tree->getElementById('first');
+    $second_div = $tree->getElementById('second');
+    $third_div  = $tree->getElementById('third');
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("2 pages expected, got %s", 
@@ -151,7 +214,7 @@ LINE3
 <html>
 <head>
 <style type="text/css">
-body    { font-size: 20mm; line-height: 1; padding: 0; margin: 0; orphans: 0; widows: 0; }
+body    { font-size: 20mm; line-height: 1; padding: 0; margin: 0; }
 #wrap   { width: 2em; }
 #first  { line-height: 1; }
 #second { line-height: 1; page-break-before: avoid; page-break-inside: avoid; }
@@ -193,13 +256,13 @@ LINE3
     /**
      * Calculate page heights
      */
-    $page_heights = PageBreakLocator::getPages($tree, 
+    $page_heights = (new PageBreakLocator())->getPages($tree, 
                                                mm2pt($media->real_height()), 
                                                mm2pt($media->height() - $media->margins['top']));
 
-    $first_div  = $tree->get_element_by_id('first');
-    $second_div = $tree->get_element_by_id('second');
-    $third_div  = $tree->get_element_by_id('third');
+    $first_div  = $tree->getElementById('first');
+    $second_div = $tree->getElementById('second');
+    $third_div  = $tree->getElementById('third');
 
     $this->assertEqual(count($page_heights), 2,
                        sprintf("2 pages expected, got %s", 

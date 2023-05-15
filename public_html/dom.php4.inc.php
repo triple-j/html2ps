@@ -3,7 +3,7 @@
 class PHP4DOMTree {
   var $_element;
   
-  function PHP4DOMTree($domelement) {
+  function __construct($domelement) {
     $this->_element = $domelement;
     $this->content = $domelement->get_content();
   }
@@ -22,9 +22,9 @@ class PHP4DOMTree {
     if (!$domdocument) {
       $null = null;
       return $null;
-    };
+    }
 
-    $tree =& new PHP4DOMTree($domdocument); 
+    $tree= new PHP4DOMTree($domdocument); 
     return $tree;
   }
 

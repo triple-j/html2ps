@@ -61,7 +61,7 @@ class Tag {
 	  *	@param		optional string content
 	  *	@returns	none
 	  */
-	function Tag($name = "", $content = "") {
+	function __construct($name = "", $content = "") {
 		$this->tagStartOpen = "<";
 		$this->tagStartClose = ">";
 		$this->tagClose = "/>";
@@ -279,13 +279,13 @@ class Tag {
 			// search where tag name would end
 			// search for a space separator to account for attributes
 			$separatorPos = array();
-			for($counter = 0; $counter < count($this->tagAttributeSeparators); $counter ++) {
+			for($counter = 0; $counter < count((array) $this->tagAttributeSeparators); $counter ++) {
 				$separatorPosTemp = strpos($tagString, $this->tagAttributeSeparators[$counter], $tagStartOpen);
 				if($separatorPosTemp !== false)
 					$separatorPos[] = $separatorPosTemp;
 			}
 			//$i = strpos($tagString, $this->tagAttributeSeparator, $tagStartOpen);
-			if(count($separatorPos) > 0)
+			if (is_countable($separatorPos) && count($separatorPos) > 0)
 				$i = min($separatorPos);
 			else
 				$i = false;

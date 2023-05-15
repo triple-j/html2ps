@@ -4,9 +4,9 @@
 require_once(HTML2PS_DIR.'value.left.php');
 
 class CSSLeft extends CSSPropertyHandler {
-  function CSSLeft() { 
-    $this->CSSPropertyHandler(false, false); 
-    $this->_autoValue = ValueLeft::fromString('auto');
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
+    $this->_autoValue = (new ValueLeft())->fromString('auto');
   }
 
   function _getAutoValue() {
@@ -18,18 +18,18 @@ class CSSLeft extends CSSPropertyHandler {
   }
 
   function parse($value) { 
-    return ValueLeft::fromString($value);
+    return (new ValueLeft())->fromString($value);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_LEFT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'left';
   }
 }
 
-CSS::register_css_property(new CSSLeft);
+(new CSS())->register_css_property(new CSSLeft);
 
 ?>

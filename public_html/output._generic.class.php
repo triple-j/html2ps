@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/output._generic.class.php,v 1.17 2007/05/17 13:55:13 Konstantin Exp $
+// $Header: /cvsroot/html2ps/output._generic.class.php,v 1.12 2007/02/04 17:08:20 Konstantin Exp $
 
 class OutputDriverGeneric extends OutputDriver {
   var $media;
@@ -37,28 +37,12 @@ class OutputDriverGeneric extends OutputDriver {
 
   var $_postponed;
 
-  var $anchors;
-
-  function OutputDriverGeneric() {
-    // Properties setup
-    $this->set_debug_boxes(false);
-    $this->set_filename($this->mk_filename());
-    $this->set_show_page_border(false);
-
-    $this->setFootnoteAreaHeight(0);
-    $this->setFootnoteCount(0);
-
-    $this->_postponed = array();
-    
-    $this->anchors = array();
-  }
-
   function postpone(&$box) {
     $this->_postponed[] =& $box;
   }
 
   function show_postponed() {
-    $size = count($this->_postponed);
+    $size = count((array) $this->_postponed);
     for ($i=0; $i<$size; $i++) {
       $box =& $this->_postponed[$i];
 
@@ -66,11 +50,11 @@ class OutputDriverGeneric extends OutputDriver {
       $box->_setupClip($this);
       $box->show_postponed($this, true);
       $this->restore();
-    };
+    }
   }
 
   function show_postponed_in_absolute() {
-    $size = count($this->_postponed);
+    $size = count((array) $this->_postponed);
     for ($i=0; $i<$size; $i++) {
       $box =& $this->_postponed[$i];
 
@@ -80,12 +64,12 @@ class OutputDriverGeneric extends OutputDriver {
         $box->_setupClip($this);
         $box->show_postponed($this, true);
         $this->restore();
-      };
-    };
+      }
+    }
   }
 
   function show_postponed_in_fixed() {
-    $size = count($this->_postponed);
+    $size = count((array) $this->_postponed);
     for ($i=0; $i<$size; $i++) {
       $box =& $this->_postponed[$i];
 
@@ -94,8 +78,8 @@ class OutputDriverGeneric extends OutputDriver {
         $box->_setupClip($this);
         $box->show_postponed($this, true);
         $this->restore();
-      };
-    };
+      }
+    }
   }
 
   function next_page($old_page_height) {
@@ -104,7 +88,6 @@ class OutputDriverGeneric extends OutputDriver {
     $this->setPageHeight(mm2pt($this->media->real_height()));
 
     $this->_postponed = array();
-    $this->current_page ++;
   }
 
   function setPageHeight($value) {
@@ -178,8 +161,8 @@ class OutputDriverGeneric extends OutputDriver {
      * These two types of boxes are not visual and 
      * may have incorrect position
      */
-    if (is_a($box, 'TableSectionBox')) { return true; };
-    if (is_a($box, 'TableRowBox')) { return true; };
+    if (is_a($box, "TableSectionBox")) { return true; }
+    if (is_a($box, "TableRowBox")) { return true; }
 
     $top    = round($box->get_top(),2);
     $bottom = round($box->get_bottom(),2);
@@ -187,7 +170,7 @@ class OutputDriverGeneric extends OutputDriver {
     $vp_top    = $this->getPageTop();
     $vp_bottom = max($this->getFootnoteTop() + $footnote_height, 
                      $this->getPageTop() - $this->getPageHeight());
-
+            
     return ($top > $vp_bottom && 
             $bottom <= $vp_top); 
   }
@@ -215,7 +198,7 @@ class OutputDriverGeneric extends OutputDriver {
     // In general, we'll try to create these files in ./temp subdir of current 
     // directory, but it can be overridden by environment vars both on Windows and
     // Linux
-    $filename = tempnam(WRITER_TEMPDIR,WRITER_FILE_PREFIX);
+    $filename   = tempnam(WRITER_TEMPDIR,WRITER_FILE_PREFIX);
     $filehandle = @fopen($filename, "wb");
 
     // Now, if we have had any troubles, $filehandle will be 
@@ -226,17 +209,17 @@ class OutputDriverGeneric extends OutputDriver {
       // Fallback to some stupid algorithm of filename generation
       $tries = 0;
       do {
-        $filename = WRITER_TEMPDIR.DIRECTORY_SEPARATOR.WRITER_FILE_PREFIX.md5(uniqid(rand(), true));
+        $filename   = WRITER_TEMPDIR.WRITER_FILE_PREFIX.md5(uniqid(rand(), true));
         // Note: "x"-mode prevents us from re-using existing files
         // But it require PHP 4.3.2 or later
         $filehandle = @fopen($filename, "xb");
         $tries++;
       } while (!$filehandle && $tries < WRITER_RETRIES);
-    };
+    }
 
     if (!$filehandle) {
       die(WRITER_CANNOT_CREATE_FILE);
-    };
+    }
 
     // Release this filehandle - we'll reopen it using some gzip wrappers 
     // (if they are available)
@@ -290,40 +273,43 @@ class OutputDriverGeneric extends OutputDriver {
   }
 
   function setup_clip() {
-    if (!$GLOBALS['g_config']['debugnoclip']) {
-      $this->moveto($this->left, $this->bottom + $this->height + $this->offset);
-      $this->lineto($this->left + $this->width, $this->bottom + $this->height + $this->offset);
-      $this->lineto($this->left + $this->width, $this->bottom + $this->height + $this->offset - $this->getPageHeight());
-      $this->lineto($this->left, $this->bottom + $this->height + $this->offset - $this->getPageHeight());
-      $this->clip();
-    };
+    $this->moveto($this->left, $this->bottom + $this->height + $this->offset);
+    $this->lineto($this->left + $this->width, $this->bottom + $this->height + $this->offset);
+    $this->lineto($this->left + $this->width, $this->bottom + $this->height + $this->offset - $this->getPageHeight());
+    $this->lineto($this->left, $this->bottom + $this->height + $this->offset - $this->getPageHeight());
+    $this->clip();
   }
 
-  function prepare() {
+  function __construct() {
+    // Properties setup
+    $this->set_debug_boxes(false);
+    $this->set_filename($this->mk_filename());
+    $this->set_show_page_border(false);
+
+    $this->setFootnoteAreaHeight(0);
+    $this->setFootnoteCount(0);
+
+    $this->_postponed = array();
   }
 
   function reset(&$media) {
-    $this->update_media($media);
-    $this->_postponed = array();
-
-    $this->offset =  0;
-    $this->offset_delta = 0;
-    $this->expected_pages = 0;
-    $this->current_page = 0;
-  }
-
-  function &get_media() {
-    return $this->media;
-  }
-
-  function update_media(&$media) {
     $this->media  =& $media;
     $this->width  =  mm2pt($media->width() - $media->margins['left'] - $media->margins['right']);
     $this->height =  mm2pt($media->height() - $media->margins['top'] - $media->margins['bottom']);
     $this->left   =  mm2pt($media->margins['left']);
     $this->bottom =  mm2pt($media->margins['bottom']);
+    $this->offset =  0;
+    $this->offset_delta = 0;
+    $this->expected_pages = 0;
+    $this->current_page = 1;
 
     $this->setPageHeight(mm2pt($media->real_height()));
+    $this->_postponed = array();
   }
+
+  function set_watermark($watermark) {
+    $this->_watermark = $watermark;
+  }
+
 }
 ?>

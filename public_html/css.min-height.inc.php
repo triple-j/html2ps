@@ -6,9 +6,9 @@ require_once(HTML2PS_DIR.'value.min-height.php');
 class CSSMinHeight extends CSSPropertyHandler {
   var $_defaultValue;
 
-  function CSSMinHeight() { 
-    $this->CSSPropertyHandler(true, false); 
-    $this->_defaultValue = ValueMinHeight::fromString("0px");
+  function __construct() {
+    CSSPropertyHandler::__construct(true, false);
+    $this->_defaultValue = (new ValueMinHeight())->fromString("0px");
   }
 
   /**
@@ -37,18 +37,18 @@ class CSSMinHeight extends CSSPropertyHandler {
   }
 
   function parse($value) { 
-    return ValueMinHeight::fromString($value);
+    return (new ValueMinHeight())->fromString($value);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_MIN_HEIGHT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'min-height';
   }
 }
  
-CSS::register_css_property(new CSSMinHeight);
+(new CSS())->register_css_property(new CSSMinHeight);
 
 ?>

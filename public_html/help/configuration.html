@@ -190,28 +190,6 @@ HTTP headers nor in META tag of HTML page).
 </td>
 </tr>
 
-<tr class="even">
-<td>FILE_PROTOCOL_RESTRICT</td>
-<td>
-Determines the prefix of the filesystem path allowed to be referred via 'file' protocol. By default,
-you may refer files in html2ps directory and below; to use files from <tt>C:\images</tt> directory you'll need to 
-store <tt>C:\images\</tt> value in this constant. Note the trailing backslash; if it is omitted, the prefix may match several directories, 
-e.g. both <tt><b>C:\images</b>\</tt> and <tt><b>C:\images</b>-private\</tt>.
-</td>
-</tr>
-
-<tr class="odd">
-<td id="font_embedding_mode">FONT_EMBEDDING_MODE</td>
-<td>
-Determines how font files are embedded. May be:
-<ul>
-<li>'all' &mdash; embed all fonts</li>
-<li>'none' &mdash; do not embed any fonts</li>
-<li>'config' &mdash; whether font is embedded is determined by html2ps.config 'embed' attribute value for this font</li>
-</ul>
-</td>
-</tr>
-
 </table>
 
 <h2><a name="constants-ps"></a>config.inc.php, Postscript options</h2>

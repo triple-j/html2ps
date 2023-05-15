@@ -29,8 +29,8 @@ LINE10<br/>
 </html>
 ');
 
-    $first_div  = $tree->get_element_by_id('div1');
-    $second_div = $tree->get_element_by_id('div2');
+    $first_div  = $tree->getElementById('div1');
+    $second_div = $tree->getElementById('div2');
 
     $this->assertWithinMargin($first_div->get_full_height(), 
                               $second_div->get_full_height(),
@@ -66,8 +66,8 @@ LINE10
 </html>
 ');
 
-    $first_div  = $tree->get_element_by_id('div1');
-    $second_div = $tree->get_element_by_id('div2');
+    $first_div  = $tree->getElementById('div1');
+    $second_div = $tree->getElementById('div2');
 
     $this->assertWithinMargin($first_div->get_full_height(), 
                               $second_div->get_full_height(),

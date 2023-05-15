@@ -6,11 +6,11 @@ class PSL2ImageEncoderStream extends PSImageEncoderStream {
   function by_lines($image, &$size_x, &$size_y) {
     $lines = array();
 
-    $size_x = imagesx($image->get_handle());
-    $size_y = imagesy($image->get_handle());
+    $size_x = imagesx($image);
+    $size_y = imagesy($image);
 
     $dest_img    = imagecreatetruecolor($size_x, $size_y);
-    imagecopymerge($dest_img, $image->get_handle(), 0, 0, 0, 0, $size_x, $size_y, 100);
+    imagecopymerge($dest_img, $image, 0, 0, 0, 0, $size_x, $size_y, 100);
 
     // initialize line length counter
     $ctr = 0;
@@ -32,10 +32,10 @@ class PSL2ImageEncoderStream extends PSImageEncoderStream {
           $line .= "\n";
           $ctr = 0;
         }
-      };
+      }
 
       $lines[] = $line;
-    };
+    }
 
     return $lines;
   }

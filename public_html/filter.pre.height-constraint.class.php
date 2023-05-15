@@ -8,7 +8,7 @@ class PreTreeFilterHeightConstraint extends PreTreeFilter {
   function process(&$tree, $data, &$pipeline) {
     if (!is_a($tree, 'GenericFormattedBox')) {
       return;
-    };
+    }
 
     /**
      * In non-quirks mode, percentage height should be ignored for children of boxes having
@@ -24,9 +24,9 @@ class PreTreeFilterHeightConstraint extends PreTreeFilter {
             $hc->constant[1]) {
           $hc->constant = null;
           $tree->put_height_constraint($hc);
-        };
-      };
-    };
+        }
+      }
+    }
 
     /**
      * Set box height to constrained value
@@ -40,10 +40,11 @@ class PreTreeFilterHeightConstraint extends PreTreeFilter {
      * Proceed to this box children
      */
     if (is_a($tree, 'GenericContainerBox')) {
-      for ($i=0, $size = count($tree->content); $i<$size; $i++) {
+      $size = is_countable($tree->content) ? count((array) $tree->content) : 0;
+      for ($i=0, $i<$size; $i++;) {
         $this->process($tree->content[$i], $data, $pipeline);
-      };
-    };
+      }
+    }
   }
 }
 ?>

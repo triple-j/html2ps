@@ -22,12 +22,12 @@ class BRBox extends GenericBox {
   /**
    * Create new BR element
    */
-  function BRBox() {
-    $this->GenericBox();
+  function __construct() {
+    GenericBox::__construct();
   }
 
   function apply_clear($y, &$context) {
-    return LayoutVertical::apply_clear($this, $y, $context);
+    return (new LayoutVertical())->apply_clear($this, $y, $context);
   }
 
   function out_of_flow() {
@@ -57,8 +57,8 @@ class BRBox extends GenericBox {
    * @return BRBox new BR element object
    */
   function &create(&$pipeline) {
-    $box =& new BRBox();
-    $box->readCSS($pipeline->get_current_css_state());
+    $box= new BRBox();
+    $box->readCSS($pipeline->getCurrentCSSState());
     return $box;
   }
 
@@ -80,7 +80,7 @@ class BRBox extends GenericBox {
    *
    * @return int should always return constant zero.
    */
-  function get_max_width(&$context) {
+  function get_max_width(&$context, $limit = 10000000) {
     return 0;
   }
 
@@ -95,7 +95,7 @@ class BRBox extends GenericBox {
    * @see FlowContext
    * @see GenericContainerBox
    */
-  function reflow(&$parent, &$context) {  
+  function reflow(&$parent, &$context, $boxes = null) {
     parent::reflow($parent, $context);
 
     /**
@@ -125,7 +125,7 @@ class BRBox extends GenericBox {
       // Note that _current_y should be modified before 'close_line' call, as it checks for 
       // left-floating boxes, causing an issues if line bottom will be placed below
       // float while line top is above float bottom margin
-      $font = $this->get_css_property(CSS_FONT);
+      $font = $this->getCSSProperty(CSS_FONT);
       $fs = $font->size;
       $parent->_current_y = min($this->get_bottom(), 
                                 $parent->_current_y - $font->line_height->apply($fs->getPoints()));
@@ -138,7 +138,7 @@ class BRBox extends GenericBox {
        * should be equal to that value.
        */
       $parent->close_line($context, true);
-    };
+    }
 
     /**
      * We need to explicitly extend the parent's height, to make it contain the generated line,

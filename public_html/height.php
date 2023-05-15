@@ -13,11 +13,11 @@
 function merge_height_constraint($hc1, $hc2) {
   // First constraint is constant; return this, as second constraint 
   // will never override it
-  if (!is_null($hc1->constant)) { return $hc1; };
+  if (!is_null($hc1->constant)) { return $hc1; }
 
   // Second constraint is constant; first is not constant;
   // return second, as it is more important
-  if (!is_null($hc2->constant)) { return $hc2; };
+  if (!is_null($hc2->constant)) { return $hc2; }
 
   // Ok, both constraints are not constant. Check if there's any diapason 
   // constraints
@@ -25,10 +25,10 @@ function merge_height_constraint($hc1, $hc2) {
   // Second constraint is free constraint, return first one, as 
   // if it is a non-free it should have precedence, otherwise 
   // it will be free constraint too
-  if (is_null($hc2->min) && is_null($hc2->max)) { return $hc1; };
+  if (is_null($hc2->min) && is_null($hc2->max)) { return $hc1; }
   
   // The same rule applied if the first constraint is free constraint
-  if (is_null($hc1->min) && is_null($hc1->max)) { return $hc2; };
+  if (is_null($hc1->min) && is_null($hc1->max)) { return $hc2; }
 
   // If we got here it means both constraints are diapason constraints.
   return $hc1;
@@ -56,12 +56,12 @@ class HCConstraint {
     $applicable_min = false;
     if (!is_null($this->min)) {
       $applicable_min = $this->applicable_value($this->min, $box);
-    };
+    }
 
     $applicable_max = false;
     if (!is_null($this->max)) {
       $applicable_max = $this->applicable_value($this->max, $box);
-    };
+    }
 
     return $applicable_min || $applicable_max;
   }
@@ -77,9 +77,9 @@ class HCConstraint {
     return true;
 
     // Constant constraints always applicable
-//     if (!$value[1]) { return true; };
+//     if (!$value[1]) { return true; }
 
-//     if (!$box->parent) { return false; };
+//     if (!$box->parent) { return false; }
 //     return $box->parent->_height_constraint->applicable($box->parent);
   }
    
@@ -114,17 +114,17 @@ class HCConstraint {
           is_null($box->parent->_height_constraint->min) &&
           is_null($box->parent->_height_constraint->max)) {
         return $default;
-      };
+      }
 
       if ($box->parent->isCell()) {
         if (!$no_table_recursion) {
           $rhc = $box->parent->parent->get_rhc($box->parent->row);
-          if ($rhc->is_null()) { return $default; };
+          if ($rhc->is_null()) { return $default; }
           return $rhc->apply($box->parent->get_height(), $box, true) * $value[0] / 100;
         } else {
           return $box->parent->parent->get_height() * $value[0] / 100;
-        };
-      };
+        }
+      }
 
       return $box->parent->get_height() * $value[0] / 100;
     } else {
@@ -135,7 +135,7 @@ class HCConstraint {
 
   function &create(&$box) {   
     // Determine if there's constant restriction
-    $value = $box->get_css_property(CSS_HEIGHT);
+    $value = $box->getCSSProperty(CSS_HEIGHT);
 
     if ($value->isAuto($value)) {
       $constant = null;
@@ -143,29 +143,29 @@ class HCConstraint {
       $constant = array($value->getPercentage(), true);
     } else {
       $constant = array($value->getPoints(), false);
-    };
+    }
 
     // Determine if there's min restriction
-    $value = $box->get_css_property(CSS_MIN_HEIGHT);
+    $value = $box->getCSSProperty(CSS_MIN_HEIGHT);
     if ($value->isAuto($value)) {
       $min = null;
     } elseif ($value->isPercentage()) {
       $min = array($value->getPercentage(), true);
     } else {
       $min = array($value->getPoints(), false);
-    };
+    }
 
     // Determine if there's max restriction
-    $value = $box->get_css_property(CSS_MAX_HEIGHT);
+    $value = $box->getCSSProperty(CSS_MAX_HEIGHT);
     if ($value->isAuto($value)) {
       $max = null;
     } elseif ($value->isPercentage()) {
       $max = array($value->getPercentage(), true);
     } else {
       $max = array($value->getPoints(), false);
-    };
+    }
 
-    $constraint =& new HCConstraint($constant, $min, $max);
+    $constraint= new HCConstraint($constant, $min, $max);
     return $constraint;
   }
 
@@ -175,7 +175,7 @@ class HCConstraint {
   // @param $min value of minimal box height or null if none
   // @param $max value of maximal box height or null if none
   //
-  function HCConstraint($constant, $min, $max) {
+  function __construct($constant = null, $min = null, $max = null) {
     $this->constant = $constant;
     $this->min = $min;
     $this->max = $max;
@@ -215,7 +215,7 @@ class HCConstraint {
   function is_min_null() {
     if (is_null($this->min)) {
       return true;
-    };
+    }
 
     return $this->min[0] == 0;
   }

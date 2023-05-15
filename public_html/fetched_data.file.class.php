@@ -3,7 +3,7 @@ class FetchedDataFile extends FetchedDataHTML {
   var $content;
   var $path;
 
-  function FetchedDataFile($content, $path) {
+  function __construct($content, $path) {
     $this->content = $content;
     $this->path    = $path;
   }

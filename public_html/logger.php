@@ -13,7 +13,7 @@ class Logger {
   /* static */ function get_instance() {
     if (is_null(Logger::$instance)) {
       Logger::$instance = new Logger();
-    };
+    }
 
     return Logger::$instance;
   }

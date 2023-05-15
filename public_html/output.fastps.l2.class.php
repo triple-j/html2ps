@@ -1,10 +1,6 @@
 <?php
 
 class OutputDriverFastPSLevel2 extends OutputDriverFastPS {
-  function OutputDriverFastPSLevel2(&$image_encoder) {
-    $this->OutputDriverFastPS($image_encoder);
-  }
-
   function image($image, $x, $y, $scale) {
     $this->image_scaled($image, $x, $y, $scale, $scale);
   }
@@ -28,7 +24,7 @@ class OutputDriverFastPSLevel2 extends OutputDriverFastPS {
       $this->write(sprintf("grestore\n"));
 
       $offset ++;
-    };
+    }
   }
 
   function image_ry($image, $x, $y, $height, $bottom, $ox, $oy, $scale) { 
@@ -37,14 +33,14 @@ class OutputDriverFastPSLevel2 extends OutputDriverFastPS {
     while ($cy+$height > $bottom) {
       $this->image($image, $x, $cy, $scale);
       $cy -= $height;
-    };
+    }
 
     // Fill part to the top
     $cy = $y;
     while ($cy-$height < $y + $oy) {
       $this->image($image, $x, $cy, $scale);
       $cy += $height;
-    };
+    }
   }
   
   function image_rx($image, $x, $y, $width, $right, $ox, $oy, $scale) { 
@@ -53,14 +49,14 @@ class OutputDriverFastPSLevel2 extends OutputDriverFastPS {
     while ($cx < $right) {
       $this->image($image, $cx, $y, $scale);
       $cx += $width;
-    };
+    }
 
     // Fill part to the left
     $cx = $x;
     while ($cx+$width >= $x - $ox) {
       $this->image($image, $cx-$width, $y, $scale);
       $cx -= $width;
-    };
+    }
   }
 
   function image_rx_ry($image, $x, $y, $width, $height, $right, $bottom, $ox, $oy, $scale) { 
@@ -71,7 +67,7 @@ class OutputDriverFastPSLevel2 extends OutputDriverFastPS {
       while ($cx < $right) {
         $this->image($image, $cx, $cy, $scale);
         $cx += $width;
-      };
+      }
       $cy -= $height;
     }
 
@@ -82,7 +78,7 @@ class OutputDriverFastPSLevel2 extends OutputDriverFastPS {
       while ($cx+$width > $x - $ox) {
         $this->image($image, $cx, $cy, $scale);
         $cx -= $width;
-      };
+      }
       $cy -= $height;
     }
 
@@ -93,7 +89,7 @@ class OutputDriverFastPSLevel2 extends OutputDriverFastPS {
       while ($cx < $right) {
         $this->image($image, $cx, $cy, $scale);
         $cx += $width;
-      };
+      }
       $cy += $height;
     }
 
@@ -104,7 +100,7 @@ class OutputDriverFastPSLevel2 extends OutputDriverFastPS {
       while ($cx+$width > $x - $ox) {
         $this->image($image, $cx, $cy, $scale);
         $cx -= $width;
-      };
+      }
       $cy += $height;
     }
   }

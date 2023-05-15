@@ -4,9 +4,9 @@
 require_once(HTML2PS_DIR.'value.right.php');
 
 class CSSRight extends CSSPropertyHandler {
-  function CSSRight() { 
-    $this->CSSPropertyHandler(false, false); 
-    $this->_autoValue = ValueRight::fromString('auto');
+  function __construct() {
+    CSSPropertyHandler::__construct(false, false);
+    $this->_autoValue = (new ValueRight())->fromString('auto');
   }
 
   function _getAutoValue() {
@@ -18,18 +18,18 @@ class CSSRight extends CSSPropertyHandler {
   }
 
   function parse($value) { 
-    return ValueRight::fromString($value);
+    return (new ValueRight())->fromString($value);
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_RIGHT;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'right';
   }
 }
 
-CSS::register_css_property(new CSSRight);
+(new CSS())->register_css_property(new CSSRight);
 
 ?>

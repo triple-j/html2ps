@@ -5,14 +5,14 @@ class StrategyWidthMax {
   var $_maxw;
   var $_cmaxw;
 
-  function StrategyWidthMax($limit = 10E6) {
+  function __construct($limit = 10E6) {
     $this->_limit = $limit;
   }
 
   function add_width($delta) {
     if ($this->_cmaxw + $delta > $this->_limit) {
       $this->line_break();
-    };
+    }
     $this->_cmaxw += $delta;
   }
 
@@ -25,7 +25,7 @@ class StrategyWidthMax {
     $this->_maxw = 0;
 
     // We need to add text indent to the max width
-    $text_indent = $box->get_css_property(CSS_TEXT_INDENT);
+    $text_indent = $box->getCSSProperty(CSS_TEXT_INDENT);
     $this->_cmaxw = $text_indent->calculate($box);
     
     for ($i=0, $size = count($box->content); $i<$size; $i++) {
@@ -36,24 +36,24 @@ class StrategyWidthMax {
         
       } elseif (!$child->out_of_flow()) {
         if (is_inline($child) || 
-            $child->get_css_property(CSS_FLOAT) !== FLOAT_NONE) {
+            $child->getCSSProperty(CSS_FLOAT) !== FLOAT_NONE) {
           $this->add_width($child->get_max_width($context, $this->_limit));
         } else {
           $this->line_break();
           $this->add_width($child->get_max_width($context, $this->_limit));
           
           // Process special case with percentage constrained table
-          $item_wc = $child->get_css_property(CSS_WIDTH);
+          $item_wc = $child->getCSSProperty(CSS_WIDTH);
           
           if (is_a($child,    "TableBox") &&
               is_a($item_wc, "WCFraction")) {
             $this->_cmaxw = max($this->_cmaxw, 
                                 $item_wc->apply($box->get_width(), 
                                                 $box->parent->get_expandable_width()));
-          };
+          }
           $this->line_break();
-        };
-      };
+        }
+      }
     }
 
     // Check if last line have maximal width
@@ -63,14 +63,14 @@ class StrategyWidthMax {
     // Note that max width cannot differ from constrained width,
     // if any width constraints apply
     //
-    $wc = $box->get_css_property(CSS_WIDTH);
+    $wc = $box->getCSSProperty(CSS_WIDTH);
     if ($wc->applicable($box)) {
       if ($box->parent) {
         $this->_maxw = $wc->apply($this->_maxw, $box->parent->get_width());
       } else {
         $this->_maxw = $wc->apply($this->_maxw, $this->_maxw);
-      };
-    };
+      }
+    }
 
     return $this->_maxw + $box->_get_hor_extra();
   }

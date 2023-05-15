@@ -7,8 +7,8 @@ class TableRowBox extends GenericContainerBox {
   var $rowspans;
 
   function &create(&$root, &$pipeline) {
-    $box =& new TableRowBox();
-    $box->readCSS($pipeline->get_current_css_state());
+    $box= new TableRowBox();
+    $box->readCSS($pipeline->getCurrentCSSState());
 
     $child = $root->first_child();
     while ($child) {
@@ -16,7 +16,7 @@ class TableRowBox extends GenericContainerBox {
       $box->add_child($child_box);
 
       $child = $child->next_sibling();
-    };
+    }
 
     return $box;
   }
@@ -24,12 +24,12 @@ class TableRowBox extends GenericContainerBox {
   function add_child(&$item) {
     if ($item->isCell()) {
       GenericContainerBox::add_child($item);
-    };
+    }
   }
 
-  function TableRowBox() {
+  function __construct() {
     // Call parent constructor
-    $this->GenericContainerBox();
+    GenericContainerBox::__construct();
   }
 
   // Normalize colspans by adding fake cells after the "colspanned" cell
@@ -40,26 +40,29 @@ class TableRowBox extends GenericContainerBox {
   // second and third are completely empty
   // fourth contains "2"
   function normalize(&$pipeline) {
-    for ($i=0, $size = count($this->content); $i < $size; $i++) {
+    for ($i=0, $size = count((array) $this->content); $i < $size; $i++) {
       for ($j=1; $j<$this->content[$i]->colspan; $j++) {
         $this->add_fake_cell_after($i, $pipeline);
         // Note that add_fake_cell_after will increase the length of current row by one cell,
         // so we must increase $size variable 
         $size++;
-      };
-    };
+      }
+    }
   }
 
   function add_fake_cell_after($index, &$pipeline) {
-    array_splice($this->content, $index+1, 0, array(FakeTableCellBox::create($pipeline)));
+      $root = '';
+    array_splice($this->content, $index+1, 0, array((new FakeTableCellBox())->create($root, $pipeline)));
   }
 
   function add_fake_cell_before($index, &$pipeline) {
-    array_splice($this->content, $index, 0, array(FakeTableCellBox::create($pipeline)));
+      $root = '';
+    array_splice($this->content, $index, 0, array((new FakeTableCellBox())->create($root, $pipeline)));
   }
 
   function append_fake_cell(&$pipeline) {
-    $this->content[] = FakeTableCellBox::create($pipeline);
+      $root = '';
+    $this->content[] = (new FakeTableCellBox())->create($root, $pipeline);
   }
 
   // Table specific
@@ -71,7 +74,7 @@ class TableRowBox extends GenericContainerBox {
     $baseline = $this->get_row_baseline();   
 
     // Process cells contained in current row
-    for ($i=0, $size = count($this->content); $i<$size; $i++) {
+    for ($i=0, $size = count((array) $this->content); $i<$size; $i++) {
       $cell =& $this->content[$i];
 
       // Offset cell if needed
@@ -81,8 +84,8 @@ class TableRowBox extends GenericContainerBox {
 
       // Vertical-align cell (do not apply to rowspans)
       if ($cell->rowspan == 1) {
-        $va = $cell->get_css_property(CSS_VERTICAL_ALIGN);
-        $va_fun = CSSVerticalAlign::value2pdf($va);
+        $va = $cell->getCSSProperty(CSS_VERTICAL_ALIGN);
+        $va_fun = (new CSSVerticalAlign())->value2pdf($va);
         $va_fun->apply_cell($cell, $height, $baseline);
 
         // Expand cell to full row height
@@ -93,11 +96,11 @@ class TableRowBox extends GenericContainerBox {
 
   function get_row_baseline() {
     $baseline = 0;
-    for ($i=0, $size = count($this->content); $i<$size; $i++) {
+    for ($i=0, $size = count((array) $this->content); $i<$size; $i++) {
       $cell = $this->content[$i];
       if ($cell->rowspan == 1) {
         $baseline = max($baseline, $cell->get_cell_baseline());
-      };
+      }
     }
     return $baseline;
   }
@@ -105,7 +108,7 @@ class TableRowBox extends GenericContainerBox {
   function get_colspans($row_index) {
     $colspans = array();
 
-    for ($i=0, $size = count($this->content); $i<$size; $i++) {
+    for ($i=0, $size = count((array) $this->content); $i<$size; $i++) {
       // Check if current colspan will run off the right table edge
       if ($this->content[$i]->colspan > 1) {
         $colspan = new CellSpan;
@@ -161,7 +164,7 @@ class TableRowBox extends GenericContainerBox {
         $widths[] = 0;        
       } else {
         $widths[] = $this->content[$i]->get_min_width($context);
-      };
+      }
     }
 
     return $widths;
@@ -187,7 +190,7 @@ class TableRowBox extends GenericContainerBox {
    */
   function show(&$viewport) {
     // draw content
-    $size = count($this->content);
+   $size = is_countable($this->content) ? count((array) $this->content) : 0;
 
     for ($i=0; $i < $size; $i++) {
       /**
@@ -201,13 +204,13 @@ class TableRowBox extends GenericContainerBox {
        */
       
       $cell =& $this->content[$i];
-      $visibility = $cell->get_css_property(CSS_VISIBILITY);
+      $visibility = $cell->getCSSProperty(CSS_VISIBILITY);
 
       if ($visibility === VISIBILITY_VISIBLE) {
         if (is_null($cell->show($viewport))) {
           return null;
-        };
-      };
+        }
+      }
     }
 
     return true;

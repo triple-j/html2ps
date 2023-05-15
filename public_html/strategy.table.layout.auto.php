@@ -1,7 +1,7 @@
 <?php
 
 class StrategyTableLayoutAuto {
-  function StrategyTableLayoutAuto() {
+  function __construct() {
   }
 
   function apply($table, &$context) {
@@ -9,78 +9,22 @@ class StrategyTableLayoutAuto {
     return $this->table_columns_fit($table, $width, $context);
   }
 
-  function use_colspans(&$table, $widths, &$context, $width_fun, $minwc, $maxwc) {
-    $colspans = $table->get_colspans();
-    
-    foreach ($colspans as $colspan) {
-      $cell = $table->content[$colspan->row]->content[$colspan->column];
-
-      // apply colspans to the corresponsing colspanned-cell dimension
-      //
-      $cell_width = $cell->$width_fun($context);
-
-      // now select the pre-calculated widths of columns covered by this cell
-      // select the list of resizable columns covered by this cell
-      $spanned_widths = array();
-      $spanned_resizable = array();
-
-      for ($i=$colspan->column; $i < $colspan->column+$colspan->size; $i++) {
-        $spanned_widths[] = $widths[$i];
-        $spanned_resizable[] = ($minwc[$i] != $maxwc[$i]);
-      }
-
-      // Sometimes we may encounter the colspan over the empty columns (I mean ALL columns are empty); in this case 
-      // we need to make these columns reizable in order to fit colspanned cell contents
-      //
-      if (array_sum($spanned_widths) == 0) {
-        for ($i=0; $i<count($spanned_widths); $i++) {
-          $spanned_widths[$i] = EPSILON;
-          $spanned_resizable[$i] = true;
-        };
-      };
-
-      // The same problem may arise when all colspanned columns are not resizable; in this case we'll force all
-      // of them to be resized
-      $any_resizable = false;
-      for ($i=0; $i<count($spanned_widths); $i++) {
-        $any_resizable |= $spanned_resizable[$i];
-      };
-      if (!$any_resizable) {
-        for ($i=0; $i<count($spanned_widths); $i++) {
-          $spanned_resizable[$i] = true;
-        };
-      }
-
-      // Expand resizable columns
-      //
-      $spanned_widths = expand_to_with_flags($cell_width,$spanned_widths,$spanned_resizable);
-
-      // Store modified widths
-      array_splice($widths, $colspan->column, $colspan->size, $spanned_widths);
-    };
-
-    return $widths;
-  }
-
   /**
    * Fit table columns to the given width
    */
-  function table_columns_fit(&$table, $width, &$context) {
+  function table_columns_fit($table, $width, &$context) {
     $minw = $table->get_table_columns_min_widths($context);
     $maxw = $table->get_table_columns_max_widths($context);
 
-    $minw = $this->use_colspans($table, $minw, $context, 'get_min_width', $minw, $maxw);
-    $maxw = $this->use_colspans($table, $maxw, $context, 'get_max_width', $minw, $maxw);
-
     // Store number of columns
-    $columns = count($minw);
+    $columns = is_countable($minw) ? count($minw) : 0;
 
     // Apply column width constraints
     $minwc = array();
     $maxwc = array();
 
-    $cellpadding = $table->get_css_property(CSS_HTML2PS_CELLPADDING);
-    $cellspacing = $table->get_css_property(CSS_HTML2PS_CELLSPACING);
+    $cellpadding = $table->getCSSProperty(CSS_HTML2PS_CELLPADDING);
+    $cellspacing = $table->getCSSProperty(CSS_HTML2PS_CELLSPACING);
 
     for ($i=0; $i<count($minw); $i++) {
       $cwc = $table->get_cwc($i);
@@ -94,7 +38,7 @@ class StrategyTableLayoutAuto {
 
       $minwc[$i] = max($minw[$i], $cwc->apply($minw[$i]-$extra, $table_width) + $extra);
       $maxwc[$i] = max($minw[$i], $cwc->apply($maxw[$i]-$extra, $table_width) + $extra);
-    };
+    }
 
     $minwc = $table->normalize_min_widths($width, $minw, $minwc);
     $minwc = $table->_table_apply_colspans($minwc, $context, 'get_min_width', $minwc, $maxwc);
@@ -177,13 +121,13 @@ class StrategyTableLayoutAuto {
           if (!isset($widths[$j])) { 
             $sum_max_cw += max($maxw[$j], $maxwc[$j]);
             $sum_min_cw += max($minw[$j], $minwc[$j]);
-          };
-        };
+          }
+        }
 
         // If some unplaced columns have maximal (constrained width) greater zero
         if ($sum_max_cw > 0) {
           $current_max = min($current_max * $rest / $sum_max_cw, $rest - $sum_min_cw + max($minwc[$i], $minw[$i]));
-        };
+        }
 
         // Check for minimal width (either unconstrained or constrained) of current column
         $current_max = max($current_max, $minw[$i] == 0 ? $minwc[$i] : $minw[$i]);
@@ -197,8 +141,8 @@ class StrategyTableLayoutAuto {
     if (array_sum($widths) < EPSILON) {
       for ($i=0; $i<count($widths); $i++) {
         $widths[$i] = 0.01;
-      };
-    };
+      }
+    }
     
     // now - the last attempt; if total width is less than box width, then we have a situation when either 
     // all columns AND table are width constrained or the HTML similar to the following:
@@ -209,15 +153,15 @@ class StrategyTableLayoutAuto {
     //
     // e.g. empty column (with zero width) and fixed-width column.
     //
-    $wc = $table->get_css_property(CSS_WIDTH);
+    $wc = $table->getCSSProperty(CSS_WIDTH);
     if (!$wc->isNull()) {
       if (array_sum($widths) < $width) {     
         // Let's make zero-width columns
         // non-zero width (so that they columd be expanded) and re-try expanding columns
         //
         for ($i=0; $i<count($widths); $i++) {
-          if ($widths[$i] == 0) { $widths[$i] = EPSILON; };
-        };
+          if ($widths[$i] == 0) { $widths[$i] = EPSILON; }
+        }
         
         // Now, if there's at least one non-costrained columns, try expanding them again
         $flags = $table->get_non_constrained_width_flags();
@@ -226,19 +170,19 @@ class StrategyTableLayoutAuto {
           if (!any_flag_set($flags)) {
             $flags = $table->get_non_image_constrained_width_flags();
             if (!any_flag_set($flags)) {
-              for ($i=0; $i<count($flags); $i++) { $flags[$i] = true; };
-            };
-          };
-        };
+              for ($i=0; $i<count($flags); $i++) { $flags[$i] = true; }
+            }
+          }
+        }
         
         $widths = expand_to_with_flags($width, 
                                        $widths,
                                        $flags);
-      };
+      }
 
       // in case of overconstrained table (e.g. two columns with 20% widths), expand them
       $widths = expand_to($width, $widths);
-    };
+    }
     
     $table->put_full_width(array_sum($widths));
 

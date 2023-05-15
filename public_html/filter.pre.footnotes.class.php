@@ -12,13 +12,14 @@ require_once(HTML2PS_DIR.'box.note-call.class.php');
 class PreTreeFilterFootnotes extends PreTreeFilter {
   function process(&$tree, $data, &$pipeline) {
     if (is_a($tree, 'GenericContainerBox')) {
-      for ($i=0; $i<count($tree->content); $i++) {
+      $size = is_countable($tree->content) ? count((array) $tree->content) : 0;
+      for ($i=0; $i<$size; $i++) {
         /**
          * No need to check this conition for text boxes, as they do not correspond to 
          * HTML elements 
          */
-        if (!is_a($tree->content[$i], 'TextBox')) {
-          if ($tree->content[$i]->get_css_property(CSS_POSITION) == POSITION_FOOTNOTE) {
+        if (!is_a($tree->content[$i], "TextBox")) {
+          if ($tree->content[$i]->getCSSProperty(CSS_POSITION) == POSITION_FOOTNOTE) {
             $tree->content[$i]->setCSSProperty(CSS_POSITION, POSITION_STATIC);
             
             $note_call =& BoxNoteCall::create($tree->content[$i], $pipeline);
@@ -27,10 +28,10 @@ class PreTreeFilterFootnotes extends PreTreeFilter {
             $pipeline->_addFootnote($note_call);
           } else {
             $this->process($tree->content[$i], $data, $pipeline);
-          };
-        };
-      };
-    };
+          }
+        }
+      }
+    }
 
     return true;
   }

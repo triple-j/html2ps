@@ -149,16 +149,16 @@ $GLOBALS['g_colors'] = array(
 
 function &parse_color_declaration($decl) {
   $color = _parse_color_declaration($decl, $success);
-  $color_obj =& new Color($color, is_transparent($color));
+  $color_obj= new Color($color, is_transparent($color));
   return $color_obj;
-};
+}
 
 
 function _parse_color_declaration($decl, &$success) {
   $success = true;
 
   global $g_colors;
-  if (isset($g_colors[strtolower($decl)])) { return $g_colors[strtolower($decl)]; };
+  if (isset($g_colors[strtolower($decl)])) { return $g_colors[strtolower($decl)]; }
 
   // Parse color keywords
   switch (strtolower($decl)) {
@@ -172,7 +172,7 @@ function _parse_color_declaration($decl, &$success) {
     $g = min(255,max(0,$matches[2]));
     $b = min(255,max(0,$matches[3]));
     return array($r,$g,$b);
-  };
+  }
 
   // rgb(0%,0%,0%) form
   if (preg_match("/rgb\(\s*(\d+)%\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)/",$decl,$matches)) {
@@ -180,15 +180,15 @@ function _parse_color_declaration($decl, &$success) {
     $g = min(255,max(0,$matches[2]*255/100));
     $b = min(255,max(0,$matches[3]*255/100));
     return array($r,$g,$b);
-  };
+  }
 
   // We've already checked every non-hexadecimal forms; now only color declarations starting 
   // with # left; nevertheless, sometimes designers forget to put #-sign before the
   // color declaration. Thus, we'll add sharp sign automatically if it is missing
   //
   if (strlen($decl) > 0) {
-    if ($decl{0} !== "#") { $decl = "#" . $decl; };
-  };
+    if ($decl[0] !== "#") { $decl = "#" . $decl; }
+  }
 
   // #000000 form
   if (preg_match("/^#([[:xdigit:]]{2})([[:xdigit:]]{2})([[:xdigit:]]{2})$/",$decl,$matches)) {
@@ -204,7 +204,7 @@ function _parse_color_declaration($decl, &$success) {
     $b = array_pop($arrb);
 
     return array($r,$g,$b);
-  };
+  }
 
   // #000 form
   if (preg_match("/^#([[:xdigit:]])([[:xdigit:]])([[:xdigit:]])$/",$decl,$matches)) {
@@ -220,7 +220,7 @@ function _parse_color_declaration($decl, &$success) {
     $b = array_pop($arrb);
 
     return array($r,$g,$b);
-  };
+  }
 
   // Transparent color - by default
   $success = false;

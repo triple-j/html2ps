@@ -22,7 +22,7 @@ LINE5
 </html>
 ', $media);
 
-    $locations = PageBreakLocator::_getBreakLocations($tree);
+    $locations = (new PageBreakLocator())->_getBreakLocations($tree);
     $this->assertEqual(count($locations),
                        6);
   }
@@ -48,7 +48,7 @@ LINE5<br/>
 </html>
 ', $media);
 
-    $locations = PageBreakLocator::_getBreakLocations($tree);
+    $locations = (new PageBreakLocator())->_getBreakLocations($tree);
     $this->assertEqual(count($locations),
                        6);
   }

@@ -8,20 +8,20 @@ class PasswordInputBox extends TextInputBox {
       $text = str_repeat("*",strlen($root->get_attribute("value")));
     } else {
       $text = "";
-    };
+    }
 
     /**
      * Input field name
      */
     $name = $root->get_attribute('name');
 
-    $box =& new PasswordInputBox($text, $root->get_attribute("value"), $name);
-    $box->readCSS($pipeline->get_current_css_state());
+    $box= new PasswordInputBox($text, $root->get_attribute("value"), $name);
+    $box->readCSS($pipeline->getCurrentCSSState());
 
-    $ibox = InlineBox::create_from_text(" ", WHITESPACE_PRE, $pipeline);
-    for ($i=0, $size = count($ibox->content); $i<$size; $i++) {
+    $ibox = (new InlineBox())->create_from_text(" ", WHITESPACE_PRE, $pipeline);
+    for ($i=0, $size = count((array) $ibox->content); $i<$size; $i++) {
       $box->add_child($ibox->content[$i]);
-    };
+    }
 
     return $box;
   }

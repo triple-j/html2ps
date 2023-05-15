@@ -19,29 +19,29 @@ class CSSFontFamily extends CSSSubFieldProperty {
       if ($subvalue !== "") {
 
         // Some multi-word font family names can be enclosed in quotes; remove them
-        if ($subvalue{0} == "'") {
+        if ($subvalue[0] == "'") {
           $subvalue = substr($subvalue,1,strlen($subvalue)-2);
-        } elseif ($subvalue{0} == '"') {
+        } elseif ($subvalue[0] == '"') {
           $subvalue = substr($subvalue,1,strlen($subvalue)-2);
-        };
+        }
       
         global $g_font_resolver;
-        if ($g_font_resolver->have_font_family($subvalue)) { return $subvalue; };
+        if ($g_font_resolver->have_font_family($subvalue)) { return $subvalue; }
 
         global $g_font_resolver_pdf;
-        if ($g_font_resolver_pdf->have_font_family($subvalue)) { return $subvalue; };
-      };
-    };
+        if ($g_font_resolver_pdf->have_font_family($subvalue)) { return $subvalue; }
+      }
+    }
 
     // Unknown family type
     return "times";
   }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_FONT_FAMILY;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'font-family';
   }
 

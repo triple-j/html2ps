@@ -3,17 +3,17 @@
 
 class NullBox extends GenericInlineBox {
   function get_min_width(&$context) { return 0; }
-  function get_max_width(&$context) { return 0; }
+  function get_max_width(&$context, $limit = 10000000) { return 0; }
   function get_height() { return 0; }
 
-  function NullBox() {
-    $this->GenericInlineBox();
+  function __construct() {
+    GenericInlineBox::__construct();
   }
   
   function &create() { 
-    $box =& new NullBox;
+    $box= new NullBox;
 
-    $css_state = new CSSState(CSS::get());
+    $css_state = new CSSState((new CSS())->get());
     $css_state->pushState();
     $box->readCSS($css_state);
 
@@ -25,12 +25,6 @@ class NullBox extends GenericInlineBox {
   }
 
   function reflow_static(&$parent, &$context) {
-    if (!$parent) {
-      $this->put_left(0);
-      $this->put_top(0);
-      return;
-    };
-
     // Move current "box" to parent current coordinates. It is REQUIRED, 
     // as some other routines uses box coordinates.
     $this->put_left($parent->get_left());

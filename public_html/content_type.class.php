@@ -3,7 +3,7 @@ class ContentType {
   var $default_extension;
   var $mime_type;
 
-  function ContentType($extension, $mime) {
+  function __construct($extension = 'pdf', $mime = 'application/pdf') {
     $this->default_extension = $extension;
     $this->mime_type = $mime;
   }

@@ -4,8 +4,8 @@
  *
  */
 class BoxTextFieldPages extends TextBoxString {
-  function BoxTextFieldPages() { 
-    $this->TextBoxString("", "iso-8859-1");
+  function __construct() {
+    TextBoxString::__construct("", "iso-8859-1");
   }
 
   function from_box(&$box) {
@@ -23,7 +23,7 @@ class BoxTextFieldPages extends TextBoxString {
   }
 
   function show(&$viewport) {
-    $font = $this->get_css_property(CSS_FONT);
+    $font = $this->getCSSProperty(CSS_FONT);
 
     $this->words[0] = sprintf("%d", $viewport->expected_pages);
 
@@ -37,16 +37,16 @@ class BoxTextFieldPages extends TextBoxString {
                                             $font->size->getPoints());
       if (is_null($value_width)) {
         return null;
-      };
+      }
     } else {
       $value_width = 0;
-    };
+    }
     $this->width  = $value_width;
     $this->_left += ($field_width - $value_width) / 2;
 
     if (is_null(TextBoxString::show($viewport))) {
       return null;
-    };
+    }
 
     $this->width = $field_width;
     $this->_left = $field_left;
@@ -55,7 +55,7 @@ class BoxTextFieldPages extends TextBoxString {
   }
 
   function show_fixed(&$viewport) {
-    $font = $this->get_css_property(CSS_FONT);
+    $font = $this->getCSSProperty(CSS_FONT);
 
     $this->words[0] = sprintf("%d", $viewport->expected_pages);
 
@@ -69,16 +69,16 @@ class BoxTextFieldPages extends TextBoxString {
                                             $font->size->getPoints());
       if (is_null($value_width)) {
         return null;
-      };
+      }
     } else {
       $value_width = 0;
-    };
+    }
     $this->width  = $value_width;
     $this->_left += ($field_width - $value_width) / 2;
 
     if (is_null(TextBoxString::show_fixed($viewport))) {
       return null;
-    };
+    }
 
     $this->width = $field_width;
     $this->_left = $field_left;

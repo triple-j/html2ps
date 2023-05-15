@@ -1,5 +1,5 @@
 <?php
-// $Header: /cvsroot/html2ps/config.inc.php,v 1.50 2007/05/17 13:55:13 Konstantin Exp $
+// $Header: /cvsroot/html2ps/config.inc.php,v 1.40 2007/02/18 09:55:10 Konstantin Exp $
 
 /**
  * Common configuration options
@@ -7,8 +7,8 @@
 
 // Directory containing HTML2PS script files (with traling slash)
 if (!defined('HTML2PS_DIR')) {
-  define('HTML2PS_DIR', dirname(__FILE__).DIRECTORY_SEPARATOR);
-};
+  define('HTML2PS_DIR', dirname(__FILE__).'/');
+}
 
 // User-Agent HTTP header to send when requesting a file
 define('DEFAULT_USER_AGENT',"Mozilla/5.0 (Windows; U; Windows NT 5.1; rv:1.7) Gecko/20040803 Firefox/0.9.3");
@@ -24,11 +24,11 @@ define('DEFAULT_ENCODING', 'iso-8859-1');
  */
 
 // Path to Ghostscript executable
-define('GS_PATH','c:\Program Files\gs\gs8.54\bin\gswin32c.exe');
+define('GS_PATH','c:\gs\gs8.51\bin\gswin32c.exe');
 
 // Path to font metric files (AFM files). 
 // NOTE: Trailing backslash required
-define('TYPE1_FONTS_REPOSITORY', "c:\\Program Files\\gs\\fonts\\");
+define('TYPE1_FONTS_REPOSITORY',"c:\\gs\\fonts\\");
 // define('TYPE1_FONTS_REPOSITORY',"/usr/share/ghostscript/fonts/");
 
 /**
@@ -50,12 +50,6 @@ define('PDFLIB_DL_PATH','pdflib.so');
 // Path to directory containing fonts used by PDFLIB / FPDF
 // Trailing backslash required
 define('TTF_FONTS_REPOSITORY',HTML2PS_DIR."fonts/");
-
-// Determines how font files are embedded. May be:
-// 'all' - embed all fonts
-// 'none' - do not embed any fonts
-// 'config' - whether font is embedded is determined by html2ps.config 'embed' attribute value for this font
-define('FONT_EMBEDDING_MODE', 'config');
 
 /**
  * Some constants you better not change.
@@ -83,23 +77,17 @@ define('EX_KOEFF',0.50);
 
 define('DEFAULT_CHAR_WIDTH', 600);
 define('WHITESPACE_FONT_SIZE_FRACTION', 0.25);
-define('SIZE_SPACE_KOEFF', 1.2);
-define('INPUT_SIZE_EM_KOEFF', 0.48);
-define('INPUT_SIZE_BASE_EM', 2.2);
+define('SIZE_SPACE_KOEFF',1.2);
+define('INPUT_SIZE_EM_KOEFF',0.48);
+define('INPUT_SIZE_BASE_EM',2.2);
 define('SELECT_SPACE_PADDING', 5);
-define('LEGEND_HORIZONTAL_OFFSET', '5pt');
-define('BULLET_SIZE_KOEFF', 0.15);
-define('HEIGHT_KOEFF', 0.7);
-define('MAX_FRAME_NESTING_LEVEL', 4);
-
-// Maximal value of the free  space in justified line; if there's more
-// free  space, line  will be  left-aligned to  avoid making  too much
-// space  between words (set  to 1  if all  lines should  be justified
-// regardless of free space)
-define('MAX_JUSTIFY_FRACTION', 0.33);
-
-define('HILIGHT_COLOR_ALPHA', 0.6);
-define('MAX_REDIRECTS', 5);
+define('LEGEND_HORIZONTAL_OFFSET','5pt');
+define('BULLET_SIZE_KOEFF',0.15);
+define('HEIGHT_KOEFF',0.7);
+define('MAX_FRAME_NESTING_LEVEL',4);
+define('MAX_JUSTIFY_FRACTION',0.33);
+define('HILIGHT_COLOR_ALPHA',0.6);
+define('MAX_REDIRECTS',5);
 
 // Maximal length of line inside the stream data 
 // (we need to limit this, as most postscript interpreters will complain 
@@ -116,9 +104,9 @@ define('CACHE_DIR', HTML2PS_DIR.'cache/');
 define('OUTPUT_FILE_DIRECTORY', HTML2PS_DIR.'out/');
 define('FPDF_PATH', HTML2PS_DIR.'fpdf/');
 
-// Trailing directory separator ('/' or '\', depending on your system)
-// SHOULD BE OMITTED
-define('WRITER_TEMPDIR', HTML2PS_DIR.'temp');
+// Note that WRITER_TEMPDIR !REQUIRES! slash (or backslash) on the end (unless you want to get 
+// some files like tempPS_jvckxlvjl in your working directory).
+define('WRITER_TEMPDIR', HTML2PS_DIR.'temp/');
 define('WRITER_FILE_PREFIX','PS_');
 
 // number of retries to generate unique filename in case we have had troubles with
@@ -139,12 +127,12 @@ define('FOOTNOTE_MARKER_MARGIN', 1); // Content points
 define('FOOTNOTE_GAP', 2); // Space between footnotes
 
 if (!defined('DEBUG_MODE')) {
-  // define('DEBUG_MODE',1);
-};
+  //  define('DEBUG_MODE',1);
+}
 
 define('HTML2PS_VERSION_MAJOR', 2);
 define('HTML2PS_VERSION_MINOR', 0);
-define('HTML2PS_SUBVERSION', 43);
+define('HTML2PS_SUBVERSON', 11);
 
 define('MAX_UNPENALIZED_FREE_FRACTION', 0.25);
 define('MAX_FREE_FRACTION',             0.5);

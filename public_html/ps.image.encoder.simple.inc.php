@@ -7,32 +7,22 @@ require_once(HTML2PS_DIR.'ps.image.encoder.stream.inc.php');
  * another encoder.
  * @author Konstantin Bournayev
  * @version 1.0
- * @updated 24-ÿíâ-2006 21:18:30
+ * @updated 24-ï¿½ï¿½ï¿½-2006 21:18:30
  */
 class PSImageEncoderSimple extends PSImageEncoderStream {
-  function PSImageEncoderSimple() {
+  function __construct() {
   }
 
   function auto($psdata, $src_img, &$size_x, &$size_y, &$tcolor, &$image, &$mask) {
     if (imagecolortransparent($src_img) == -1) {
-      $id = $this->solid($psdata, 
-                         $src_img->get_handle(), 
-                         $size_x, 
-                         $size_y,
-                         $image->get_handle(), 
-                         $mask);
+      $id = $this->solid($psdata, $src_img, $size_x, $size_y, $image, $mask);
       $tcolor = 0;
       return $id;
     } else {
-      $id = $this->transparent($psdata, 
-                               $src_img->get_handle(), 
-                               $size_x,
-                               $size_y, 
-                               $image->get_handle(), 
-                               $mask);
+      $id = $this->transparent($psdata, $src_img, $size_x, $size_y, $image, $mask);
       $tcolor = 1;
       return $id;
-    };
+    }
   }
   
   function solid($psdata, $src_img, &$size_x, &$size_y, &$image, &$mask) {
@@ -64,13 +54,13 @@ class PSImageEncoderSimple extends PSImageEncoderStream {
 
           $ps_image_data = "";
           $ctr = 1; $row += 1;        
-        };
-      };
-    };
+        }
+      }
+    }
 
     if ($ps_image_data) {
       $psdata->write("/row-{$id}-{$row}  { /image-{$id}-data { row-{$id}-1 } def ({$ps_image_data}) } def\n");
-    };
+    }
 
     $psdata->write("/image-{$id}-data { row-{$id}-1 } def\n");
     $psdata->write("/image-{$id}-init { } def\n");
@@ -96,7 +86,7 @@ class PSImageEncoderSimple extends PSImageEncoderStream {
     $ps_mask_data  = 0xff;
     $ctr = 1; $row = 1;
 
-    $handler =& CSS::get_handler(CSS_BACKGROUND_COLOR);
+    $handler =& (new CSS())->get_handler(CSS_BACKGROUND_COLOR);
     $background_color = $handler->get_visible_background_color();
 
     for ($y = 0; $y < $size_y; $y++) {
@@ -117,7 +107,7 @@ class PSImageEncoderSimple extends PSImageEncoderStream {
           $b = $background_color[2];
         } else {
           $ps_mask_data = ($ps_mask_data << 1) | 0;
-        };
+        }
 
         $ps_image_data .= sprintf("\\%03o\\%03o\\%03o",$r,$g,$b);
 
@@ -128,7 +118,7 @@ class PSImageEncoderSimple extends PSImageEncoderStream {
             $ps_mask_data <<= 1;
             $ps_mask_data |= 1;
             $ctr ++;
-          };
+          }
 
           $ps_mask_data_str = sprintf("\\%03o",$ps_mask_data & 0xff); 
 
@@ -140,21 +130,21 @@ class PSImageEncoderSimple extends PSImageEncoderStream {
           $ps_image_data = "";
           $ps_mask_data  = 0xff;
           $ctr = 1; $row += 1;        
-        };
-      };
-    };
+        }
+      }
+    }
 
     if ($ps_image_data) {
       while ($ctr <= 8) {
         $ps_mask_data <<= 1;
         $ps_mask_data |= 1;
         $ctr ++;
-      };
+      }
       $ps_mask_data_str = sprintf("\\%03o",$ps_mask_data & 0xFF);
 
       $psdata->write("/row-{$id}-{$row} { /image-{$id}-data { row-{$id}-{$row_next} } def ({$ps_image_data}) } def\n");
       $psdata->write("/mrow-{$id}-{$row} { /mask-{$id}-data { mrow-{$id}-{$row_next} } def ({$ps_mask_data_str}) } def\n");
-    };
+    }
 
     $psdata->write("/image-{$id}-data { row-{$id}-1 } def\n");
     $psdata->write("/mask-{$id}-data  { mrow-{$id}-1 } def\n");
@@ -187,7 +177,7 @@ class PSImageEncoderSimple extends PSImageEncoderStream {
         $g = $colors['green'];
         $b = $colors['blue'];
 
-        $handler =& CSS::get_handler(CSS_BACKGROUND_COLOR);
+        $handler =& (new CSS())->get_handler(CSS_BACKGROUND_COLOR);
         $bg = $handler->get_visible_background_color();
         $r = (int)($r + ($bg[0] - $r)*$a/127);
         $g = (int)($g + ($bg[1] - $g)*$a/127);
@@ -204,13 +194,13 @@ class PSImageEncoderSimple extends PSImageEncoderStream {
 
           $ps_image_data = "";
           $ctr = 1; $row += 1;        
-        };
-      };
-    };
+        }
+      }
+    }
 
     if ($ps_image_data) {
       $psdata->write("/row-{$id}-{$row} { /image-{$id}-data { row-{$id}-{$row_next} } def ({$ps_image_data}) } def\n");
-    };
+    }
 
     $psdata->write("/image-{$id}-data { row-{$id}-1 } def\n");
     $psdata->write("/image-{$id}-init { } def\n");

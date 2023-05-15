@@ -99,13 +99,10 @@ class Pipeline {
   var $destination;
 
   function Pipeline();
-
-  function configure($options);
+  
   function process($data_id, &$media);
   function process_batch($data_id_array, &$media);
   function error_message();
-
-  function &get_dispatcher();
 }
 </pre>
 </div>

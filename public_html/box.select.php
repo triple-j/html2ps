@@ -6,9 +6,9 @@ class SelectBox extends InlineControlBox {
   var $_value;
   var $_options;
 
-  function SelectBox($name, $value, $options) {
+  function __construct($name, $value, $options) {
     // Call parent constructor
-    $this->InlineBox();
+    InlineBox::__construct();
 
     $this->_name    = $name;
     $this->_value   = $value;
@@ -18,20 +18,20 @@ class SelectBox extends InlineControlBox {
   function &create(&$root, &$pipeline) {
     $name = $root->get_attribute('name');
 
-    $value = '';
+    $value = "";
     $options = array();
 
     // Get option list
     $child = $root->first_child();
-    $content = '';
+    $content = "";
     $size = 0;
     while ($child) {
       if ($child->node_type() == XML_ELEMENT_NODE) {
         $size = max($size, strlen($child->get_content()));
-        if (empty($content) || $child->has_attribute('selected')) { 
-          $content = preg_replace('/\s/',' ',$child->get_content());
+        if (empty($content) || $child->has_attribute("selected")) { 
+          $content = preg_replace("/\s/"," ",$child->get_content());
           $value   = trim($child->get_content());
-        };
+        }
 
         if ($child->has_attribute('value')) {
           $options[] = array($child->get_attribute('value'),
@@ -39,15 +39,20 @@ class SelectBox extends InlineControlBox {
         } else {
           $options[] = array($child->get_content(),
                              $child->get_content());
-        };
-      };
+        }
+      }
       $child = $child->next_sibling();
-    };
-    $content = str_pad($content, $size*SIZE_SPACE_KOEFF + SELECT_SPACE_PADDING, ' ');
+    }
+    $content = str_pad($content, $size*SIZE_SPACE_KOEFF + SELECT_SPACE_PADDING, " ");
 
-    $box =& new SelectBox($name, $value, $options);
-    $box->readCSS($pipeline->get_current_css_state());
-    $box->setup_content($content, $pipeline);
+    $box= new SelectBox($name, $value, $options);
+    $box->readCSS($pipeline->getCurrentCSSState());
+
+    // Add text to be rendered in non-interactive mode
+    $ibox = (new InlineBox())->create_from_text($content, WHITESPACE_PRE, $pipeline);
+    for ($i=0, $size = count((array) $ibox->content); $i<$size; $i++) {
+      $box->add_child($ibox->content[$i]);
+    }
 
     return $box;
   }
@@ -58,13 +63,13 @@ class SelectBox extends InlineControlBox {
       return $this->show_field($driver);
     } else {
       return $this->show_rendered($driver);
-    };
+    }
   }
 
   function show_field(&$driver) {
     if (is_null(GenericFormattedBox::show($driver))) {
       return null;
-    };
+    }
 
     $driver->field_select($this->get_left_padding(), 
                           $this->get_top_padding(),
@@ -84,14 +89,9 @@ class SelectBox extends InlineControlBox {
 
     if (is_null(GenericContainerBox::show($driver))) {
       return null;
-    };
+    }
 
-    $this->show_button($driver);
-    return true;
-  }
-
-  function show_button(&$driver) {
-    $padding = $this->get_css_property(CSS_PADDING);
+    $padding = $this->getCSSProperty(CSS_PADDING);
     $button_height = $this->get_height() + $padding->top->value + $padding->bottom->value;
 
     // Show arrow button box

@@ -5,7 +5,7 @@ class CSSRuleset {
   var $tag_filtered;
   var $_lastId;
 
-  function CSSRuleset() {
+  function __construct() {
     $this->rules        = array();
     $this->tag_filtered = array();
     $this->_lastId      = 0;
@@ -23,22 +23,23 @@ class CSSRuleset {
     $media_list = array("screen");
     if ($root->has_attribute("media")) {
       // Note that there may be whitespace symbols around commas, so we should not just use 'explode' function
+      //
       $media_list = preg_split("/\s*,\s*/",trim($root->get_attribute("media")));
-    };
+    }
 
     if (!is_allowed_media($media_list)) { 
       if (defined('DEBUG_MODE')) {
         error_log(sprintf('No allowed (%s) media types found in CSS stylesheet media types (%s). Stylesheet ignored.',
                           join(',', config_get_allowed_media()),
                           join(',', $media_list)));
-      };
+      }
       return; 
-    };
+    }
 
     if (!isset($GLOBALS['g_stylesheet_title']) || 
         $GLOBALS['g_stylesheet_title'] === "") {
       $GLOBALS['g_stylesheet_title'] = $root->get_attribute("title");
-    };
+    }
 
     if (!$root->has_attribute("title") || $root->get_attribute("title") === $GLOBALS['g_stylesheet_title']) {
       /**
@@ -47,21 +48,19 @@ class CSSRuleset {
       $content = trim($root->get_content());
       if ($content != "") {
         $this->parse_css($content, $pipeline);
-      };
-    };
+      }
+    }
   }
 
   function scan_styles($root, &$pipeline) {
     switch ($root->node_type()) {
     case XML_ELEMENT_NODE:
-      $tagname = strtolower($root->tagname());
-
-      if ($tagname === 'style') {
+      if ($root->tagname() === 'style') {
         // Parse <style ...> ... </style> nodes
         //
         $this->parse_style_node($root, $pipeline);
 
-      } elseif ($tagname === 'link') {
+      } elseif ($root->tagname() === 'link') {
         // Parse <link rel="stylesheet" ...> nodes
         //
         $rel   = strtolower($root->get_attribute("rel"));
@@ -71,20 +70,17 @@ class CSSRuleset {
           $media = explode(",",$root->get_attribute("media"));
         } else {
           $media = array();
-        };
+        }
       
         if ($rel == "stylesheet" && 
             ($type == "text/css" || $type == "") &&
             (count($media) == 0 || is_allowed_media($media)))  {
-          // Attempt to escape URL automaticaly
-          $url_autofix = new AutofixUrl();
-          $src = $url_autofix->apply(trim($root->get_attribute('href')));
-
+          $src = $root->get_attribute("href");
           if ($src) {
             $this->css_import($src, $pipeline);
-          };
-        };
-      };
+          }
+        }
+      }
 
       // Note that we continue processing here!
     case XML_DOCUMENT_NODE:
@@ -94,9 +90,9 @@ class CSSRuleset {
       while ($child) {
         $this->scan_styles($child, $pipeline);
         $child = $child->next_sibling();
-      };
+      }
       break;
-    };
+    }
   }
 
   function parse_css($css, &$pipeline, $baseindex = 0) {
@@ -105,7 +101,7 @@ class CSSRuleset {
     // remove the UTF8 byte-order mark from the beginning of the file (several high-order symbols at the beginning)
     $pos = 0;
     $len = strlen($css);
-    while (ord($css{$pos}) > 127 && $pos < $len) { $pos ++; };
+    while (ord($css[$pos]) > 127 && $pos < $len) { $pos ++; }
     $css = substr($css, $pos);
 
     // Process @media rules; 
@@ -129,16 +125,16 @@ class CSSRuleset {
       } else {
         $content = $matches[1];
         $tail    = $matches[2];
-      };
+      }
 
       // Check if this media is to be processed
       if (preg_match("/".$allowed_media."/i", $media)) {
         $this->parse_css_media($content, $pipeline, $baseindex);
-      };
+      }
 
       // Process the rest of CSS file
       $css = $tail;
-    };
+    }
 
     // The rest of CSS file belogs to common media, process it too
     $this->parse_css_media($css, $pipeline, $baseindex);
@@ -148,12 +144,13 @@ class CSSRuleset {
     // Update the base url; 
     // all urls will be resolved relatively to the current stylesheet url
     $url = $pipeline->guess_url($src);
+
     $data = $pipeline->fetch($url);
 
     /**
      * If referred file could not be fetched return immediately
      */
-    if (is_null($data)) { return; };
+    if (is_null($data)) { return; }
 
     $css = $data->get_content();
     if (!empty($css)) { 
@@ -166,7 +163,7 @@ class CSSRuleset {
       $css = preg_replace('/-->\s*$/', '', $css);
 
       $this->parse_css($css, $pipeline); 
-    };
+    }
   
     $pipeline->pop_base_url();
   }
@@ -181,7 +178,7 @@ class CSSRuleset {
     } elseif (preg_match("/@import\s+(.*);/",$import, $matches)) {
       // @import <url>
       $this->css_import(trim(css_remove_value_quotes($matches[1])), $pipeline);
-    };
+    }
   }
 
   function parse_css_media($css, &$pipeline, $baseindex = 0) {
@@ -196,7 +193,7 @@ class CSSRuleset {
       for ($i=0; $i<$num; $i++) {
         $this->parse_css_import($matches[0][$i], $pipeline);
       }
-    };
+    }
 
     // Remove @import rules so they will not break further processing
     $css = preg_replace("/@import[^;]+;/","", $css);
@@ -221,8 +218,8 @@ class CSSRuleset {
                       $this->_lastId + $baseindex);
         $this->add_rule($rule,
                         $pipeline);
-      };
-    };
+      }
+    }
   }
   
   function add_rule(&$rule, &$pipeline) {
@@ -241,37 +238,37 @@ class CSSRuleset {
 
     if (isset($this->tag_filtered[strtolower($root->tagname())])) {
       $local_css = $this->tag_filtered[strtolower($root->tagname())];
-    };
+    }
 
     if (isset($this->tag_filtered["*"])) {
       $local_css = array_merge($local_css, $this->tag_filtered["*"]);
-    };
+    }
 
     $applicable = array();
 
     foreach ($local_css as $rule) {
       if ($rule->match($root)) {
         $applicable[] = $rule;
-      };
-    };
+      }
+    }
 
     usort($applicable, "cmp_rule_objs");
 
     foreach ($applicable as $rule) {
       switch ($rule->get_pseudoelement()) {
       case SELECTOR_PSEUDOELEMENT_BEFORE:
-        $handler =& CSS::get_handler(CSS_HTML2PS_PSEUDOELEMENTS);
+        $handler =& (new CSS())->get_handler(CSS_HTML2PS_PSEUDOELEMENTS);
         $handler->replace($handler->get($state->getState()) | CSS_HTML2PS_PSEUDOELEMENTS_BEFORE, $state);
         break;
       case SELECTOR_PSEUDOELEMENT_AFTER:
-        $handler =& CSS::get_handler(CSS_HTML2PS_PSEUDOELEMENTS);
+        $handler =& (new CSS())->get_handler(CSS_HTML2PS_PSEUDOELEMENTS);
         $handler->replace($handler->get($state->getState()) | CSS_HTML2PS_PSEUDOELEMENTS_AFTER, $state);
         break;
       default:
         $rule->apply($root, $state, $pipeline);
         break;
-      };
-    };
+      }
+    }
   }
 
   function apply_pseudoelement($element_type, &$root, &$state, &$pipeline) {
@@ -279,11 +276,11 @@ class CSSRuleset {
 
     if (isset($this->tag_filtered[strtolower($root->tagname())])) {
       $local_css = $this->tag_filtered[strtolower($root->tagname())];
-    };
+    }
 
     if (isset($this->tag_filtered["*"])) {
       $local_css = array_merge($local_css, $this->tag_filtered["*"]);
-    };
+    }
 
     $applicable = array();
 
@@ -292,9 +289,9 @@ class CSSRuleset {
       if ($rule->get_pseudoelement() == $element_type) {
         if ($rule->match($root)) {
           $applicable[] =& $rule;
-        };
-      };
-    };
+        }
+      }
+    }
 
     usort($applicable, "cmp_rule_objs");
 
@@ -302,7 +299,7 @@ class CSSRuleset {
 
     foreach ($applicable as $rule) {
       $rule->apply($root, $state, $pipeline);
-    };
+    }
   }
   
   // Check if only tag with a specific name can match this selector
@@ -316,8 +313,8 @@ class CSSRuleset {
     case SELECTOR_SEQUENCE:
       foreach ($selector[1] as $subselector) {
         $tag = $this->detect_applicable_tag($subselector);
-        if ($tag) { return $tag; };
-      };
+        if ($tag) { return $tag; }
+      }
       return null;
     default: 
       return null;

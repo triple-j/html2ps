@@ -7,6 +7,6 @@ function file_get_contents($file) {
     return implode('',$lines);
   } else {
     return "";
-  };
+  }
 }
 ?>

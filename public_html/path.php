@@ -6,7 +6,7 @@ require_once(HTML2PS_DIR.'path.rectangle.php');
 class Path {
   var $_points;
 
-  function Path() {
+  function __construct() {
     $this->clear();
   }
 
@@ -29,7 +29,7 @@ class Path {
       $rect->ur->y = max($rect->ur->y, $point->y);
       $rect->ll->x = min($rect->ll->x, $point->x);
       $rect->ll->y = min($rect->ll->y, $point->y);
-    };
+    }
 
     return $rect;
   }
@@ -55,7 +55,7 @@ class Path {
     foreach ($this->_points as $point) {
       $result[] = $point->x;
       $result[] = $point->y;
-    };
+    }
     return $result;
   }
 
@@ -64,7 +64,7 @@ class Path {
   }
 
   function get_point_count() {
-    return count($this->_points);   
+    return count($this->_points);
   }
 
   /**
@@ -84,9 +84,9 @@ class Path {
 
     for ($i=0; $i<$size; $i++) {
       $transform->apply($coords[$i*2], $coords[$i*2+1]);
-    };
+    }
 
-    imagefilledpolygon($image, $coords, $size, $color);
+    imagefilledpolygon($image, $coords, $color);
   }
 
   function stroke($transform, $image, $color) {
@@ -95,7 +95,7 @@ class Path {
 
     for ($i=0; $i<$size; $i++) {
       $transform->apply($coords[$i*2], $coords[$i*2+1]);
-    };
+    }
 
     imagepolygon($image, $coords, $size, $color);
   }
@@ -106,8 +106,8 @@ class PathCircle extends Path {
   var $_y;
   var $_r;
 
-  function PathCircle() {
-    $this->Path();
+  function __construct() {
+    Path::__construct();
 
     $this->set_x(0);
     $this->set_y(0);

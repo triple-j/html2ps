@@ -3,8 +3,8 @@
 require_once(HTML2PS_DIR.'inline.content.builder.php');
 
 class InlineContentBuilderPreWrap extends InlineContentBuilder {
-  function InlineContentBuilderPreWrap() {
-    $this->InlineContentBuilder();
+  function __construct() {
+    InlineContentBuilder::__construct();
   }
 
   /**
@@ -19,25 +19,20 @@ class InlineContentBuilderPreWrap extends InlineContentBuilder {
    */
   function build(&$box, $text, &$pipeline) {
     $text = $this->remove_trailing_linefeeds($text);
-    $parent =& $box->get_parent_node();
+
     $lines = $this->break_into_lines($text);
-
-    for ($i=0, $size = count($lines); $i<$size; $i++) {
-      $line = $lines[$i];
-
+    foreach ($lines as $line) {
       $words = $this->break_into_words($line);
       foreach ($words as $word) {
         $word .= ' ';
         $box->process_word($word, $pipeline);
 
-        $whitespace =& WhitespaceBox::create($pipeline);
+        $whitespace =& (new WhitespaceBox())->create('', '', $pipeline);
         $box->add_child($whitespace);
-      };
+      }
 
-      if ((!$parent || $parent->isBlockLevel()) && $i < $size - 1) {
-        $this->add_line_break($box, $pipeline);
-      };
-    };
+      $this->add_line_break($box, $pipeline);
+    }
   }
 }
 

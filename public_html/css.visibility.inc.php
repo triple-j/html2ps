@@ -1,13 +1,13 @@
 <?php
-// $Header: /cvsroot/html2ps/css.visibility.inc.php,v 1.6 2007/04/07 11:16:34 Konstantin Exp $
+// $Header: /cvsroot/html2ps/css.visibility.inc.php,v 1.5 2006/09/07 18:38:15 Konstantin Exp $
 
 define('VISIBILITY_VISIBLE',0);
 define('VISIBILITY_HIDDEN',1);
 define('VISIBILITY_COLLAPSE',2); // TODO: currently treated is hidden
 
 class CSSVisibility extends CSSPropertyStringSet {
-  function CSSVisibility() { 
-    $this->CSSPropertyStringSet(false, 
+  function __construct() {
+    CSSPropertyStringSet::__construct(false,
                                 false,
                                 array('inherit'  => CSS_PROPERTY_INHERIT,
                                       'visible'  => VISIBILITY_VISIBLE,
@@ -15,19 +15,17 @@ class CSSVisibility extends CSSPropertyStringSet {
                                       'collapse' => VISIBILITY_COLLAPSE)); 
   }
 
-  function default_value() { 
-    return VISIBILITY_VISIBLE; 
-  }
+  function default_value() { return VISIBILITY_VISIBLE; }
 
-  function get_property_code() {
+  function getPropertyCode() {
     return CSS_VISIBILITY;
   }
 
-  function get_property_name() {
+  function getPropertyName() {
     return 'visibility';
   }
 }
 
-CSS::register_css_property(new CSSVisibility);
+(new CSS())->register_css_property(new CSSVisibility);
 
 ?>

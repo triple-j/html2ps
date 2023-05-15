@@ -54,54 +54,54 @@ define('SELECTOR_ATTR_VALUE_WORD',17);
 // Any node can be marked by several space separated class names
 //
 function node_have_class($root, $target_class) {
-  if (!$root->has_attribute('class')) { return false; };
+  if (!$root->has_attribute('class')) { return false; }
 
   $classes = preg_split("/\s+/", strtolower($root->get_attribute('class')));
 
   foreach ($classes as $class) {
     if ($class == $target_class) { 
       return true; 
-    };
-  };
+    }
+  }
 
   return false;
-};
+}
 
 function match_selector($selector, $root) {
   switch ($selector[0]) {
   case SELECTOR_TAG:
-    if ($selector[1] == strtolower($root->tagname())) { return true; };
+    if ($selector[1] == strtolower($root->tagname())) { return true; }
     break;
   case SELECTOR_ID:
-    if ($selector[1] == strtolower($root->get_attribute('id'))) { return true; };
+    if ($selector[1] == strtolower($root->get_attribute('id'))) { return true; }
     break;
   case SELECTOR_CLASS:
     if (node_have_class($root, $selector[1])) { return true; }
-    if ($selector[1] == strtolower($root->get_attribute('class'))) { return true; };
+    if ($selector[1] == strtolower($root->get_attribute('class'))) { return true; }
     break;
   case SELECTOR_TAG_CLASS:
     if ((node_have_class($root, $selector[2])) && 
-        ($selector[1] == strtolower($root->tagname()))) { return true; };
+        ($selector[1] == strtolower($root->tagname()))) { return true; }
     break;      
   case SELECTOR_SEQUENCE:
     foreach ($selector[1] as $subselector) {
-      if (!match_selector($subselector, $root)) { return false; };
-    };
+      if (!match_selector($subselector, $root)) { return false; }
+    }
     return true;
   case SELECTOR_PARENT:
   case SELECTOR_PARENT_LOW_PRIORITY:
     $node = $root->parent();
 
     while ($node && $node->node_type() == XML_ELEMENT_NODE) {
-      if (match_selector($selector[1], $node)) { return true; };
+      if (match_selector($selector[1], $node)) { return true; }
       $node = $node->parent();
-    };
+    }
     return false;
   case SELECTOR_DIRECT_PARENT:
     $node = $root->parent();
     if ($node && $node->node_type() == XML_ELEMENT_NODE) {
-      if (match_selector($selector[1], $node)) { return true; };
-    };
+      if (match_selector($selector[1], $node)) { return true; }
+    }
     return false;
   case SELECTOR_ATTR:
     $attr_name = $selector[1];
@@ -121,7 +121,7 @@ function match_selector($selector, $root) {
 
     if (!$root->has_attribute($attr_name)) {
       return false;
-    };
+    }
     return strtolower($root->get_attribute($attr_name)) == strtolower($attr_value);
   case SELECTOR_ATTR_VALUE_WORD:
     // Note that CSS 2.1 standard does not says strictly if attribute case 
@@ -138,12 +138,12 @@ function match_selector($selector, $root) {
 
     if (!$root->has_attribute($attr_name)) {
       return false;
-    };
+    }
 
     $words = preg_split("/\s+/",$root->get_attribute($attr_name));
     foreach ($words as $word) {
-      if (strtolower($word) == strtolower($attr_value)) { return true; };
-    };
+      if (strtolower($word) == strtolower($attr_value)) { return true; }
+    }
     return false;
   case SELECTOR_PSEUDOCLASS_LINK:
     return $root->tagname() == "a" && $root->has_attribute('href');
@@ -162,7 +162,7 @@ function match_selector($selector, $root) {
 
   case SELECTOR_ANY:
     return true;
-  };
+  }
   return false;
 }
 
@@ -219,6 +219,6 @@ function css_selector_specificity($selector) {
 //
 function selector_get_type($selector) {
   return $selector[0];
-};
+}
 
 ?>

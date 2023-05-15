@@ -101,12 +101,12 @@ class TestWhiteSpace extends GenericTest {
       } elseif (is_a($child, 'BRBox')) {
         if ($previous_br) { 
           $line_box_count++;
-        };
+        }
         $previous_br = true;
       } else {
         $previous_br = false;
-      };
-    };
+      }
+    }
     return $line_box_count;
   }
 }
