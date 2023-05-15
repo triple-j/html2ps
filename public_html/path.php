@@ -86,7 +86,7 @@ class Path {
       $transform->apply($coords[$i*2], $coords[$i*2+1]);
     };
 
-    imagefilledpolygon($image, $coords, $size, $color);
+    imagefilledpolygon($image, $coords, $color);
   }
 
   function stroke($transform, $image, $color) {
